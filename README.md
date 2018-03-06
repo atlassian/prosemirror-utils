@@ -32,37 +32,37 @@ Geting the parent node based on the current cursor position:
 
 Geting descendants of a given node:
 
- * **`flatten`**`(node: ProseMirrorNode) → [{node: ProseMirrorNode, pos: number}]`\
+ * **`flatten`**`(node: ProseMirrorNode, descend: ?boolean = true) → [{node: ProseMirrorNode, pos: number}]`\
    Flattens descendants of a given `node`. Doesn't descend into a `node` when `descend` argument is `false`. Defaults to `true`.
 
 
- * **`findChildren`**`(node: ProseMirrorNode, predicate: fn(node: ProseMirrorNode) → boolean, descend: ?fn(descend: boolean)) → [{node: ProseMirrorNode, pos: number}]`\
+ * **`findChildren`**`(node: ProseMirrorNode, predicate: fn(node: ProseMirrorNode) → boolean, descend: ?boolean) → [{node: ProseMirrorNode, pos: number}]`\
    Iterates over descendants of a given `node`, returning child nodes `predicate` returns truthy for. Doesn't descend into a `node` when `descend` argument is `false`.
 
 
- * **`findTextNodes`**`(node: ProseMirrorNode, descend: ?fn(descend: boolean)) → [{node: ProseMirrorNode, pos: number}]`\
+ * **`findTextNodes`**`(node: ProseMirrorNode, descend: ?boolean) → [{node: ProseMirrorNode, pos: number}]`\
    Returns text nodes of a given `node`. Doesn't descend into a `node` when `descend` argument is `false`.
 
 
- * **`findInlineNodes`**`(node: ProseMirrorNode, descend: ?fn(descend: boolean)) → [{node: ProseMirrorNode, pos: number}]`\
+ * **`findInlineNodes`**`(node: ProseMirrorNode, descend: ?boolean) → [{node: ProseMirrorNode, pos: number}]`\
    Returns inline nodes of a given `node`. Doesn't descend into a `node` when `descend` argument is `false`.
 
 
- * **`findBlockNodes`**`(node: ProseMirrorNode, descend: ?fn(descend: boolean)) → [{node: ProseMirrorNode, pos: number}]`\
+ * **`findBlockNodes`**`(node: ProseMirrorNode, descend: ?boolean) → [{node: ProseMirrorNode, pos: number}]`\
    Returns block descendants of a given `node`. Doesn't descend into a `node` when `descend` argument is `false`.
 
 
- * **`findChildrenByAttr`**`(node: ProseMirrorNode, predicate: ?fn(attrs: Object) → boolean, descend: ?fn(descend: boolean)) → [{node: ProseMirrorNode, pos: number}]`\
+ * **`findChildrenByAttr`**`(node: ProseMirrorNode, predicate: fn(attrs: ?Object) → boolean, descend: ?boolean) → [{node: ProseMirrorNode, pos: number}]`\
    Iterates over descendants of a given `node`, returning child nodes `predicate` returns truthy for.
    exapmle: `findChildrenByAttr(table, attrs => attrs.colspan > 1)`. Doesn't descend into a `node` when `descend` argument is `false`.
 
 
- * **`findChildrenByType`**`(node: ProseMirrorNode, nodeType: NodeType, descend: ?fn(descend: boolean)) → [{node: ProseMirrorNode, pos: number}]`\
+ * **`findChildrenByType`**`(node: ProseMirrorNode, nodeType: NodeType, descend: ?boolean) → [{node: ProseMirrorNode, pos: number}]`\
    Iterates over descendants of a given `node`, returning child nodes of a given `nodeType`. Doesn't descend into a `node` when `descend` argument is `false`.
    exapmle: `findChildrenByType(table, schema.nodes.tableRow)`
 
 
- * **`findChildrenByMark`**`(node: ProseMirrorNode, markType: markType, descend: ?fn(descend: boolean)) → [{node: ProseMirrorNode, pos: number}]`\
+ * **`findChildrenByMark`**`(node: ProseMirrorNode, markType: markType, descend: ?boolean) → [{node: ProseMirrorNode, pos: number}]`\
    Iterates over descendants of a given `node`, returning child nodes that have a mark of a given `markType`. Doesn't descend into a `node` when `descend` argument is `false`.
    exapmle: `findChildrenByMark(paragraph, schema.marks.strong)`
 
