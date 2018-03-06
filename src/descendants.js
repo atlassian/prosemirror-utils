@@ -44,15 +44,13 @@ export const findBlockNodes = (node, descend) => {
 };
 
 // :: (node: ProseMirrorNode, predicate: (attrs: ?Object) → boolean, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
-// Iterates over descendants of a given `node`, returning child nodes `predicate` returns truthy for.
-// exapmle: `findChildrenByAttr(table, attrs => attrs.colspan > 1)`. Doesn't descend into a `node` when `descend` argument is `false`.
+// Iterates over descendants of a given `node`, returning child nodes `predicate` returns truthy for. Doesn't descend into a `node` when `descend` argument is `false`.
 export const findChildrenByAttr = (node, predicate, descend) => {
   return findChildren(node, child => !!predicate(child.attrs), descend);
 }
 
 // :: (node: ProseMirrorNode, nodeType: NodeType, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Iterates over descendants of a given `node`, returning child nodes of a given `nodeType`. Doesn't descend into a `node` when `descend` argument is `false`.
-// exapmle: `findChildrenByType(table, schema.nodes.tableRow)`
 export const findChildrenByType = (node, nodeType, descend) => {
   return findChildren(node, child => child.type === nodeType, descend);
 }
@@ -62,4 +60,10 @@ export const findChildrenByType = (node, nodeType, descend) => {
 // exapmle: `findChildrenByMark(paragraph, schema.marks.strong)`
 export const findChildrenByMark = (node, markType, descend) => {
   return findChildren(node, child => markType.isInSet(child.marks), descend);
+}
+
+// :: (node: ProseMirrorNode, nodeType: NodeType) → boolean
+// Returns `true` if a given `node` contains nodes of a given `nodeType`
+export const contains = (node, nodeType) => {
+  return !!findChildrenByType(node, nodeType).length;
 }

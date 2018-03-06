@@ -7,7 +7,8 @@ import {
   findBlockNodes,
   findChildrenByAttr,
   findChildrenByType,
-  findChildrenByMark
+  findChildrenByMark,
+  contains
 } from '../src';
 
 describe('descendants', () => {
@@ -136,6 +137,19 @@ describe('descendants', () => {
       result.forEach(item => {
         expect(item.node.marks[0].type.name).toEqual('strong');
       });
+    });
+  });
+
+  describe('contains', () => {
+    it('should return `false` if a given `node` does not contain nodes of a given `nodeType`', () => {
+      const { state } = createEditor(doc(p('')));
+      const result = contains(state.doc, state.schema.nodes.table);
+      expect(result).toBe(false);
+    });
+    it('should return `true` if a given `node` contains nodes of a given `nodeType`', () => {
+      const { state } = createEditor(doc(p('')));
+      const result = contains(state.doc, state.schema.nodes.paragraph);
+      expect(result).toBe(true);
     });
   });
 

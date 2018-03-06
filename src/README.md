@@ -36,3 +36,5 @@ Geting descendants of a given node:
 
 @findChildrenByMark
 
+@contains
+
