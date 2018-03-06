@@ -1,0 +1,48 @@
+{
+  "name": "prosemirror-utils",
+  "version": "0.0.1",
+  "description": "Utils library for ProseMirror",
+  "main": "dist/index.js",
+  "maintainers": [
+    {
+      "name": "Eduard Shvedai",
+      "email": "eshvedai@gmail.com"
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/eshvedai/prosemirror-utils.git"
+  },
+  "keywords": [
+    "ProseMirror",
+    "utils",
+    "helpers"
+  ],
+  "jest": {
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    }
+  },
+  "scripts": {
+    "build": "NODE_ENV=production rollup -c",
+    "build_readme": "builddocs --name utils --format markdown --main src/README.md src/*.js > README.md",
+    "build_all": "npm run build && npm run build_readme",
+    "test": "NODE_ENV=testing jest",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-jest": "^22.4.1",
+    "babel-preset-env": "^1.6.1",
+    "builddocs": "^0.3.2",
+    "jest": "^22.4.2",
+    "prosemirror-model": "^1.1.0",
+    "prosemirror-schema-basic": "^1.0.0",
+    "prosemirror-tables": "^0.6.2",
+    "prosemirror-test-builder": "^1.0.1",
+    "prosemirror-view": "^1.1.1",
+    "rollup": "^0.56.3",
+    "rollup-plugin-babel": "^3.0.3"
+  }
+}
