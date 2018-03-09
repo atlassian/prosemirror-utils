@@ -4,7 +4,7 @@ WIP.
 
 ## Documentation
 
-Geting the parent node based on the current cursor position:
+Getting the parent node based on the current cursor position:
 
  * **`findParentNode`**`(predicate: fn(node: ProseMirrorNode) → boolean) → fn(state: EditorState) → ?{node: ProseMirrorNode, pos: number}`\
    Iterates over parent nodes, returning first node `predicate` returns truthy for.
@@ -30,7 +30,7 @@ Geting the parent node based on the current cursor position:
    Iterates over parent nodes, returning DOM reference of the first node of the given `nodeType`.
 
 
-Geting descendants of a given node:
+Getting descendants of a given node:
 
  * **`flatten`**`(node: ProseMirrorNode, descend: ?boolean = true) → [{node: ProseMirrorNode, pos: number}]`\
    Flattens descendants of a given `node`. Doesn't descend into a `node` when `descend` argument is `false`. Defaults to `true`.

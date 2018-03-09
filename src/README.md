@@ -4,7 +4,7 @@ WIP.
 
 ## Documentation
 
-Geting the parent node based on the current cursor position:
+Getting the parent node based on the current cursor position:
 
 @findParentNode
 
@@ -18,7 +18,7 @@ Geting the parent node based on the current cursor position:
 
 @findParentDomRefOfType
 
-Geting descendants of a given node:
+Getting descendants of a given node:
 
 @flatten
 
