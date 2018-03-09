@@ -109,3 +109,8 @@ Transforms:
  * **`removeParentNodeOfType`**`(nodeType: NodeType) → fn(state: EditorState) → ?Transaction`\
    Returns a `delete` transaction that removes parent node of a given `nodeType`.
 
+
+ * **`replaceParentNodeOfTypeWith`**`(nodeType: NodeType, node: ProseMirrorNode) → fn(state: EditorState) → ?Transaction`\
+   Returns a `replace` transaction that replaces parent node of a given `nodeType` with the given `node`.
+
+

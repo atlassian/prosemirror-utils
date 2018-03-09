@@ -60,3 +60,5 @@ Tables helpers:
 Transforms:
 
 @removeParentNodeOfType
+
+@replaceParentNodeOfTypeWith
