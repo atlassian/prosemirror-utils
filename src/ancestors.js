@@ -1,7 +1,7 @@
-// (predicate: (node: ProseMirrorNode) → boolean) → (state: EditorState) → ?{pos: number, node: ProseMirrorNode}
+// (predicate: (node: ProseMirrorNode) → boolean) → (selection: Selection) → ?{pos: number, node: ProseMirrorNode}
 // Iterates over parent nodes, returning the first node and its position `predicate` returns truthy for.
-const findParent = (predicate) => (state) => {
-  const { $from } = state.selection;
+const findParent = (predicate) => (selection) => {
+  const { $from } = selection;
   for (let i = $from.depth; i > 0; i--) {
     const node = $from.node(i);
     if (predicate(node)) {
@@ -13,44 +13,44 @@ const findParent = (predicate) => (state) => {
   }
 }
 
-// :: (predicate: (node: ProseMirrorNode) → boolean) → (state: EditorState) → ?{node: ProseMirrorNode, pos: number}
+// :: (predicate: (node: ProseMirrorNode) → boolean) → (selection: Selection) → ?{node: ProseMirrorNode, pos: number}
 // Iterates over parent nodes, returning first node `predicate` returns truthy for.
-export const findParentNode = (predicate) => (state) => {
-  const parent = findParent(predicate)(state);
+export const findParentNode = (predicate) => (selection) => {
+  const parent = findParent(predicate)(selection);
   if (parent) {
     return parent;
   }
 }
 
-// :: (predicate: (node: ProseMirrorNode) → boolean, domAtPos: (pos: number) → {node: HTMLElement, offset: number}) → (state: EditorState) → ?HTMLElement
+// :: (predicate: (node: ProseMirrorNode) → boolean, domAtPos: (pos: number) → {node: HTMLElement, offset: number}) → (selection: Selection) → ?HTMLElement
 // Iterates over parent nodes, returning DOM reference of the first node `predicate` returns truthy for.
-export const findParentDomRef = (predicate, domAtPos) => (state) => {
-  const parent = findParent(predicate)(state);
+export const findParentDomRef = (predicate, domAtPos) => (selection) => {
+  const parent = findParent(predicate)(selection);
   if (parent) {
     return domAtPos(parent.pos).node;
   }
 }
 
-// :: (predicate: (node: ProseMirrorNode) → boolean) → (state: EditorState) → boolean
+// :: (predicate: (node: ProseMirrorNode) → boolean) → (selection: Selection) → boolean
 // Checks if there's a parent node `predicate` returns truthy for.
-export const hasParentNode = (predicate) => (state) => {
-  return !!findParent(predicate)(state);
+export const hasParentNode = (predicate) => (selection) => {
+  return !!findParent(predicate)(selection);
 }
 
-// :: (nodeType: NodeType) → (state: EditorState) → ?{node: ProseMirrorNode, pos: number}
+// :: (nodeType: NodeType) → (selection: Selection) → ?{node: ProseMirrorNode, pos: number}
 // Iterates over parent nodes, returning first node of the given `nodeType`.
-export const findParentNodeOfType = (nodeType) => (state) => {
-  return findParentNode(node => node.type === nodeType)(state);
+export const findParentNodeOfType = (nodeType) => (selection) => {
+  return findParentNode(node => node.type === nodeType)(selection);
 }
 
-// :: (nodeType: NodeType) → (state: EditorState) → boolean
+// :: (nodeType: NodeType) → (selection: Selection) → boolean
 // Checks if there's a parent node of the given `nodeType`.
-export const hasParentNodeOfType = (nodeType) => (state) => {
-  return hasParentNode(node => node.type === nodeType)(state);
+export const hasParentNodeOfType = (nodeType) => (selection) => {
+  return hasParentNode(node => node.type === nodeType)(selection);
 }
 
-// :: (nodeType: NodeType, domAtPos: (pos: number) → {node: HTMLElement, offset: number}) → (state: EditorState) → ?HTMLElement
+// :: (nodeType: NodeType, domAtPos: (pos: number) → {node: HTMLElement, offset: number}) → (selection: Selection) → ?HTMLElement
 // Iterates over parent nodes, returning DOM reference of the first node of the given `nodeType`.
-export const findParentDomRefOfType = (nodeType, domAtPos) => (state) => {
-  return findParentDomRef(node => node.type === nodeType, domAtPos)(state);
+export const findParentDomRefOfType = (nodeType, domAtPos) => (selection) => {
+  return findParentDomRef(node => node.type === nodeType, domAtPos)(selection);
 }

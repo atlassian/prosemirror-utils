@@ -6,27 +6,27 @@ WIP.
 
 Getting the parent node based on the current cursor position:
 
- * **`findParentNode`**`(predicate: fn(node: ProseMirrorNode) → boolean) → fn(state: EditorState) → ?{node: ProseMirrorNode, pos: number}`\
+ * **`findParentNode`**`(predicate: fn(node: ProseMirrorNode) → boolean) → fn(selection: Selection) → ?{node: ProseMirrorNode, pos: number}`\
    Iterates over parent nodes, returning first node `predicate` returns truthy for.
 
 
- * **`findParentDomRef`**`(predicate: fn(node: ProseMirrorNode) → boolean, domAtPos: fn(pos: number) → {node: HTMLElement, offset: number}) → fn(state: EditorState) → ?HTMLElement`\
+ * **`findParentDomRef`**`(predicate: fn(node: ProseMirrorNode) → boolean, domAtPos: fn(pos: number) → {node: HTMLElement, offset: number}) → fn(selection: Selection) → ?HTMLElement`\
    Iterates over parent nodes, returning DOM reference of the first node `predicate` returns truthy for.
 
 
- * **`hasParentNode`**`(predicate: fn(node: ProseMirrorNode) → boolean) → fn(state: EditorState) → boolean`\
+ * **`hasParentNode`**`(predicate: fn(node: ProseMirrorNode) → boolean) → fn(selection: Selection) → boolean`\
    Checks if there's a parent node `predicate` returns truthy for.
 
 
- * **`findParentNodeOfType`**`(nodeType: NodeType) → fn(state: EditorState) → ?{node: ProseMirrorNode, pos: number}`\
+ * **`findParentNodeOfType`**`(nodeType: NodeType) → fn(selection: Selection) → ?{node: ProseMirrorNode, pos: number}`\
    Iterates over parent nodes, returning first node of the given `nodeType`.
 
 
- * **`hasParentNodeOfType`**`(nodeType: NodeType) → fn(state: EditorState) → boolean`\
+ * **`hasParentNodeOfType`**`(nodeType: NodeType) → fn(selection: Selection) → boolean`\
    Checks if there's a parent node of the given `nodeType`.
 
 
- * **`findParentDomRefOfType`**`(nodeType: NodeType, domAtPos: fn(pos: number) → {node: HTMLElement, offset: number}) → fn(state: EditorState) → ?HTMLElement`\
+ * **`findParentDomRefOfType`**`(nodeType: NodeType, domAtPos: fn(pos: number) → {node: HTMLElement, offset: number}) → fn(selection: Selection) → ?HTMLElement`\
    Iterates over parent nodes, returning DOM reference of the first node of the given `nodeType`.
 
 
@@ -71,46 +71,46 @@ Getting descendants of a given node:
 
 Tables helpers:
 
- * **`findTable`**`(state: EditorState) → ?{pos: number, node: ProseMirrorNode}`\
+ * **`findTable`**`(selection: Selection) → ?{pos: number, node: ProseMirrorNode}`\
    Iterates over parent nodes, returning the first found table node.
 
 
- * **`isCellSelection`**`(state: EditorState) → boolean`\
+ * **`isCellSelection`**`(selection: Selection) → boolean`\
    Checks if current selection is a CellSelection
 
 
- * **`isColumnSelected`**`(columnIndex: number) → fn(state: EditorState) → boolean`\
+ * **`isColumnSelected`**`(columnIndex: number) → fn(selection: Selection) → boolean`\
    Checks if entire column at index `columnIndex` is selected
 
 
- * **`isRowSelected`**`(rowIndex: number) → fn(state: EditorState) → boolean`\
+ * **`isRowSelected`**`(rowIndex: number) → fn(selection: Selection) → boolean`\
    Checks if entire row at index `rowIndex` is selected
 
 
- * **`isTableSelected`**`(state: EditorState) → boolean`\
+ * **`isTableSelected`**`(selection: Selection) → boolean`\
    Checks if entire table is selected
 
 
- * **`getCellsInColumn`**`(columnIndex: number) → fn(state: EditorState) → [{pos: number, node: ProseMirrorNode}]`\
+ * **`getCellsInColumn`**`(columnIndex: number) → fn(selection: Selection) → [{pos: number, node: ProseMirrorNode}]`\
    Returns an array of cells in a column at index `columnIndex`.
 
 
- * **`getCellsInRow`**`(rowIndex: number) → fn(state: EditorState) → [{pos: number, node: ProseMirrorNode}]`\
+ * **`getCellsInRow`**`(rowIndex: number) → fn(selection: Selection) → [{pos: number, node: ProseMirrorNode}]`\
    Returns an array of cells in a row at index `rowIndex`.
 
 
- * **`getCellsInTable`**`(state: EditorState) → [{pos: number, node: ProseMirrorNode}]`\
+ * **`getCellsInTable`**`(selection: Selection) → [{pos: number, node: ProseMirrorNode}]`\
    Returns an array of all cells in a table.
 
 
 
 Transforms:
 
- * **`removeParentNodeOfType`**`(nodeType: NodeType) → fn(state: EditorState) → ?Transaction`\
+ * **`removeParentNodeOfType`**`(nodeType: NodeType) → fn(tr: Transaction) → ?Transaction`\
    Returns a `delete` transaction that removes parent node of a given `nodeType`.
 
 
- * **`replaceParentNodeOfTypeWith`**`(nodeType: NodeType, node: ProseMirrorNode) → fn(state: EditorState) → ?Transaction`\
+ * **`replaceParentNodeOfTypeWith`**`(nodeType: NodeType, node: ProseMirrorNode) → fn(tr: Transaction) → ?Transaction`\
    Returns a `replace` transaction that replaces parent node of a given `nodeType` with the given `node`.
 
 
