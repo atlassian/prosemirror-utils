@@ -69,4 +69,37 @@ Geting descendants of a given node:
    Returns `true` if a given `node` contains nodes of a given `nodeType`
 
 
+Tables helpers:
+
+ * **`findTable`**`(state: EditorState) → ?{pos: number, node: ProseMirrorNode}`\
+   Iterates over parent nodes, returning the first found table node.
+
+
+ * **`isCellSelection`**`(state: EditorState) → boolean`\
+   Checks if current selection is a CellSelection
+
+
+ * **`isColumnSelected`**`(columnIndex: number) → fn(state: EditorState) → boolean`\
+   Checks if entire column at index `columnIndex` is selected
+
+
+ * **`isRowSelected`**`(rowIndex: number) → fn(state: EditorState) → boolean`\
+   Checks if entire row at index `rowIndex` is selected
+
+
+ * **`isTableSelected`**`(state: EditorState) → boolean`\
+   Checks if entire table is selected
+
+
+ * **`getCellsInColumn`**`(columnIndex: number) → fn(state: EditorState) → [{pos: number, node: ProseMirrorNode}]`\
+   Returns an array of cells in a column at index `columnIndex`.
+
+
+ * **`getCellsInRow`**`(rowIndex: number) → fn(state: EditorState) → [{pos: number, node: ProseMirrorNode}]`\
+   Returns an array of cells in a row at index `rowIndex`.
+
+
+ * **`getCellsInTable`**`(state: EditorState) → [{pos: number, node: ProseMirrorNode}]`\
+   Returns an array of all cells in a table.
+
 

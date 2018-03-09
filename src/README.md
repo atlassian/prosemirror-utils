@@ -38,3 +38,20 @@ Geting descendants of a given node:
 
 @contains
 
+Tables helpers:
+
+@findTable
+
+@isCellSelection
+
+@isColumnSelected
+
+@isRowSelected
+
+@isTableSelected
+
+@getCellsInColumn
+
+@getCellsInRow
+
+@getCellsInTable
