@@ -103,3 +103,9 @@ Tables helpers:
    Returns an array of all cells in a table.
 
 
+
+Transforms:
+
+ * **`removeParentNodeOfType`**`(nodeType: NodeType) → fn(state: EditorState) → ?Transaction`\
+   Returns a `delete` transaction that removes parent node of a given `nodeType`.
+

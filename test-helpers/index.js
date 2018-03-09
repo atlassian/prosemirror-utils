@@ -65,3 +65,7 @@ testHelpers.createEditor = (doc) => {
 
   return { state, view };
 };
+
+testHelpers.toEqualDocument = (actual, expected) => {
+  expect(actual.toJSON()).toEqual(expected.toJSON());
+};

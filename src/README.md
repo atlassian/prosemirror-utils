@@ -55,3 +55,8 @@ Tables helpers:
 @getCellsInRow
 
 @getCellsInTable
+
+
+Transforms:
+
+@removeParentNodeOfType
