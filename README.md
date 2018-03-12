@@ -107,10 +107,10 @@ Tables helpers:
 Transforms:
 
  * **`removeParentNodeOfType`**`(nodeType: NodeType) → fn(tr: Transaction) → ?Transaction`\
-   Returns a `delete` transaction that removes parent node of a given `nodeType`.
+   Returns a `replace` transaction that replaces a node of a given `nodeType` with the given `node`.
 
 
- * **`replaceParentNodeOfTypeWith`**`(nodeType: NodeType, node: ProseMirrorNode) → fn(tr: Transaction) → ?Transaction`\
+ * **`replaceParentNodeOfType`**`(nodeType: NodeType, node: ProseMirrorNode) → fn(tr: Transaction) → ?Transaction`\
    Returns a `replace` transaction that replaces parent node of a given `nodeType` with the given `node`.
 
 
