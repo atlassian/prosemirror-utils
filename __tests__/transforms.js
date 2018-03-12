@@ -65,6 +65,12 @@ describe('transforms', () => {
   });
 
   describe('removeSelectedNode', () => {
+    it('should `undefined` if selection is not a NodeSelection', () => {
+      const { state } = createEditor(doc(p('one')));
+      const result = removeSelectedNode(state.tr);
+      expect(result).toBeUndefined();
+    });
+
     it('should remove selected inline node', () => {
       const { state } = createEditor(doc(p('one<node>',atom(),'two')));
       const tr = removeSelectedNode(state.tr);
