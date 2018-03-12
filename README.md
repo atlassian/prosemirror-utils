@@ -114,3 +114,7 @@ Transforms:
    Returns a `replace` transaction that replaces parent node of a given `nodeType` with the given `node`.
 
 
+ * **`removeSelectedNode`**`(tr: Transaction) → ?Transaction`\
+   Returns a `delete` transaction that removes selected node.
+
+

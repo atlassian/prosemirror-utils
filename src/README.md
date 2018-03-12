@@ -62,3 +62,5 @@ Transforms:
 @removeParentNodeOfType
 
 @replaceParentNodeOfType
+
+@removeSelectedNode

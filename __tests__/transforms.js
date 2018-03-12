@@ -1,7 +1,9 @@
-import { createEditor, toEqualDocument, doc, p, table, tr as row, td, th, tdCursor, tdEmpty } from '../test-helpers';
+import { createEditor, toEqualDocument, doc, p, atom, table, tr as row, td, th, tdCursor, tdEmpty } from '../test-helpers';
+import { NodeSelection } from 'prosemirror-state';
 import {
   removeParentNodeOfType,
   replaceParentNodeOfType,
+  removeSelectedNode,
 } from '../src';
 
 describe('transforms', () => {
@@ -58,6 +60,21 @@ describe('transforms', () => {
       toEqualDocument(tr.doc, doc(p('one'), p('new'), p('two')));
 
       tr = removeParentNodeOfType(paragraph)(tr);
+      toEqualDocument(tr.doc, doc(p('one'), p('two')));
+    });
+  });
+
+  describe('removeSelectedNode', () => {
+    it('should remove selected inline node', () => {
+      const { state } = createEditor(doc(p('one<node>',atom(),'two')));
+      const tr = removeSelectedNode(state.tr);
+      toEqualDocument(tr.doc, doc(p('onetwo')));
+    });
+
+    it('should remove selected block node', () => {
+      const { state } = createEditor(doc(p('one'), p('test'), p('two')));
+      let tr = state.tr.setSelection(NodeSelection.create(state.doc, 5));
+      tr = removeSelectedNode(tr);
       toEqualDocument(tr.doc, doc(p('one'), p('two')));
     });
   });

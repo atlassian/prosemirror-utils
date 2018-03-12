@@ -37,3 +37,14 @@ export const replaceParentNodeOfType = (nodeType, node) => (tr) => {
     return replaceNodeAtPos(parent.pos, node)(tr);
   }
 }
+
+// :: (tr: Transaction) → ?Transaction
+// Returns a `delete` transaction that removes selected node.
+export const removeSelectedNode = (tr) => {
+  // NodeSelection
+  if (tr.curSelection.node) {
+    const from = tr.curSelection.$from.pos;
+    const to = tr.curSelection.$to.pos;
+    return tr.delete(from, to);
+  }
+}

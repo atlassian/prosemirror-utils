@@ -13,15 +13,15 @@ const resolveCell = (doc, tag) => {
 
 const initSelection = (doc) => {
   const { cursor, node } = doc.tag;
+  if (node) {
+    return new NodeSelection(doc.resolve(node));
+  }
   if (typeof cursor === 'number') {
     return new TextSelection(doc.resolve(cursor));
   }
   const $anchor = resolveCell(doc, doc.tag.anchor);
   if ($anchor) {
     return new CellSelection($anchor, resolveCell(doc, doc.tag.head) || undefined);
-  }
-  if (typeof cursor === 'number') {
-    return new NodeSelection(doc.resolve(node));
   }
 };
 
