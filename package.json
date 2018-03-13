@@ -14,11 +14,7 @@
     "type": "git",
     "url": "git://github.com/eshvedai/prosemirror-utils.git"
   },
-  "keywords": [
-    "ProseMirror",
-    "utils",
-    "helpers"
-  ],
+  "keywords": ["ProseMirror", "utils", "helpers"],
   "jest": {
     "transform": {
       "^.+\\.js$": "babel-jest"
@@ -26,10 +22,12 @@
   },
   "scripts": {
     "build": "NODE_ENV=production rollup -c",
-    "build_readme": "builddocs --name utils --format markdown --main src/README.md src/*.js > README.md",
+    "build_readme":
+      "builddocs --name utils --format markdown --main src/README.md src/*.js > README.md",
     "build_all": "npm run build && npm run build_readme",
     "test": "NODE_ENV=testing jest",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "precommit": "lint-staged"
   },
   "dependencies": {
     "prosemirror-tables": "^0.6.3"
@@ -39,12 +37,18 @@
     "babel-jest": "^22.4.1",
     "babel-preset-env": "^1.6.1",
     "builddocs": "^0.3.2",
+    "husky": "^0.14.3",
     "jest": "^22.4.2",
+    "lint-staged": "^7.0.0",
+    "prettier": "^1.11.1",
     "prosemirror-model": "^1.1.0",
     "prosemirror-schema-basic": "^1.0.0",
     "prosemirror-test-builder": "^1.0.1",
     "prosemirror-view": "^1.1.1",
     "rollup": "^0.56.3",
     "rollup-plugin-babel": "^3.0.3"
+  },
+  "lint-staged": {
+    "*.{js,json,css,md}": ["prettier --write", "git add"]
   }
 }
