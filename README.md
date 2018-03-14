@@ -1,6 +1,12 @@
 # Utils library for ProseMirror
 
-WIP.
+## Quick Start
+
+Install `prosemirror-utils` package from npm:
+
+```sh
+npm install prosemirror-utils
+```
 
 ## Documentation
 
@@ -94,3 +100,7 @@ Transforms:
 - **`safeInsert`**`(content: Fragment | Node | [Node]) → fn(tr: Transaction) → ?Transaction`\
   Returns an `insert` transaction that inserts a given `content` at the current cursor position if its allowed.
   Otherwise it will try to find the appropriate place for such `content` in the document, looping through parent nodes up until the root document node.
+
+## License
+
+* **MIT** : http://opensource.org/licenses/MIT

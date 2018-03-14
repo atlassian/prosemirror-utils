@@ -1,6 +1,12 @@
 # Utils library for ProseMirror
 
-WIP.
+## Quick Start
+
+Install `prosemirror-utils` package from npm:
+
+```sh
+npm install prosemirror-utils
+```
 
 ## Documentation
 
@@ -65,3 +71,7 @@ Transforms:
 @removeSelectedNode
 
 @safeInsert
+
+## License
+
+* **MIT** : http://opensource.org/licenses/MIT
