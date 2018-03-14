@@ -55,9 +55,8 @@ export const removeSelectedNode = tr => {
   }
 };
 
-// :: (content: union<Fragment, Node, [Node]>) → (tr: Transaction) → ?Transaction
-// Returns an `insert` transaction that inserts a given `content` at the current cursor position if its allowed.
-// Otherwise it will try to find the appropriate place for such `content` in the document, looping through parent nodes up until the root document node.
+// :: (node: ProseMirrorNode) → (tr: Transaction) → ?Transaction
+// Returns an `insert` transaction that inserts a given `node` at the current cursor position if it is allowed by schema. If schema restricts such nesting, it will try to find the appropriate place for the given `node` in the document, looping through parent nodes up until the root document node.
 export const safeInsert = content => tr => {
   const { $from } = tr.curSelection;
   const index = $from.index();
