@@ -90,3 +90,7 @@ Transforms:
 
 * **`removeSelectedNode`**`(tr: Transaction) → ?Transaction`\
   Returns a `delete` transaction that removes selected node.
+
+- **`safeInsert`**`(content: Fragment | Node | [Node]) → fn(tr: Transaction) → ?Transaction`\
+  Returns an `insert` transaction that inserts a given `content` at the current cursor position if its allowed.
+  Otherwise it will try to find the appropriate place for such `content` in the document, looping through parent nodes up until the root document node.

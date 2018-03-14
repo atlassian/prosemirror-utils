@@ -56,7 +56,6 @@ Tables helpers:
 
 @getCellsInTable
 
-
 Transforms:
 
 @removeParentNodeOfType
@@ -64,3 +63,5 @@ Transforms:
 @replaceParentNodeOfType
 
 @removeSelectedNode
+
+@safeInsert
