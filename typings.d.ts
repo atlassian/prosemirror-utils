@@ -5,8 +5,6 @@ export type Predicate = (node: ProsemirrorNode) => boolean;
 
 export type DomAtPos = (pos: number) => {node: Node, offset: number};
 
-export type NodeWithPos = {node: Node, pos: number};
-
 // ancestors
 export function findParentNode(predicate: Predicate): (selection: Selection) => {pos: number, node: ProsemirrorNode} | void;
 
