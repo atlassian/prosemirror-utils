@@ -17,7 +17,8 @@ import {
   removeParentNodeOfType,
   replaceParentNodeOfType,
   removeSelectedNode,
-  safeInsert
+  safeInsert,
+  replaceSelectedNode
 } from "../src";
 
 describe("transforms", () => {
@@ -144,6 +145,34 @@ describe("transforms", () => {
         newTr.doc,
         doc(p(strong("zero"), "one"), p("two"), p("three"))
       );
+    });
+  });
+
+  describe("replaceSelectedNode", () => {
+    it("should return an original transaction if current selection is not a NodeSelection", () => {
+      const { state: { schema, tr } } = createEditor(doc(p("<cursor>")));
+      const node = schema.nodes.paragraph.createChecked({}, schema.text("new"));
+      const newTr = replaceSelectedNode(node)(tr);
+      expect(tr).toBe(newTr);
+    });
+    it("should return an original transaction if replacing is not possible", () => {
+      const { state } = createEditor(doc(p("one")));
+      const tr = state.tr.setSelection(NodeSelection.create(state.doc, 0));
+      const node = state.schema.text("new");
+      const newTr = replaceSelectedNode(node)(tr);
+      expect(tr).toBe(newTr);
+    });
+
+    it("should replace selected node with the given `node`", () => {
+      const { state } = createEditor(doc(p("one"), p("test"), p("two")));
+      const tr = state.tr.setSelection(NodeSelection.create(state.doc, 5));
+      const node = state.schema.nodes.paragraph.createChecked(
+        {},
+        state.schema.text("new")
+      );
+      const newTr = replaceSelectedNode(node)(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(p("one"), p("new"), p("two")));
     });
   });
 });

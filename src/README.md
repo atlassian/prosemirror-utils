@@ -70,6 +70,8 @@ Transforms:
 
 @removeSelectedNode
 
+@replaceSelectedNode
+
 @safeInsert
 
 ## License

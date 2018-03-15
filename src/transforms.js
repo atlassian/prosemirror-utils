@@ -47,7 +47,7 @@ export const removeParentNodeOfType = nodeType => tr => {
 
 // :: (nodeType: NodeType, node: ProseMirrorNode) → (tr: Transaction) → Transaction
 // Returns a `replace` transaction that replaces parent node of a given `nodeType` with the given `node`.
-// It will return the original transaction if parent node hasn't been found.
+// It will return the original transaction if parent node hasn't been found, or replacing is not possible.
 export const replaceParentNodeOfType = (nodeType, node) => tr => {
   const parent = findParentNodeOfType(nodeType)(tr.curSelection);
   if (parent) {
@@ -65,6 +65,22 @@ export const removeSelectedNode = tr => {
     const from = tr.curSelection.$from.pos;
     const to = tr.curSelection.$to.pos;
     return cloneTr(tr.delete(from, to));
+  }
+  return tr;
+};
+
+// :: (node: ProseMirrorNode) → (tr: Transaction) → Transaction
+// Returns a `replace` transaction that replaces selected node with a given `node`.
+// It will return the original transaction if current selection is not a NodeSelection, or replacing is not possible.
+export const replaceSelectedNode = node => tr => {
+  // NodeSelection
+  if (tr.curSelection.node) {
+    const { $from, $to } = tr.curSelection;
+    if (
+      $from.parent.canReplaceWith($from.index(), $from.indexAfter(), node.type)
+    ) {
+      return cloneTr(tr.replaceWith($from.pos, $to.pos, node));
+    }
   }
   return tr;
 };

@@ -61,4 +61,6 @@ export function replaceParentNodeOfType(nodeType: NodeType, node: ProsemirrorNod
 
 export function removeSelectedNode(tr: Transaction): Transaction;
 
+export function replaceSelectedNode(node: ProsemirrorNode): (tr: Transaction) => Transaction;
+
 export function safeInsert(node: ProsemirrorNode): (tr: Transaction) => Transaction;

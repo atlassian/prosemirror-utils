@@ -5,5 +5,6 @@ export {
   removeParentNodeOfType,
   replaceParentNodeOfType,
   removeSelectedNode,
-  safeInsert
+  safeInsert,
+  replaceSelectedNode
 } from "./transforms";
