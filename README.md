@@ -88,17 +88,21 @@ Tables helpers:
 
 Transforms:
 
-* **`removeParentNodeOfType`**`(nodeType: NodeType) → fn(tr: Transaction) → ?Transaction`\
+* **`removeParentNodeOfType`**`(nodeType: NodeType) → fn(tr: Transaction) → Transaction`\
   Returns a `replace` transaction that replaces a node of a given `nodeType` with the given `node`.
+  It will return the original transaction if parent node hasn't been found.
 
-- **`replaceParentNodeOfType`**`(nodeType: NodeType, node: ProseMirrorNode) → fn(tr: Transaction) → ?Transaction`\
+- **`replaceParentNodeOfType`**`(nodeType: NodeType, node: ProseMirrorNode) → fn(tr: Transaction) → Transaction`\
   Returns a `replace` transaction that replaces parent node of a given `nodeType` with the given `node`.
+  It will return the original transaction if parent node hasn't been found.
 
-* **`removeSelectedNode`**`(tr: Transaction) → ?Transaction`\
+* **`removeSelectedNode`**`(tr: Transaction) → Transaction`\
   Returns a `delete` transaction that removes selected node.
+  It will return the original transaction if current selection is not a NodeSelection
 
-- **`safeInsert`**`(node: ProseMirrorNode) → fn(tr: Transaction) → ?Transaction`\
+- **`safeInsert`**`(node: ProseMirrorNode) → fn(tr: Transaction) → Transaction`\
   Returns an `insert` transaction that inserts a given `node` at the current cursor position if it is allowed by schema. If schema restricts such nesting, it will try to find the appropriate place for the given `node` in the document, looping through parent nodes up until the root document node.
+  It will return the original transaction if the place for insertion hasn't been found.
 
 ## License
 
