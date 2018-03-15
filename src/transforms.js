@@ -57,22 +57,22 @@ export const removeSelectedNode = tr => {
 
 // :: (node: ProseMirrorNode) → (tr: Transaction) → ?Transaction
 // Returns an `insert` transaction that inserts a given `node` at the current cursor position if it is allowed by schema. If schema restricts such nesting, it will try to find the appropriate place for the given `node` in the document, looping through parent nodes up until the root document node.
-export const safeInsert = content => tr => {
+export const safeInsert = node => tr => {
   const { $from } = tr.curSelection;
   const index = $from.index();
 
-  // given content is allowed at the current cursor position
-  if ($from.parent.canReplaceWith(index, index, content.type)) {
-    return tr.insert($from.pos, content);
+  // given node is allowed at the current cursor position
+  if ($from.parent.canReplaceWith(index, index, node.type)) {
+    return tr.insert($from.pos, node);
   }
 
-  // looking for a place in the doc where the content is allowed
+  // looking for a place in the doc where the node is allowed
   for (let i = $from.depth; i > 0; i--) {
     const pos = $from.after(i);
     const $pos = tr.doc.resolve(pos);
     const index = $pos.index();
-    if ($pos.parent.canReplaceWith(index, index, content.type)) {
-      return tr.insert(pos, content);
+    if ($pos.parent.canReplaceWith(index, index, node.type)) {
+      return tr.insert(pos, node);
     }
   }
 };

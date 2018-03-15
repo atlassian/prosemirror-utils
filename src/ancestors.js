@@ -13,7 +13,7 @@ export const findParentNode = predicate => selection => {
   }
 };
 
-// :: (predicate: (node: ProseMirrorNode) → boolean, domAtPos: (pos: number) → {node: HTMLElement, offset: number}) → (selection: Selection) → ?HTMLElement
+// :: (predicate: (node: ProseMirrorNode) → boolean, domAtPos: (pos: number) → {node: dom.Node, offset: number}) → (selection: Selection) → ?dom.Node
 // Iterates over parent nodes, returning DOM reference of the first node `predicate` returns truthy for.
 export const findParentDomRef = (predicate, domAtPos) => selection => {
   const parent = findParentNode(predicate)(selection);
@@ -40,7 +40,7 @@ export const hasParentNodeOfType = nodeType => selection => {
   return hasParentNode(node => node.type === nodeType)(selection);
 };
 
-// :: (nodeType: NodeType, domAtPos: (pos: number) → {node: HTMLElement, offset: number}) → (selection: Selection) → ?HTMLElement
+// :: (nodeType: NodeType, domAtPos: (pos: number) → {node: dom.Node, offset: number}) → (selection: Selection) → ?dom.Node
 // Iterates over parent nodes, returning DOM reference of the first node of the given `nodeType`.
 export const findParentDomRefOfType = (nodeType, domAtPos) => selection => {
   return findParentDomRef(node => node.type === nodeType, domAtPos)(selection);

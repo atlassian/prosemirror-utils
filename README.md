@@ -15,7 +15,7 @@ Getting the parent node based on the current cursor position:
 * **`findParentNode`**`(predicate: fn(node: ProseMirrorNode) → boolean) → fn(selection: Selection) → ?{pos: number, node: ProseMirrorNode}`\
   Iterates over parent nodes, returning the first node and its position `predicate` returns truthy for.
 
-- **`findParentDomRef`**`(predicate: fn(node: ProseMirrorNode) → boolean, domAtPos: fn(pos: number) → {node: HTMLElement, offset: number}) → fn(selection: Selection) → ?HTMLElement`\
+- **`findParentDomRef`**`(predicate: fn(node: ProseMirrorNode) → boolean, domAtPos: fn(pos: number) → {node: dom.Node, offset: number}) → fn(selection: Selection) → ?dom.Node`\
   Iterates over parent nodes, returning DOM reference of the first node `predicate` returns truthy for.
 
 * **`hasParentNode`**`(predicate: fn(node: ProseMirrorNode) → boolean) → fn(selection: Selection) → boolean`\
@@ -27,7 +27,7 @@ Getting the parent node based on the current cursor position:
 * **`hasParentNodeOfType`**`(nodeType: NodeType) → fn(selection: Selection) → boolean`\
   Checks if there's a parent node of the given `nodeType`.
 
-- **`findParentDomRefOfType`**`(nodeType: NodeType, domAtPos: fn(pos: number) → {node: HTMLElement, offset: number}) → fn(selection: Selection) → ?HTMLElement`\
+- **`findParentDomRefOfType`**`(nodeType: NodeType, domAtPos: fn(pos: number) → {node: dom.Node, offset: number}) → fn(selection: Selection) → ?dom.Node`\
   Iterates over parent nodes, returning DOM reference of the first node of the given `nodeType`.
 
 Getting descendants of a given node:
@@ -77,13 +77,13 @@ Tables helpers:
 * **`isTableSelected`**`(selection: Selection) → boolean`\
   Checks if entire table is selected
 
-- **`getCellsInColumn`**`(columnIndex: number) → fn(selection: Selection) → [{pos: number, node: ProseMirrorNode}]`\
+- **`getCellsInColumn`**`(columnIndex: number) → fn(selection: Selection) → ?[{pos: number, node: ProseMirrorNode}]`\
   Returns an array of cells in a column at index `columnIndex`.
 
-* **`getCellsInRow`**`(rowIndex: number) → fn(selection: Selection) → [{pos: number, node: ProseMirrorNode}]`\
+* **`getCellsInRow`**`(rowIndex: number) → fn(selection: Selection) → ?[{pos: number, node: ProseMirrorNode}]`\
   Returns an array of cells in a row at index `rowIndex`.
 
-- **`getCellsInTable`**`(selection: Selection) → [{pos: number, node: ProseMirrorNode}]`\
+- **`getCellsInTable`**`(selection: Selection) → ?[{pos: number, node: ProseMirrorNode}]`\
   Returns an array of all cells in a table.
 
 Transforms:
