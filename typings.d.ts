@@ -1,4 +1,4 @@
-import { Node as ProsemirrorNode, NodeType, MarkType } from 'prosemirror-model';
+import { Node as ProsemirrorNode, NodeType, Mark, MarkType } from 'prosemirror-model';
 import { Selection, Transaction } from 'prosemirror-state';
 
 export type Predicate = (node: ProsemirrorNode) => boolean;
@@ -66,3 +66,5 @@ export function removeSelectedNode(tr: Transaction): Transaction;
 export function replaceSelectedNode(node: ProsemirrorNode): (tr: Transaction) => Transaction;
 
 export function safeInsert(node: ProsemirrorNode): (tr: Transaction) => Transaction;
+
+export function setParentNodeMarkup(nodeType: NodeType, type?: NodeType | null, attrs?: { [key: string]: any } | null, marks?: Mark[]): (tr: Transaction) => Transaction;

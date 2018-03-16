@@ -30,6 +30,9 @@ npm install prosemirror-utils
 - **`findParentDomRefOfType`**`(nodeType: NodeType, domAtPos: fn(pos: number) → {node: dom.Node, offset: number}) → fn(selection: Selection) → ?dom.Node`\
   Iterates over parent nodes, returning DOM reference of the first node of the given `nodeType`.
 
+* **`findSelectedNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(selection: Selection) → ?ProseMirrorNode`\
+  Returns a node of a given `nodeType` if its selected.
+
 ### Node
 
 * **`flatten`**`(node: ProseMirrorNode, descend: ?boolean = true) → [{node: ProseMirrorNode, pos: number}]`\
@@ -59,9 +62,6 @@ npm install prosemirror-utils
 
 * **`contains`**`(node: ProseMirrorNode, nodeType: NodeType) → boolean`\
   Returns `true` if a given `node` contains nodes of a given `nodeType`
-
-- **`findSelectedNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(selection: Selection) → ?ProseMirrorNode`\
-  Returns a node of a given `nodeType` if its selected.
 
 ### Tables
 
@@ -110,6 +110,9 @@ npm install prosemirror-utils
 * **`safeInsert`**`(node: ProseMirrorNode) → fn(tr: Transaction) → Transaction`\
   Returns an `insert` transaction that inserts a given `node` at the current cursor position if it is allowed by schema. If schema restricts such nesting, it will try to find the appropriate place for the given `node` in the document, looping through parent nodes up until the root document node.
   It will return the original transaction if the place for insertion hasn't been found.
+
+- **`setParentNodeMarkup`**`(nodeType: NodeType, type: ?NodeType | null, attrs: ?Object | null, marks: ?[Mark]) → fn(tr: Transaction) → Transaction`\
+  Returns a transaction that changes the type, attributes, and/or marks of the parent node of a given `nodeType`.
 
 ## License
 

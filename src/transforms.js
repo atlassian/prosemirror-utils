@@ -108,3 +108,20 @@ export const safeInsert = node => tr => {
   }
   return tr;
 };
+
+// :: (nodeType: NodeType, type: ?union<NodeType, null>, attrs: ?union<Object, null>, marks?: [Mark]) → (tr: Transaction) → Transaction
+// Returns a transaction that changes the type, attributes, and/or marks of the parent node of a given `nodeType`.
+export const setParentNodeMarkup = (nodeType, type, attrs, marks) => tr => {
+  const parent = findParentNodeOfType(nodeType)(tr.curSelection);
+  if (parent) {
+    return cloneTr(
+      tr.setNodeMarkup(
+        parent.pos - 1,
+        type,
+        Object.assign({}, parent.node.attrs, attrs),
+        marks
+      )
+    );
+  }
+  return tr;
+};

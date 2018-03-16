@@ -24,6 +24,8 @@ npm install prosemirror-utils
 
 @findParentDomRefOfType
 
+@findSelectedNodeOfType
+
 ### Node
 
 @flatten
@@ -43,8 +45,6 @@ npm install prosemirror-utils
 @findChildrenByMark
 
 @contains
-
-@findSelectedNodeOfType
 
 ### Tables
 
@@ -75,6 +75,8 @@ npm install prosemirror-utils
 @replaceSelectedNode
 
 @safeInsert
+
+@setParentNodeMarkup
 
 ## License
 

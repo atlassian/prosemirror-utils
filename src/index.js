@@ -6,5 +6,6 @@ export {
   replaceParentNodeOfType,
   removeSelectedNode,
   safeInsert,
-  replaceSelectedNode
+  replaceSelectedNode,
+  setParentNodeMarkup
 } from "./transforms";

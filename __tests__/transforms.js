@@ -10,7 +10,9 @@ import {
   td,
   th,
   tdCursor,
-  tdEmpty
+  tdEmpty,
+  thEmpty,
+  blockquote
 } from "../test-helpers";
 import { NodeSelection } from "prosemirror-state";
 import {
@@ -18,7 +20,8 @@ import {
   replaceParentNodeOfType,
   removeSelectedNode,
   safeInsert,
-  replaceSelectedNode
+  replaceSelectedNode,
+  setParentNodeMarkup
 } from "../src";
 
 describe("transforms", () => {
@@ -173,6 +176,50 @@ describe("transforms", () => {
       const newTr = replaceSelectedNode(node)(tr);
       expect(newTr).not.toBe(tr);
       toEqualDocument(newTr.doc, doc(p("one"), p("new"), p("two")));
+    });
+  });
+
+  describe("setParentNodeMarkup", () => {
+    it("should return an original transaction if there is not parent node of a given nodeType", () => {
+      const { state: { schema, tr } } = createEditor(doc(p("<cursor>")));
+      const newTr = setParentNodeMarkup(
+        schema.nodes.blockquote,
+        schema.nodes.paragraph
+      )(tr);
+      expect(tr).toBe(newTr);
+    });
+
+    it("should update nodeType", () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(table(row(td(p("text<cursor>")))))
+      );
+      const newTr = setParentNodeMarkup(
+        schema.nodes.table_cell,
+        schema.nodes.table_header
+      )(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(table(row(th(p("text"))))));
+    });
+
+    it("should update attributes", () => {
+      const { state } = createEditor(doc(table(row(td(p("text<cursor>"))))));
+      const { schema: { nodes: { table_cell } } } = state;
+      const newTr = setParentNodeMarkup(table_cell, null, {
+        colspan: 5,
+        rowspan: 7
+      })(state.tr);
+      expect(newTr).not.toBe(state.tr);
+      newTr.doc.content.descendants(child => {
+        if (child.type === table_cell) {
+          expect(child.attrs).toEqual({
+            colspan: 5,
+            rowspan: 7,
+            colwidth: null,
+            pretty: true,
+            ugly: false
+          });
+        }
+      });
     });
   });
 });
