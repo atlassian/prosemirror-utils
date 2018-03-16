@@ -5,7 +5,7 @@ export type Predicate = (node: ProsemirrorNode) => boolean;
 
 export type DomAtPos = (pos: number) => {node: Node, offset: number};
 
-// ancestors
+// Selection
 export function findParentNode(predicate: Predicate): (selection: Selection) => {pos: number, node: ProsemirrorNode} | undefined;
 
 export function findParentDomRef(predicate: Predicate, domAtPos: DomAtPos): (selection: Selection) => Node | undefined;
@@ -18,7 +18,9 @@ export function hasParentNodeOfType(nodeType: NodeType): (selection: Selection) 
 
 export function findParentDomRefOfType(nodeType: NodeType, domAtPos: DomAtPos): (selection: Selection) => Node | undefined;
 
-// descendants
+export function findSelectedNodeOfType(nodeType: NodeType | NodeType[]): (selection: Selection) => ProsemirrorNode | undefined;
+
+// Node
 export function flatten(node: ProsemirrorNode, descend?: boolean): {pos: number, node: ProsemirrorNode}[];
 
 export function findChildren(node: ProsemirrorNode, predicate: Predicate, descend?: boolean): {pos: number, node: ProsemirrorNode}[];
@@ -37,7 +39,7 @@ export function findChildrenByMark(node: ProsemirrorNode, markType: MarkType, de
 
 export function contains(node: ProsemirrorNode, nodeType: NodeType): boolean;
 
-// table
+// Tables
 export function findTable(selection: Selection): {pos: number, node: ProsemirrorNode} | undefined;
 
 export function isCellSelection(selection: Selection): boolean;

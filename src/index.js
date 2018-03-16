@@ -1,5 +1,5 @@
-export * from "./ancestors";
-export * from "./descendants";
+export * from "./selection";
+export * from "./node";
 export * from "./table";
 export {
   removeParentNodeOfType,

@@ -1,5 +1,5 @@
 import { CellSelection, TableMap } from "prosemirror-tables";
-import { findParentNode } from "./ancestors";
+import { findParentNode } from "./selection";
 
 // :: (selection: Selection) → ?{pos: number, node: ProseMirrorNode}
 // Iterates over parent nodes, returning the first found table node.

@@ -10,7 +10,7 @@ npm install prosemirror-utils
 
 ## Documentation
 
-Getting the parent node based on the current cursor position:
+### Selection
 
 @findParentNode
 
@@ -24,7 +24,7 @@ Getting the parent node based on the current cursor position:
 
 @findParentDomRefOfType
 
-Getting descendants of a given node:
+### Node
 
 @flatten
 
@@ -44,7 +44,9 @@ Getting descendants of a given node:
 
 @contains
 
-Tables helpers:
+@findSelectedNodeOfType
+
+### Tables
 
 @findTable
 
@@ -62,7 +64,7 @@ Tables helpers:
 
 @getCellsInTable
 
-Transforms:
+### Transforms
 
 @removeParentNodeOfType
 

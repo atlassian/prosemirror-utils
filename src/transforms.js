@@ -1,4 +1,4 @@
-import { findParentNodeOfType } from "./ancestors";
+import { findParentNodeOfType } from "./selection";
 
 // (tr: Transaction) → Transaction
 // Creates a new transaction object from a given transaction

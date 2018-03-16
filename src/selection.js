@@ -45,3 +45,17 @@ export const hasParentNodeOfType = nodeType => selection => {
 export const findParentDomRefOfType = (nodeType, domAtPos) => selection => {
   return findParentDomRef(node => node.type === nodeType, domAtPos)(selection);
 };
+
+// :: (nodeType: union<NodeType, [NodeType]>) → (selection: Selection) → ?ProseMirrorNode
+// Returns a node of a given `nodeType` if its selected.
+export const findSelectedNodeOfType = nodeType => selection => {
+  if (selection.node) {
+    const { node } = selection;
+    if (
+      (Array.isArray(nodeType) && nodeType.indexOf(node.type) > -1) ||
+      node.type === nodeType
+    ) {
+      return node;
+    }
+  }
+};

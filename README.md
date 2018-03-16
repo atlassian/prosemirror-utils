@@ -10,7 +10,7 @@ npm install prosemirror-utils
 
 ## Documentation
 
-Getting the parent node based on the current cursor position:
+### Selection
 
 * **`findParentNode`**`(predicate: fn(node: ProseMirrorNode) → boolean) → fn(selection: Selection) → ?{pos: number, node: ProseMirrorNode}`\
   Iterates over parent nodes, returning the first node and its position `predicate` returns truthy for.
@@ -30,7 +30,7 @@ Getting the parent node based on the current cursor position:
 - **`findParentDomRefOfType`**`(nodeType: NodeType, domAtPos: fn(pos: number) → {node: dom.Node, offset: number}) → fn(selection: Selection) → ?dom.Node`\
   Iterates over parent nodes, returning DOM reference of the first node of the given `nodeType`.
 
-Getting descendants of a given node:
+### Node
 
 * **`flatten`**`(node: ProseMirrorNode, descend: ?boolean = true) → [{node: ProseMirrorNode, pos: number}]`\
   Flattens descendants of a given `node`. Doesn't descend into a `node` when `descend` argument is `false`. Defaults to `true`.
@@ -60,7 +60,10 @@ Getting descendants of a given node:
 * **`contains`**`(node: ProseMirrorNode, nodeType: NodeType) → boolean`\
   Returns `true` if a given `node` contains nodes of a given `nodeType`
 
-Tables helpers:
+- **`findSelectedNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(selection: Selection) → ?ProseMirrorNode`\
+  Returns a node of a given `nodeType` if its selected.
+
+### Tables
 
 * **`findTable`**`(selection: Selection) → ?{pos: number, node: ProseMirrorNode}`\
   Iterates over parent nodes, returning the first found table node.
@@ -86,7 +89,7 @@ Tables helpers:
 - **`getCellsInTable`**`(selection: Selection) → ?[{pos: number, node: ProseMirrorNode}]`\
   Returns an array of all cells in a table.
 
-Transforms:
+### Transforms
 
 * **`removeParentNodeOfType`**`(nodeType: NodeType) → fn(tr: Transaction) → Transaction`\
   Returns a `replace` transaction that replaces a node of a given `nodeType` with the given `node`.
