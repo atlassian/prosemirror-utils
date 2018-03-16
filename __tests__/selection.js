@@ -113,6 +113,18 @@ describe("selection", () => {
       const result = findParentNodeOfType(schema.nodes.table)(selection);
       expect(result).toBeUndefined();
     });
+    it("should find parent node of a given `nodeType`, if `nodeType` is an array", () => {
+      const {
+        state: {
+          schema: { nodes: { paragraph, blockquote, table } },
+          selection
+        }
+      } = createEditor(doc(p("hello <cursor>")));
+      const { node } = findParentNodeOfType([table, blockquote, paragraph])(
+        selection
+      );
+      expect(node.type.name).toEqual("paragraph");
+    });
   });
 
   describe("hasParentNodeOfType", () => {

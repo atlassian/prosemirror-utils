@@ -1,41 +1,8 @@
 import { findParentNodeOfType } from "./selection";
+import { cloneTr, replaceNodeAtPos, removeNodeAtPos } from "./helpers";
 
-// (tr: Transaction) → Transaction
-// Creates a new transaction object from a given transaction
-const cloneTr = tr => {
-  return Object.assign(Object.create(tr), tr).setTime(Date.now());
-};
-
-// (position: number, node: ProseMirrorNode) → (tr: Transaction) → Transaction
-// Returns a `delete` transaction that removes a node at a given position with the given `node`.
-// It will return the original transaction if replacing is not possible.
-export const replaceNodeAtPos = (position, node) => tr => {
-  const $pos = tr.doc.resolve(position);
-  const from = $pos.before($pos.depth);
-  const to = $pos.after($pos.depth);
-  if (
-    tr.doc.canReplaceWith(
-      $pos.index($pos.depth),
-      $pos.indexAfter($pos.depth),
-      node.type
-    )
-  ) {
-    return cloneTr(tr.replaceWith(from, to, node));
-  }
-  return tr;
-};
-
-// (position: number, node: ProseMirrorNode) → (tr: Transaction) → Transaction
-// Returns a `delete` transaction that removes a node at a given position with the given `node`.
-export const removeNodeAtPos = (position, node) => tr => {
-  const $pos = tr.doc.resolve(position);
-  const from = $pos.before($pos.depth);
-  const to = $pos.after($pos.depth);
-  return cloneTr(tr.delete(from, to));
-};
-
-// :: (nodeType: NodeType) → (tr: Transaction) → Transaction
-// Returns a `replace` transaction that replaces a node of a given `nodeType` with the given `node`.
+// :: (nodeType: union<NodeType, [NodeType]>) → (tr: Transaction) → Transaction
+// Returns a new transaction that removes a node of a given `nodeType`.
 // It will return the original transaction if parent node hasn't been found.
 export const removeParentNodeOfType = nodeType => tr => {
   const parent = findParentNodeOfType(nodeType)(tr.curSelection);
@@ -45,8 +12,8 @@ export const removeParentNodeOfType = nodeType => tr => {
   return tr;
 };
 
-// :: (nodeType: NodeType, node: ProseMirrorNode) → (tr: Transaction) → Transaction
-// Returns a `replace` transaction that replaces parent node of a given `nodeType` with the given `node`.
+// :: (nodeType: union<NodeType, [NodeType]>, node: ProseMirrorNode) → (tr: Transaction) → Transaction
+// Returns a new transaction that replaces parent node of a given `nodeType` with the given `node`.
 // It will return the original transaction if parent node hasn't been found, or replacing is not possible.
 export const replaceParentNodeOfType = (nodeType, node) => tr => {
   const parent = findParentNodeOfType(nodeType)(tr.curSelection);
@@ -57,7 +24,7 @@ export const replaceParentNodeOfType = (nodeType, node) => tr => {
 };
 
 // :: (tr: Transaction) → Transaction
-// Returns a `delete` transaction that removes selected node.
+// Returns a new transaction that removes selected node.
 // It will return the original transaction if current selection is not a NodeSelection
 export const removeSelectedNode = tr => {
   // NodeSelection
@@ -70,7 +37,7 @@ export const removeSelectedNode = tr => {
 };
 
 // :: (node: ProseMirrorNode) → (tr: Transaction) → Transaction
-// Returns a `replace` transaction that replaces selected node with a given `node`.
+// Returns a new transaction that replaces selected node with a given `node`.
 // It will return the original transaction if current selection is not a NodeSelection, or replacing is not possible.
 export const replaceSelectedNode = node => tr => {
   // NodeSelection
@@ -86,7 +53,7 @@ export const replaceSelectedNode = node => tr => {
 };
 
 // :: (node: ProseMirrorNode) → (tr: Transaction) → Transaction
-// Returns an `insert` transaction that inserts a given `node` at the current cursor position if it is allowed by schema. If schema restricts such nesting, it will try to find the appropriate place for the given `node` in the document, looping through parent nodes up until the root document node.
+// Returns a new transaction that inserts a given `node` at the current cursor position if it is allowed by schema. If schema restricts such nesting, it will try to find an appropriate place for a given `node` in the document, looping through parent nodes up until the root document node.
 // It will return the original transaction if the place for insertion hasn't been found.
 export const safeInsert = node => tr => {
   const { $from } = tr.curSelection;
@@ -109,7 +76,7 @@ export const safeInsert = node => tr => {
   return tr;
 };
 
-// :: (nodeType: NodeType, type: ?union<NodeType, null>, attrs: ?union<Object, null>, marks?: [Mark]) → (tr: Transaction) → Transaction
+// :: (nodeType: union<NodeType, [NodeType]>, type: ?union<NodeType, null>, attrs: ?union<Object, null>, marks?: [Mark]) → (tr: Transaction) → Transaction
 // Returns a transaction that changes the type, attributes, and/or marks of the parent node of a given `nodeType`.
 export const setParentNodeMarkup = (nodeType, type, attrs, marks) => tr => {
   const parent = findParentNodeOfType(nodeType)(tr.curSelection);

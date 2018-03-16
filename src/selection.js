@@ -1,3 +1,5 @@
+import { equalNodeType } from "./helpers";
+
 // :: (predicate: (node: ProseMirrorNode) → boolean) → (selection: Selection) → ?{pos: number, node: ProseMirrorNode}
 // Iterates over parent nodes, returning the first node and its position `predicate` returns truthy for.
 export const findParentNode = predicate => selection => {
@@ -28,22 +30,24 @@ export const hasParentNode = predicate => selection => {
   return !!findParentNode(predicate)(selection);
 };
 
-// :: (nodeType: NodeType) → (selection: Selection) → ?{node: ProseMirrorNode, pos: number}
+// :: (nodeType: union<NodeType, [NodeType]>) → (selection: Selection) → ?{node: ProseMirrorNode, pos: number}
 // Iterates over parent nodes, returning first node of the given `nodeType`.
 export const findParentNodeOfType = nodeType => selection => {
-  return findParentNode(node => node.type === nodeType)(selection);
+  return findParentNode(node => equalNodeType(nodeType, node))(selection);
 };
 
-// :: (nodeType: NodeType) → (selection: Selection) → boolean
+// :: (nodeType: union<NodeType, [NodeType]>) → (selection: Selection) → boolean
 // Checks if there's a parent node of the given `nodeType`.
 export const hasParentNodeOfType = nodeType => selection => {
-  return hasParentNode(node => node.type === nodeType)(selection);
+  return hasParentNode(node => equalNodeType(nodeType, node))(selection);
 };
 
-// :: (nodeType: NodeType, domAtPos: (pos: number) → {node: dom.Node, offset: number}) → (selection: Selection) → ?dom.Node
+// :: (nodeType: union<NodeType, [NodeType]>, domAtPos: (pos: number) → {node: dom.Node, offset: number}) → (selection: Selection) → ?dom.Node
 // Iterates over parent nodes, returning DOM reference of the first node of the given `nodeType`.
 export const findParentDomRefOfType = (nodeType, domAtPos) => selection => {
-  return findParentDomRef(node => node.type === nodeType, domAtPos)(selection);
+  return findParentDomRef(node => equalNodeType(nodeType, node), domAtPos)(
+    selection
+  );
 };
 
 // :: (nodeType: union<NodeType, [NodeType]>) → (selection: Selection) → ?ProseMirrorNode
@@ -51,10 +55,7 @@ export const findParentDomRefOfType = (nodeType, domAtPos) => selection => {
 export const findSelectedNodeOfType = nodeType => selection => {
   if (selection.node) {
     const { node } = selection;
-    if (
-      (Array.isArray(nodeType) && nodeType.indexOf(node.type) > -1) ||
-      node.type === nodeType
-    ) {
+    if (equalNodeType(nodeType, node)) {
       return node;
     }
   }

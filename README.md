@@ -21,13 +21,13 @@ npm install prosemirror-utils
 * **`hasParentNode`**`(predicate: fn(node: ProseMirrorNode) → boolean) → fn(selection: Selection) → boolean`\
   Checks if there's a parent node `predicate` returns truthy for.
 
-- **`findParentNodeOfType`**`(nodeType: NodeType) → fn(selection: Selection) → ?{node: ProseMirrorNode, pos: number}`\
+- **`findParentNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(selection: Selection) → ?{node: ProseMirrorNode, pos: number}`\
   Iterates over parent nodes, returning first node of the given `nodeType`.
 
-* **`hasParentNodeOfType`**`(nodeType: NodeType) → fn(selection: Selection) → boolean`\
+* **`hasParentNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(selection: Selection) → boolean`\
   Checks if there's a parent node of the given `nodeType`.
 
-- **`findParentDomRefOfType`**`(nodeType: NodeType, domAtPos: fn(pos: number) → {node: dom.Node, offset: number}) → fn(selection: Selection) → ?dom.Node`\
+- **`findParentDomRefOfType`**`(nodeType: NodeType | [NodeType], domAtPos: fn(pos: number) → {node: dom.Node, offset: number}) → fn(selection: Selection) → ?dom.Node`\
   Iterates over parent nodes, returning DOM reference of the first node of the given `nodeType`.
 
 * **`findSelectedNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(selection: Selection) → ?ProseMirrorNode`\
@@ -91,27 +91,27 @@ npm install prosemirror-utils
 
 ### Transforms
 
-* **`removeParentNodeOfType`**`(nodeType: NodeType) → fn(tr: Transaction) → Transaction`\
-  Returns a `replace` transaction that replaces a node of a given `nodeType` with the given `node`.
+* **`removeParentNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(tr: Transaction) → Transaction`\
+  Returns a new transaction that removes a node of a given `nodeType`.
   It will return the original transaction if parent node hasn't been found.
 
-- **`replaceParentNodeOfType`**`(nodeType: NodeType, node: ProseMirrorNode) → fn(tr: Transaction) → Transaction`\
-  Returns a `replace` transaction that replaces parent node of a given `nodeType` with the given `node`.
+- **`replaceParentNodeOfType`**`(nodeType: NodeType | [NodeType], node: ProseMirrorNode) → fn(tr: Transaction) → Transaction`\
+  Returns a new transaction that replaces parent node of a given `nodeType` with the given `node`.
   It will return the original transaction if parent node hasn't been found, or replacing is not possible.
 
 * **`removeSelectedNode`**`(tr: Transaction) → Transaction`\
-  Returns a `delete` transaction that removes selected node.
+  Returns a new transaction that removes selected node.
   It will return the original transaction if current selection is not a NodeSelection
 
 - **`replaceSelectedNode`**`(node: ProseMirrorNode) → fn(tr: Transaction) → Transaction`\
-  Returns a `replace` transaction that replaces selected node with a given `node`.
+  Returns a new transaction that replaces selected node with a given `node`.
   It will return the original transaction if current selection is not a NodeSelection, or replacing is not possible.
 
 * **`safeInsert`**`(node: ProseMirrorNode) → fn(tr: Transaction) → Transaction`\
-  Returns an `insert` transaction that inserts a given `node` at the current cursor position if it is allowed by schema. If schema restricts such nesting, it will try to find the appropriate place for the given `node` in the document, looping through parent nodes up until the root document node.
+  Returns a new transaction that inserts a given `node` at the current cursor position if it is allowed by schema. If schema restricts such nesting, it will try to find an appropriate place for a given `node` in the document, looping through parent nodes up until the root document node.
   It will return the original transaction if the place for insertion hasn't been found.
 
-- **`setParentNodeMarkup`**`(nodeType: NodeType, type: ?NodeType | null, attrs: ?Object | null, marks: ?[Mark]) → fn(tr: Transaction) → Transaction`\
+- **`setParentNodeMarkup`**`(nodeType: NodeType | [NodeType], type: ?NodeType | null, attrs: ?Object | null, marks: ?[Mark]) → fn(tr: Transaction) → Transaction`\
   Returns a transaction that changes the type, attributes, and/or marks of the parent node of a given `nodeType`.
 
 ## License

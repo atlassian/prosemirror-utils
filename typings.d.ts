@@ -12,11 +12,11 @@ export function findParentDomRef(predicate: Predicate, domAtPos: DomAtPos): (sel
 
 export function hasParentNode(predicate: Predicate): (selection: Selection) => boolean;
 
-export function findParentNodeOfType(nodeType: NodeType): (selection: Selection) => {pos: number, node: ProsemirrorNode} | undefined;
+export function findParentNodeOfType(nodeType: NodeType | NodeType[]): (selection: Selection) => {pos: number, node: ProsemirrorNode} | undefined;
 
-export function hasParentNodeOfType(nodeType: NodeType): (selection: Selection) => boolean;
+export function hasParentNodeOfType(nodeType: NodeType | NodeType[]): (selection: Selection) => boolean;
 
-export function findParentDomRefOfType(nodeType: NodeType, domAtPos: DomAtPos): (selection: Selection) => Node | undefined;
+export function findParentDomRefOfType(nodeType: NodeType | NodeType[], domAtPos: DomAtPos): (selection: Selection) => Node | undefined;
 
 export function findSelectedNodeOfType(nodeType: NodeType | NodeType[]): (selection: Selection) => ProsemirrorNode | undefined;
 
@@ -57,9 +57,9 @@ export function getCellsInRow(rowIndex: number): (selection: Selection) => {pos:
 export function getCellsInTable(selection: Selection): {pos: number, node: ProsemirrorNode}[] | undefined;
 
 // Transforms
-export function removeParentNodeOfType(nodeType: NodeType): (tr: Transaction) => Transaction;
+export function removeParentNodeOfType(nodeType: NodeType | NodeType[]): (tr: Transaction) => Transaction;
 
-export function replaceParentNodeOfType(nodeType: NodeType, node: ProsemirrorNode): (tr: Transaction) => Transaction;
+export function replaceParentNodeOfType(nodeType: NodeType | NodeType[], node: ProsemirrorNode): (tr: Transaction) => Transaction;
 
 export function removeSelectedNode(tr: Transaction): Transaction;
 
@@ -67,4 +67,4 @@ export function replaceSelectedNode(node: ProsemirrorNode): (tr: Transaction) =>
 
 export function safeInsert(node: ProsemirrorNode): (tr: Transaction) => Transaction;
 
-export function setParentNodeMarkup(nodeType: NodeType, type?: NodeType | null, attrs?: { [key: string]: any } | null, marks?: Mark[]): (tr: Transaction) => Transaction;
+export function setParentNodeMarkup(nodeType: NodeType | NodeType[], type?: NodeType | null, attrs?: { [key: string]: any } | null, marks?: Mark[]): (tr: Transaction) => Transaction;
