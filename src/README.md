@@ -66,6 +66,14 @@ npm install prosemirror-utils
 
 @getCellsInTable
 
+@selectColumn
+
+@selectRow
+
+@selectTable
+
+@emptySelectedCells
+
 ### Transforms
 
 @removeParentNodeOfType

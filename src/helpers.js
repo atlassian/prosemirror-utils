@@ -48,3 +48,20 @@ export const removeNodeAtPos = (position, node) => tr => {
   const to = $pos.after($pos.depth);
   return cloneTr(tr.delete(from, to));
 };
+
+// (schema: Schema) → {[key: string]: NodeType}
+// Returns a map where keys are tableRoles and values are NodeTypes.
+export const tableNodeTypes = schema => {
+  if (schema.cached.tableNodeTypes) {
+    return schema.cached.tableNodeTypes;
+  }
+  const roles = {};
+  Object.keys(schema.nodes).forEach(type => {
+    const nodeType = schema.nodes[type];
+    if (nodeType.spec.tableRole) {
+      roles[nodeType.spec.tableRole] = nodeType;
+    }
+  });
+  schema.cached.tableNodeTypes = roles;
+  return roles;
+};

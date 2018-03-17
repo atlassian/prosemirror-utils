@@ -117,6 +117,22 @@ npm install prosemirror-utils
    Returns an array of all cells in a table.
 
 
+ * **`selectColumn`**`(columnIndex: number) → fn(tr: Transaction) → Transaction`\
+   Creates a CellSelection on a column at `columnIndex`.
+
+
+ * **`selectRow`**`(rowIndex: number) → fn(tr: Transaction) → Transaction`\
+   Creates a CellSelection on a row at `rowIndex`.
+
+
+ * **`selectTable`**`(selection: Selection) → fn(tr: Transaction) → Transaction`\
+   Creates a CellSelection on the entire table.
+
+
+ * **`emptySelectedCells`**`(schema: Schema) → fn(tr: Transaction) → Transaction`\
+   Clears the content of selected cells.
+
+
 ### Transforms
 
  * **`removeParentNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(tr: Transaction) → Transaction`\

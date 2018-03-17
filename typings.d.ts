@@ -1,4 +1,4 @@
-import { Node as ProsemirrorNode, NodeType, Mark, MarkType } from 'prosemirror-model';
+import { Node as ProsemirrorNode, Schema, NodeType, Mark, MarkType } from 'prosemirror-model';
 import { Selection, Transaction } from 'prosemirror-state';
 
 export type Predicate = (node: ProsemirrorNode) => boolean;
@@ -41,7 +41,7 @@ export function findChildrenByMark(node: ProsemirrorNode, markType: MarkType, de
 
 export function contains(node: ProsemirrorNode, nodeType: NodeType): boolean;
 
-// Tables
+// Table
 export function findTable(selection: Selection): {pos: number, node: ProsemirrorNode} | undefined;
 
 export function isCellSelection(selection: Selection): boolean;
@@ -57,6 +57,14 @@ export function getCellsInColumn(columnIndex: number): (selection: Selection) =>
 export function getCellsInRow(rowIndex: number): (selection: Selection) => {pos: number, node: ProsemirrorNode}[] | undefined;
 
 export function getCellsInTable(selection: Selection): {pos: number, node: ProsemirrorNode}[] | undefined;
+
+export function selectColumn(columnIndex: number): (tr: Transaction) => Transaction;
+
+export function selectRow(rowIndex: number): (tr: Transaction) => Transaction;
+
+export function selectTable(tr: Transaction): Transaction;
+
+export function emptySelectedCells(schema: Schema): (tr: Transaction) => Transaction;
 
 // Transforms
 export function removeParentNodeOfType(nodeType: NodeType | NodeType[]): (tr: Transaction) => Transaction;

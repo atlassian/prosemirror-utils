@@ -3,11 +3,12 @@ import {
   doc,
   p,
   table,
-  tr,
+  tr as row,
   td,
   th,
   tdCursor,
-  tdEmpty
+  tdEmpty,
+  toEqualDocument
 } from "../test-helpers";
 import {
   findTable,
@@ -17,13 +18,17 @@ import {
   isTableSelected,
   getCellsInColumn,
   getCellsInRow,
-  getCellsInTable
+  getCellsInTable,
+  selectColumn,
+  selectRow,
+  selectTable,
+  emptySelectedCells
 } from "../src";
 
 describe("table", () => {
   describe("findTable", () => {
     it("should find table node if cursor is inside of a table cell", () => {
-      const { state: { selection } } = createEditor(doc(table(tr(tdCursor))));
+      const { state: { selection } } = createEditor(doc(table(row(tdCursor))));
       const { node } = findTable(selection);
       expect(node.type.name).toEqual("table");
     });
@@ -37,7 +42,7 @@ describe("table", () => {
   describe("isCellSelection", () => {
     it("should return `true` if current selection is a CellSelection", () => {
       const { state: { selection } } = createEditor(
-        doc(table(tr(td(p("<anchor>")), td(p("<head>")))))
+        doc(table(row(td(p("<anchor>")), td(p("<head>")))))
       );
       expect(isCellSelection(selection)).toBe(true);
     });
@@ -50,13 +55,13 @@ describe("table", () => {
   describe("isColumnSelected", () => {
     it("should return `true` if CellSelection spans the entire column", () => {
       const { state: { selection } } = createEditor(
-        doc(table(tr(td(p("<anchor>"))), tr(tdEmpty), tr(td(p("<head>")))))
+        doc(table(row(td(p("<anchor>"))), row(tdEmpty), row(td(p("<head>")))))
       );
       expect(isColumnSelected(0)(selection)).toBe(true);
     });
     it("should return `false` if CellSelection does not span the entire column", () => {
       const { state: { selection } } = createEditor(
-        doc(table(tr(td(p("<anchor>"))), tr(td(p("<head>"))), tr(tdEmpty)))
+        doc(table(row(td(p("<anchor>"))), row(td(p("<head>"))), row(tdEmpty)))
       );
       expect(isColumnSelected(0)(selection)).toBe(false);
     });
@@ -65,13 +70,13 @@ describe("table", () => {
   describe("isRowSelected", () => {
     it("should return `true` if CellSelection spans the entire row", () => {
       const { state: { selection } } = createEditor(
-        doc(table(tr(td(p("<anchor>")), tdEmpty, td(p("<head>")))))
+        doc(table(row(td(p("<anchor>")), tdEmpty, td(p("<head>")))))
       );
       expect(isRowSelected(0)(selection)).toBe(true);
     });
     it("should return `false` if CellSelection does not span the entire row", () => {
       const { state: { selection } } = createEditor(
-        doc(table(tr(td(p("<anchor>")), td(p("<head>")), tdEmpty)))
+        doc(table(row(td(p("<anchor>")), td(p("<head>")), tdEmpty)))
       );
       expect(isRowSelected(0)(selection)).toBe(false);
     });
@@ -82,8 +87,8 @@ describe("table", () => {
       const { state: { selection } } = createEditor(
         doc(
           table(
-            tr(td(p("<anchor>")), tdEmpty, tdEmpty),
-            tr(tdEmpty, tdEmpty, td(p("<head>")))
+            row(td(p("<anchor>")), tdEmpty, tdEmpty),
+            row(tdEmpty, tdEmpty, td(p("<head>")))
           )
         )
       );
@@ -93,8 +98,8 @@ describe("table", () => {
       const { state: { selection } } = createEditor(
         doc(
           table(
-            tr(td(p("<anchor>")), tdEmpty, tdEmpty),
-            tr(td(p("<head>")), tdEmpty, tdEmpty)
+            row(td(p("<anchor>")), tdEmpty, tdEmpty),
+            row(td(p("<head>")), tdEmpty, tdEmpty)
           )
         )
       );
@@ -111,8 +116,8 @@ describe("table", () => {
       const { state: { selection } } = createEditor(
         doc(
           table(
-            tr(td(p("1")), tdCursor, tdEmpty),
-            tr(td(p("2")), tdEmpty, tdEmpty)
+            row(td(p("1")), tdCursor, tdEmpty),
+            row(td(p("2")), tdEmpty, tdEmpty)
           )
         )
       );
@@ -136,8 +141,8 @@ describe("table", () => {
       const { state: { selection } } = createEditor(
         doc(
           table(
-            tr(td(p("1")), td(p("2")), td(p("3"))),
-            tr(tdCursor, tdEmpty, tdEmpty)
+            row(td(p("1")), td(p("2")), td(p("3"))),
+            row(tdCursor, tdEmpty, tdEmpty)
           )
         )
       );
@@ -162,8 +167,8 @@ describe("table", () => {
       const { state: { selection } } = createEditor(
         doc(
           table(
-            tr(td(p("1<cursor>")), td(p("2")), td(p("3"))),
-            tr(td(p("4")), td(p("5")), td(p("6")))
+            row(td(p("1<cursor>")), td(p("2")), td(p("3"))),
+            row(td(p("4")), td(p("5")), td(p("6")))
           )
         )
       );
@@ -179,6 +184,90 @@ describe("table", () => {
       expect(cells[3].pos).toEqual(19);
       expect(cells[4].pos).toEqual(24);
       expect(cells[5].pos).toEqual(29);
+    });
+  });
+
+  describe("selectColumn", () => {
+    it("should return an original transaction if table doesn't have a column at `columnIndex`", () => {
+      const { state: { tr } } = createEditor(
+        doc(table(row(td(p("1<cursor>")), td(p("2")))))
+      );
+      const newTr = selectColumn(2)(tr);
+      expect(tr).toBe(newTr);
+    });
+    it("should return a new transaction that selects a column at `columnIndex`", () => {
+      const { state: { tr } } = createEditor(
+        doc(
+          table(
+            row(td(p("1<cursor>")), td(p("2"))),
+            row(td(p("3")), td(p("4")))
+          )
+        )
+      );
+      const newTr = selectColumn(0)(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.selection.$anchorCell.pos).toEqual(2);
+      expect(newTr.selection.$headCell.pos).toEqual(14);
+    });
+  });
+
+  describe("selectRow", () => {
+    it("should return an original transaction if table doesn't have a row at `rowIndex`", () => {
+      const { state: { tr } } = createEditor(
+        doc(table(row(td(p("1<cursor>"))), row(td(p("2")))))
+      );
+      const newTr = selectRow(2)(tr);
+      expect(tr).toBe(newTr);
+    });
+    it("should return a new transaction that selects a row at `rowIndex`", () => {
+      const { state: { tr } } = createEditor(
+        doc(
+          table(
+            row(td(p("1<cursor>")), td(p("2"))),
+            row(td(p("3")), td(p("4")))
+          )
+        )
+      );
+      const newTr = selectRow(0)(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.selection.$anchorCell.pos).toEqual(2);
+      expect(newTr.selection.$headCell.pos).toEqual(7);
+    });
+  });
+
+  describe("selectTable", () => {
+    it("should return a new transaction that selects the entire table", () => {
+      const { state: { tr } } = createEditor(
+        doc(
+          table(
+            row(td(p("1<cursor>")), td(p("2"))),
+            row(td(p("3")), td(p("4")))
+          )
+        )
+      );
+      const newTr = selectTable(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.selection.$anchorCell.pos).toEqual(2);
+      expect(newTr.selection.$headCell.pos).toEqual(19);
+    });
+  });
+
+  describe("emptySelectedCells", () => {
+    it("should return a new transaction that selects the entire table", () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(
+          table(
+            row(td(p("1<cursor>")), td(p("2"))),
+            row(td(p("3")), td(p("4")))
+          )
+        )
+      );
+      const newTr = emptySelectedCells(schema)(selectColumn(0)(tr));
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(
+        newTr.doc,
+        doc(table(row(td(p("")), td(p("2"))), row(td(p("")), td(p("4")))))
+      );
     });
   });
 });

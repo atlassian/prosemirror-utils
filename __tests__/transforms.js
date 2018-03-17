@@ -14,7 +14,7 @@ import {
   thEmpty,
   blockquote
 } from "../test-helpers";
-import { NodeSelection } from "prosemirror-state";
+import { NodeSelection, TextSelection } from "prosemirror-state";
 import {
   removeParentNodeOfType,
   replaceParentNodeOfType,
@@ -89,7 +89,7 @@ describe("transforms", () => {
     });
     it("should be composable with other transforms", () => {
       const { state: { schema, tr } } = createEditor(
-        doc(p("one"), table(row(tdCursor)), p("two"))
+        doc(p("one"), table(row(td(p("hello<cursor>there")))), p("two"))
       );
       const { paragraph, table: tableNode } = schema.nodes;
       const node = paragraph.createChecked({}, schema.text("new"));
@@ -100,7 +100,7 @@ describe("transforms", () => {
 
       const newTr2 = removeParentNodeOfType(paragraph)(newTr);
       expect(newTr2).not.toBe(newTr);
-      toEqualDocument(newTr2.doc, doc(p("one"), p("two")));
+      toEqualDocument(newTr2.doc, doc(p("one"), p("new")));
     });
   });
 
