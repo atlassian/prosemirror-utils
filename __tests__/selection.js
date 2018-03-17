@@ -176,19 +176,21 @@ describe("selection", () => {
       expect(node).toBeUndefined();
     });
     it("should return selected node of a given `nodeType`", () => {
-      const { state } = createEditor(doc(p("<cursorn>one")));
+      const { state } = createEditor(doc(p("<cursor>one")));
       const tr = state.tr.setSelection(NodeSelection.create(state.doc, 0));
-      const node = findSelectedNodeOfType(state.schema.nodes.paragraph)(
+      const selectedNode = findSelectedNodeOfType(state.schema.nodes.paragraph)(
         tr.selection
       );
-      expect(node.type.name).toEqual("paragraph");
+      expect(selectedNode.node.type.name).toEqual("paragraph");
     });
     it("should return selected node of one of the given `nodeType`s", () => {
-      const { state } = createEditor(doc(p("<cursorn>one")));
-      const { schema: { nodes: { paragraph, table } } } = state;
+      const { state } = createEditor(doc(p("<cursor>one")));
+      const { paragraph, table } = state.schema.nodes;
       const tr = state.tr.setSelection(NodeSelection.create(state.doc, 0));
-      const node = findSelectedNodeOfType([paragraph, table])(tr.selection);
-      expect(node.type.name).toEqual("paragraph");
+      const selectedNode = findSelectedNodeOfType([paragraph, table])(
+        tr.selection
+      );
+      expect(selectedNode.node.type.name).toEqual("paragraph");
     });
   });
 });

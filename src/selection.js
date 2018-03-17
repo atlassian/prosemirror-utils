@@ -1,4 +1,4 @@
-import { equalNodeType } from "./helpers";
+import { equalNodeType, isNodeSelection } from "./helpers";
 
 // :: (predicate: (node: ProseMirrorNode) → boolean) → (selection: Selection) → ?{pos: number, node: ProseMirrorNode}
 // Iterates over parent nodes, returning the first node and its position `predicate` returns truthy for.
@@ -50,13 +50,13 @@ export const findParentDomRefOfType = (nodeType, domAtPos) => selection => {
   );
 };
 
-// :: (nodeType: union<NodeType, [NodeType]>) → (selection: Selection) → ?ProseMirrorNode
+// :: (nodeType: union<NodeType, [NodeType]>) → (selection: Selection) → ?{node: ProseMirrorNode, pos: number}
 // Returns a node of a given `nodeType` if its selected.
 export const findSelectedNodeOfType = nodeType => selection => {
-  if (selection.node) {
-    const { node } = selection;
+  if (isNodeSelection(selection)) {
+    const { node, $from } = selection;
     if (equalNodeType(nodeType, node)) {
-      return node;
+      return { node, pos: $from.pos };
     }
   }
 };

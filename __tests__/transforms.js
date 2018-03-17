@@ -21,7 +21,8 @@ import {
   removeSelectedNode,
   safeInsert,
   replaceSelectedNode,
-  setParentNodeMarkup
+  setParentNodeMarkup,
+  selectParentNodeOfType
 } from "../src";
 
 describe("transforms", () => {
@@ -220,6 +221,34 @@ describe("transforms", () => {
           });
         }
       });
+    });
+  });
+
+  describe("selectParentNodeOfType", () => {
+    it("should return an original transaction if current selection is a NodeSelection", () => {
+      const { state } = createEditor(doc(p("one")));
+      const tr = state.tr.setSelection(NodeSelection.create(state.doc, 1));
+      const newTr = selectParentNodeOfType(state.schema.nodes.paragraph)(tr);
+      expect(tr).toBe(newTr);
+    });
+    it("should return an original transaction if there is no parent node of a given `nodeType`", () => {
+      const { state: { tr, schema } } = createEditor(doc(p("one")));
+      const newTr = selectParentNodeOfType(schema.nodes.table)(tr);
+      expect(tr).toBe(newTr);
+    });
+    it("should return a new transaction that selects a parent node of a given `nodeType`", () => {
+      const { state: { tr, schema } } = createEditor(doc(p("one")));
+      const newTr = selectParentNodeOfType(schema.nodes.paragraph)(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.selection.node.type.name).toEqual("paragraph");
+    });
+    it("should return a new transaction that selects a parent node of a given `nodeType`, if `nodeType` an array", () => {
+      const {
+        state: { tr, schema: { nodes: { paragraph, table } } }
+      } = createEditor(doc(p("one")));
+      const newTr = selectParentNodeOfType([table, paragraph])(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.selection.node.type.name).toEqual("paragraph");
     });
   });
 });

@@ -32,6 +32,7 @@
     "precommit": "lint-staged"
   },
   "dependencies": {
+    "prosemirror-state": "^1.0.1",
     "prosemirror-tables": "^0.6.3"
   },
   "devDependencies": {

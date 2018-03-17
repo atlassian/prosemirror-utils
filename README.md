@@ -30,8 +30,11 @@ npm install prosemirror-utils
 - **`findParentDomRefOfType`**`(nodeType: NodeType | [NodeType], domAtPos: fn(pos: number) → {node: dom.Node, offset: number}) → fn(selection: Selection) → ?dom.Node`\
   Iterates over parent nodes, returning DOM reference of the first node of the given `nodeType`.
 
-* **`findSelectedNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(selection: Selection) → ?ProseMirrorNode`\
+* **`findSelectedNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(selection: Selection) → ?{node: ProseMirrorNode, pos: number}`\
   Returns a node of a given `nodeType` if its selected.
+
+- **`isNodeSelection`**`(selection: Selection) → boolean`\
+  Checks if current selection is a NodeSelection
 
 ### Node
 
@@ -113,6 +116,9 @@ npm install prosemirror-utils
 
 - **`setParentNodeMarkup`**`(nodeType: NodeType | [NodeType], type: ?NodeType | null, attrs: ?Object | null, marks: ?[Mark]) → fn(tr: Transaction) → Transaction`\
   Returns a transaction that changes the type, attributes, and/or marks of the parent node of a given `nodeType`.
+
+* **`selectParentNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(tr: Transaction) → Transaction`\
+  Returns a transaction that sets a NodeSelection on a parent node of a given `nodeType`.
 
 ## License
 

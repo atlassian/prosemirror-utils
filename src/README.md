@@ -26,6 +26,8 @@ npm install prosemirror-utils
 
 @findSelectedNodeOfType
 
+@isNodeSelection
+
 ### Node
 
 @flatten
@@ -77,6 +79,8 @@ npm install prosemirror-utils
 @safeInsert
 
 @setParentNodeMarkup
+
+@selectParentNodeOfType
 
 ## License
 

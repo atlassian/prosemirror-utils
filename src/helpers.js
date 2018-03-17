@@ -1,6 +1,10 @@
-/*
-  These are internal helper functions that are not exported from `prosemirror-utils`
-*/
+import { NodeSelection } from "prosemirror-state";
+
+// :: (selection: Selection) → boolean
+// Checks if current selection is a NodeSelection
+export const isNodeSelection = selection => {
+  return selection instanceof NodeSelection;
+};
 
 // (nodeType: union<NodeType, [NodeType]>) → boolean
 // Checks if the type a given `node` equals to a given `nodeType`.

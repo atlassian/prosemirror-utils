@@ -1,5 +1,11 @@
+import { NodeSelection } from "prosemirror-state";
 import { findParentNodeOfType } from "./selection";
-import { cloneTr, replaceNodeAtPos, removeNodeAtPos } from "./helpers";
+import {
+  cloneTr,
+  isNodeSelection,
+  replaceNodeAtPos,
+  removeNodeAtPos
+} from "./helpers";
 
 // :: (nodeType: union<NodeType, [NodeType]>) → (tr: Transaction) → Transaction
 // Returns a new transaction that removes a node of a given `nodeType`.
@@ -27,8 +33,7 @@ export const replaceParentNodeOfType = (nodeType, node) => tr => {
 // Returns a new transaction that removes selected node.
 // It will return the original transaction if current selection is not a NodeSelection
 export const removeSelectedNode = tr => {
-  // NodeSelection
-  if (tr.curSelection.node) {
+  if (isNodeSelection(tr.selection)) {
     const from = tr.curSelection.$from.pos;
     const to = tr.curSelection.$to.pos;
     return cloneTr(tr.delete(from, to));
@@ -40,8 +45,7 @@ export const removeSelectedNode = tr => {
 // Returns a new transaction that replaces selected node with a given `node`.
 // It will return the original transaction if current selection is not a NodeSelection, or replacing is not possible.
 export const replaceSelectedNode = node => tr => {
-  // NodeSelection
-  if (tr.curSelection.node) {
+  if (isNodeSelection(tr.selection)) {
     const { $from, $to } = tr.curSelection;
     if (
       $from.parent.canReplaceWith($from.index(), $from.indexAfter(), node.type)
@@ -89,6 +93,20 @@ export const setParentNodeMarkup = (nodeType, type, attrs, marks) => tr => {
         marks
       )
     );
+  }
+  return tr;
+};
+
+// :: (nodeType: union<NodeType, [NodeType]>) → (tr: Transaction) → Transaction
+// Returns a transaction that sets a NodeSelection on a parent node of a given `nodeType`.
+export const selectParentNodeOfType = nodeType => tr => {
+  if (!isNodeSelection(tr.selection)) {
+    const parent = findParentNodeOfType(nodeType)(tr.curSelection);
+    if (parent) {
+      return cloneTr(
+        tr.setSelection(NodeSelection.create(tr.doc, parent.pos - 1))
+      );
+    }
   }
   return tr;
 };

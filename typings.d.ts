@@ -18,7 +18,9 @@ export function hasParentNodeOfType(nodeType: NodeType | NodeType[]): (selection
 
 export function findParentDomRefOfType(nodeType: NodeType | NodeType[], domAtPos: DomAtPos): (selection: Selection) => Node | undefined;
 
-export function findSelectedNodeOfType(nodeType: NodeType | NodeType[]): (selection: Selection) => ProsemirrorNode | undefined;
+export function findSelectedNodeOfType(nodeType: NodeType | NodeType[]): (selection: Selection) => {pos: number, node: ProsemirrorNode} | undefined;
+
+export function isNodeSelection(selection: Selection): boolean;
 
 // Node
 export function flatten(node: ProsemirrorNode, descend?: boolean): {pos: number, node: ProsemirrorNode}[];
@@ -68,3 +70,5 @@ export function replaceSelectedNode(node: ProsemirrorNode): (tr: Transaction) =>
 export function safeInsert(node: ProsemirrorNode): (tr: Transaction) => Transaction;
 
 export function setParentNodeMarkup(nodeType: NodeType | NodeType[], type?: NodeType | null, attrs?: { [key: string]: any } | null, marks?: Mark[]): (tr: Transaction) => Transaction;
+
+export function selectParentNodeOfType(nodeType: NodeType | NodeType[]): (tr: Transaction) => Transaction;
