@@ -5,6 +5,8 @@
 [![CircleCI](https://img.shields.io/circleci/project/github/eshvedai/prosemirror-utils.svg?style=flat-square)](https://circleci.com/gh/eshvedai/prosemirror-utils)
 [![Codecov](https://img.shields.io/codecov/c/github/eshvedai/prosemirror-utils.svg?style=flat-square)](https://codecov.io/gh/eshvedai/prosemirror-utils)
 [![Github Issues](https://img.shields.io/github/issues/eshvedai/prosemirror-utils.svg?style=flat-square)](https://github.com/eshvedai/prosemirror-utils/issues)
+[![Downloads](https://img.shields.io/npm/dw/prosemirror-utils.svg?style=flat-square)](https://www.npmjs.com/package/prosemirror-utils)
+[![Code size](https://img.shields.io/github/languages/code-size/eshvedai/prosemirror-utils.svg?style=flat-square)](https://www.npmjs.com/package/prosemirror-utils)
 
 ## Quick Start
 
