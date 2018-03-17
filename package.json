@@ -1,6 +1,6 @@
 {
   "name": "prosemirror-utils",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Utils library for ProseMirror",
   "main": "dist/index.js",
   "maintainers": [
@@ -14,18 +14,24 @@
     "type": "git",
     "url": "git://github.com/eshvedai/prosemirror-utils.git"
   },
-  "keywords": ["ProseMirror", "utils", "helpers"],
+  "keywords": [
+    "ProseMirror",
+    "utils",
+    "helpers"
+  ],
   "jest": {
     "transform": {
       "^.+\\.js$": "babel-jest"
     }
   },
   "typings": "typings.d.ts",
-  "files": ["dist", "typings.d.ts"],
+  "files": [
+    "dist",
+    "typings.d.ts"
+  ],
   "scripts": {
     "build": "NODE_ENV=production rollup -c",
-    "build_readme":
-      "builddocs --name utils --format markdown --main src/README.md src/*.js > README.md",
+    "build_readme": "builddocs --name utils --format markdown --main src/README.md src/*.js > README.md",
     "build_all": "npm run build && npm run build_readme",
     "test": "NODE_ENV=testing jest",
     "prepare": "npm run build",
@@ -54,6 +60,9 @@
     "rollup-plugin-babel": "^3.0.3"
   },
   "lint-staged": {
-    "*.{js,json,css,md}": ["prettier --write", "git add"]
+    "*.{js, md}": [
+      "prettier --write",
+      "git add"
+    ]
   }
 }
