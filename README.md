@@ -1,5 +1,11 @@
 # Utils library for ProseMirror
 
+[![npm](https://img.shields.io/npm/v/prosemirror-utils.svg?style=flat-square)](https://www.npmjs.com/package/prosemirror-utils)
+[![License](https://img.shields.io/npm/l/express.svg?style=flat-square)](http://opensource.org/licenses/MIT)
+[![CircleCI](https://img.shields.io/circleci/project/github/eshvedai/prosemirror-utils.svg?style=flat-square)](https://circleci.com/gh/eshvedai/prosemirror-utils)
+[![Codecov](https://img.shields.io/codecov/c/github/eshvedai/prosemirror-utils.svg?style=flat-square)](https://codecov.io/gh/eshvedai/prosemirror-utils)
+[![Github Issues](https://img.shields.io/github/issues/eshvedai/prosemirror-utils.svg?style=flat-square)](https://github.com/eshvedai/prosemirror-utils/issues)
+
 ## Quick Start
 
 Install `prosemirror-utils` package from npm:
