@@ -31,7 +31,7 @@
     "prepare": "npm run build",
     "precommit": "lint-staged"
   },
-  "dependencies": {
+  "peerDependencies": {
     "prosemirror-state": "^1.0.1",
     "prosemirror-tables": "^0.6.3"
   },
@@ -46,6 +46,8 @@
     "prettier": "^1.11.1",
     "prosemirror-model": "^1.1.0",
     "prosemirror-schema-basic": "^1.0.0",
+    "prosemirror-state": "^1.0.1",
+    "prosemirror-tables": "^0.6.3",
     "prosemirror-test-builder": "^1.0.1",
     "prosemirror-view": "^1.1.1",
     "rollup": "^0.56.3",
