@@ -66,6 +66,10 @@ export function selectTable(tr: Transaction): Transaction;
 
 export function emptySelectedCells(schema: Schema): (tr: Transaction) => Transaction;
 
+export function addColumnAt(columnIndex: number): (tr: Transaction) => Transaction;
+
+export function addRowAt(rowIndex: number): (tr: Transaction) => Transaction;
+
 // Transforms
 export function removeParentNodeOfType(nodeType: NodeType | NodeType[]): (tr: Transaction) => Transaction;
 

@@ -1,13 +1,13 @@
-import { CellSelection, TableMap } from "prosemirror-tables";
-import { Slice } from "prosemirror-model";
-import { findParentNode } from "./selection";
-import { cloneTr, tableNodeTypes } from "./helpers";
+import { CellSelection, TableMap, addColumn, addRow } from 'prosemirror-tables';
+import { Slice } from 'prosemirror-model';
+import { findParentNode } from './selection';
+import { cloneTr, tableNodeTypes } from './helpers';
 
 // :: (selection: Selection) → ?{pos: number, node: ProseMirrorNode}
 // Iterates over parent nodes, returning the first found table node.
 export const findTable = selection =>
   findParentNode(
-    node => node.type.spec.tableRole && node.type.spec.tableRole === "table"
+    node => node.type.spec.tableRole && node.type.spec.tableRole === 'table'
   )(selection);
 
 // :: (selection: Selection) → boolean
@@ -176,6 +176,52 @@ export const emptySelectedCells = schema => tr => {
     });
     if (tr.docChanged) {
       return cloneTr(tr);
+    }
+  }
+  return tr;
+};
+
+// :: (columnIndex: number) → (tr: Transaction) → Transaction
+// Returns a new transaction that adds a new column at `columnIndex`.
+export const addColumnAt = columnIndex => tr => {
+  const table = findTable(tr.selection);
+  if (table) {
+    const map = TableMap.get(table.node);
+    if (columnIndex >= 0 && columnIndex <= map.width) {
+      return cloneTr(
+        addColumn(
+          tr,
+          {
+            map,
+            tableStart: table.pos,
+            table: table.node
+          },
+          columnIndex
+        )
+      );
+    }
+  }
+  return tr;
+};
+
+// :: (rowIndex: number) → (tr: Transaction) → Transaction
+// Returns a new transaction that adds a new row at `rowIndex`.
+export const addRowAt = rowIndex => tr => {
+  const table = findTable(tr.selection);
+  if (table) {
+    const map = TableMap.get(table.node);
+    if (rowIndex >= 0 && rowIndex <= map.height) {
+      return cloneTr(
+        addRow(
+          tr,
+          {
+            map,
+            tableStart: table.pos,
+            table: table.node
+          },
+          rowIndex
+        )
+      );
     }
   }
   return tr;

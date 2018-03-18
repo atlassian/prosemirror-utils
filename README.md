@@ -141,6 +141,14 @@ npm install prosemirror-utils
    Clears the content of selected cells.
 
 
+ * **`addColumnAt`**`(columnIndex: number) → fn(tr: Transaction) → Transaction`\
+   Returns a new transaction that adds a new column at `columnIndex`.
+
+
+ * **`addRowAt`**`(rowIndex: number) → fn(tr: Transaction) → Transaction`\
+   Returns a new transaction that adds a new row at `rowIndex`.
+
+
 ### Transforms
 
  * **`removeParentNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(tr: Transaction) → Transaction`\

@@ -82,6 +82,10 @@ npm install prosemirror-utils
 
 @emptySelectedCells
 
+@addColumnAt
+
+@addRowAt
+
 ### Transforms
 
 @removeParentNodeOfType
