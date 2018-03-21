@@ -157,6 +157,14 @@ npm install prosemirror-utils
    Returns a new transaction that removes a row at `rowIndex`.
 
 
+ * **`removeSelectedColumns`**`(tr: Transaction) → Transaction`\
+   Returns a new transaction that removes selected columns
+
+
+ * **`removeSelectedRows`**`(tr: Transaction) → Transaction`\
+   Returns a new transaction that removes selected rows
+
+
 ### Transforms
 
  * **`removeParentNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(tr: Transaction) → Transaction`\

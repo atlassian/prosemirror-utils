@@ -26,7 +26,9 @@ import {
   addColumnAt,
   addRowAt,
   removeColumnAt,
-  removeRowAt
+  removeRowAt,
+  removeSelectedColumns,
+  removeSelectedRows
 } from '../src';
 
 describe('table', () => {
@@ -536,6 +538,79 @@ describe('table', () => {
       const newTr = removeRowAt(1)(tr);
       expect(newTr).not.toBe(tr);
       toEqualDocument(newTr.doc, doc(table(row(td(p('1')), td(p('2'))))));
+    });
+  });
+
+  describe('removeSelectedColumns', () => {
+    it('should return an original transaction if selection is not a CellSelection', () => {
+      const { state: { tr } } = createEditor(
+        doc(table(row(td(p('1<cursor>')), td(p('2')))))
+      );
+      const newTr = removeSelectedColumns(tr);
+      expect(tr).toBe(newTr);
+    });
+    it('should return a new transaction that removes selected columns', () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(
+          table(
+            row(td(p('1<anchor>')), tdEmpty, tdEmpty),
+            row(tdEmpty, td(p('2<head>')), tdEmpty)
+          )
+        )
+      );
+      const newTr = removeSelectedColumns(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(table(row(tdEmpty), row(tdEmpty))));
+    });
+    it('should return a new transaction that removes entire table if all columns are selected', () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(
+          table(
+            row(td(p('1<anchor>')), tdEmpty, tdEmpty),
+            row(tdEmpty, tdEmpty, td(p('2<head>')))
+          )
+        )
+      );
+      const newTr = removeSelectedColumns(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(p('')));
+    });
+  });
+
+  describe('removeSelectedRows', () => {
+    it('should return an original transaction if selection is not a CellSelection', () => {
+      const { state: { tr } } = createEditor(
+        doc(table(row(td(p('1<cursor>')), td(p('2')))))
+      );
+      const newTr = removeSelectedRows(tr);
+      expect(tr).toBe(newTr);
+    });
+    it('should return a new transaction that removes selected columns', () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(
+          table(
+            row(td(p('1<anchor>')), tdEmpty, tdEmpty),
+            row(tdEmpty, tdEmpty, td(p('2<head>'))),
+            row(tdEmpty, tdEmpty, tdEmpty)
+          )
+        )
+      );
+      const newTr = removeSelectedRows(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(table(row(tdEmpty, tdEmpty, tdEmpty))));
+    });
+    it('should return a new transaction that removes entire table if all columns are selected', () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(
+          table(
+            row(td(p('1<anchor>')), tdEmpty, tdEmpty),
+            row(tdEmpty, tdEmpty, td(p('2<head>')))
+          )
+        )
+      );
+      const newTr = removeSelectedRows(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(p('')));
     });
   });
 });

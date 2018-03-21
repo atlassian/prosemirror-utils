@@ -90,6 +90,10 @@ npm install prosemirror-utils
 
 @removeRowAt
 
+@removeSelectedColumns
+
+@removeSelectedRows
+
 ### Transforms
 
 @removeParentNodeOfType

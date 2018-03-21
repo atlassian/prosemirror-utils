@@ -74,6 +74,10 @@ export function removeColumnAt(columnIndex: number): (tr: Transaction) => Transa
 
 export function removeRowAt(rowIndex: number): (tr: Transaction) => Transaction;
 
+export function removeSelectedColumns(tr: Transaction): Transaction;
+
+export function removeSelectedRows(tr: Transaction): Transaction;
+
 // Transforms
 export function removeParentNodeOfType(nodeType: NodeType | NodeType[]): (tr: Transaction) => Transaction;
 

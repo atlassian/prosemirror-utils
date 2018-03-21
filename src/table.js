@@ -277,3 +277,66 @@ export const removeRowAt = rowIndex => tr => {
   }
   return tr;
 };
+
+// (tr: Transaction) → Transaction
+// Returns a new transaction that removes selected table
+const removeSelectedTable = tr => {
+  if (isTableSelected(tr.selection)) {
+    const { $from } = tr.selection;
+    for (let depth = $from.depth; depth > 0; depth--) {
+      let node = $from.node(depth);
+      if (node.type.spec.tableRole === 'table') {
+        return cloneTr(tr.delete($from.before(depth), $from.after(depth)));
+      }
+    }
+  }
+  return tr;
+};
+
+// :: (tr: Transaction) → Transaction
+// Returns a new transaction that removes selected columns
+export const removeSelectedColumns = tr => {
+  const { selection } = tr;
+  if (isTableSelected(selection)) {
+    return removeSelectedTable(tr);
+  }
+  if (isCellSelection(selection) && selection.isColSelection()) {
+    const table = findTable(selection);
+    if (table) {
+      const map = TableMap.get(table.node);
+      const rect = map.rectBetween(
+        selection.$anchorCell.pos - table.pos,
+        selection.$headCell.pos - table.pos
+      );
+      for (let i = rect.right - 1; i >= rect.left; i--) {
+        tr = removeColumnAt(i)(tr);
+      }
+      return tr;
+    }
+  }
+  return tr;
+};
+
+// :: (tr: Transaction) → Transaction
+// Returns a new transaction that removes selected rows
+export const removeSelectedRows = tr => {
+  const { selection } = tr;
+  if (isTableSelected(selection)) {
+    return removeSelectedTable(tr);
+  }
+  if (isCellSelection(selection) && selection.isRowSelection()) {
+    const table = findTable(selection);
+    if (table) {
+      const map = TableMap.get(table.node);
+      const rect = map.rectBetween(
+        selection.$anchorCell.pos - table.pos,
+        selection.$headCell.pos - table.pos
+      );
+      for (let i = rect.bottom - 1; i >= rect.top; i--) {
+        tr = removeRowAt(i)(tr);
+      }
+      return tr;
+    }
+  }
+  return tr;
+};
