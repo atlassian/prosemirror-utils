@@ -70,6 +70,10 @@ export function addColumnAt(columnIndex: number): (tr: Transaction) => Transacti
 
 export function addRowAt(rowIndex: number): (tr: Transaction) => Transaction;
 
+export function removeColumnAt(columnIndex: number): (tr: Transaction) => Transaction;
+
+export function removeRowAt(rowIndex: number): (tr: Transaction) => Transaction;
+
 // Transforms
 export function removeParentNodeOfType(nodeType: NodeType | NodeType[]): (tr: Transaction) => Transaction;
 

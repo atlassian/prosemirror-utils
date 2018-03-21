@@ -24,7 +24,9 @@ import {
   selectTable,
   emptySelectedCells,
   addColumnAt,
-  addRowAt
+  addRowAt,
+  removeColumnAt,
+  removeRowAt
 } from '../src';
 
 describe('table', () => {
@@ -424,6 +426,116 @@ describe('table', () => {
           )
         )
       );
+    });
+  });
+
+  describe('removeColumnAt', () => {
+    it("should return an original transaction if table doesn't have a column at `columnIndex`", () => {
+      const { state: { tr } } = createEditor(
+        doc(table(row(td(p('1<cursor>')), td(p('2')))))
+      );
+      const newTr = removeColumnAt(3)(tr);
+      expect(tr).toBe(newTr);
+    });
+    it('should return a new transaction that removes a column at index 0', () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(
+          table(
+            row(td(p('1<cursor>')), td(p('2'))),
+            row(td(p('3')), td(p('4')))
+          )
+        )
+      );
+      const newTr = removeColumnAt(0)(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(table(row(td(p('2'))), row(td(p('4'))))));
+    });
+    it('should return a new transaction that removes a column in the middle', () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(
+          table(
+            row(td(p('1<cursor>')), td(p('2')), td(p('3'))),
+            row(td(p('4')), td(p('5')), td(p('6')))
+          )
+        )
+      );
+      const newTr = removeColumnAt(1)(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(
+        newTr.doc,
+        doc(table(row(td(p('1')), td(p('3'))), row(td(p('4')), td(p('6')))))
+      );
+    });
+    it('should return a new transaction that removes a column at last index', () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(
+          table(
+            row(td(p('1<cursor>')), td(p('2'))),
+            row(td(p('3')), td(p('4')))
+          )
+        )
+      );
+      const newTr = removeColumnAt(1)(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(table(row(td(p('1'))), row(td(p('3'))))));
+    });
+  });
+
+  describe('removeRowAt', () => {
+    it("should return an original transaction if table doesn't have a row at `rowIndex`", () => {
+      const { state: { tr } } = createEditor(
+        doc(
+          table(
+            row(td(p('1<cursor>')), td(p('2'))),
+            row(td(p('3')), td(p('4')))
+          )
+        )
+      );
+      const newTr = removeRowAt(3)(tr);
+      expect(tr).toBe(newTr);
+    });
+    it('should return a new transaction that removes a row at index 0', () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(
+          table(
+            row(td(p('1<cursor>')), td(p('2'))),
+            row(td(p('3')), td(p('4')))
+          )
+        )
+      );
+      const newTr = removeRowAt(0)(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(table(row(td(p('3')), td(p('4'))))));
+    });
+    it('should return a new transaction that removes a row in the middle', () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(
+          table(
+            row(td(p('1<cursor>')), td(p('2'))),
+            row(td(p('3')), td(p('4'))),
+            row(td(p('5')), td(p('6')))
+          )
+        )
+      );
+      const newTr = removeRowAt(1)(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(
+        newTr.doc,
+        doc(table(row(td(p('1')), td(p('2'))), row(td(p('5')), td(p('6')))))
+      );
+    });
+    it('should return a new transaction that removes a row at last index', () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(
+          table(
+            row(td(p('1<cursor>')), td(p('2'))),
+            row(td(p('3')), td(p('4')))
+          )
+        )
+      );
+      const newTr = removeRowAt(1)(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(table(row(td(p('1')), td(p('2'))))));
     });
   });
 });

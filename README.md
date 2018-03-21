@@ -149,6 +149,14 @@ npm install prosemirror-utils
    Returns a new transaction that adds a new row at `rowIndex`.
 
 
+ * **`removeColumnAt`**`(columnIndex: number) → fn(tr: Transaction) → Transaction`\
+   Returns a new transaction that removes a column at `columnIndex`.
+
+
+ * **`removeRowAt`**`(rowIndex: number) → fn(tr: Transaction) → Transaction`\
+   Returns a new transaction that removes a row at `rowIndex`.
+
+
 ### Transforms
 
  * **`removeParentNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(tr: Transaction) → Transaction`\

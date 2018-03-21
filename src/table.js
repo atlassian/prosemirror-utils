@@ -1,4 +1,11 @@
-import { CellSelection, TableMap, addColumn, addRow } from 'prosemirror-tables';
+import {
+  CellSelection,
+  TableMap,
+  addColumn,
+  addRow,
+  removeColumn,
+  removeRow
+} from 'prosemirror-tables';
 import { Slice } from 'prosemirror-model';
 import { findParentNode } from './selection';
 import { cloneTr, tableNodeTypes } from './helpers';
@@ -222,6 +229,50 @@ export const addRowAt = rowIndex => tr => {
           rowIndex
         )
       );
+    }
+  }
+  return tr;
+};
+
+// :: (columnIndex: number) → (tr: Transaction) → Transaction
+// Returns a new transaction that removes a column at `columnIndex`.
+export const removeColumnAt = columnIndex => tr => {
+  const table = findTable(tr.selection);
+  if (table) {
+    const map = TableMap.get(table.node);
+    if (columnIndex >= 0 && columnIndex <= map.width) {
+      removeColumn(
+        tr,
+        {
+          map,
+          tableStart: table.pos,
+          table: table.node
+        },
+        columnIndex
+      );
+      return cloneTr(tr);
+    }
+  }
+  return tr;
+};
+
+// :: (rowIndex: number) → (tr: Transaction) → Transaction
+// Returns a new transaction that removes a row at `rowIndex`.
+export const removeRowAt = rowIndex => tr => {
+  const table = findTable(tr.selection);
+  if (table) {
+    const map = TableMap.get(table.node);
+    if (rowIndex >= 0 && rowIndex <= map.height) {
+      removeRow(
+        tr,
+        {
+          map,
+          tableStart: table.pos,
+          table: table.node
+        },
+        rowIndex
+      );
+      return cloneTr(tr);
     }
   }
   return tr;
