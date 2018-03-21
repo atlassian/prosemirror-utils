@@ -278,16 +278,14 @@ export const removeRowAt = rowIndex => tr => {
   return tr;
 };
 
-// (tr: Transaction) → Transaction
-// Returns a new transaction that removes selected table
-const removeSelectedTable = tr => {
-  if (isTableSelected(tr.selection)) {
-    const { $from } = tr.selection;
-    for (let depth = $from.depth; depth > 0; depth--) {
-      let node = $from.node(depth);
-      if (node.type.spec.tableRole === 'table') {
-        return cloneTr(tr.delete($from.before(depth), $from.after(depth)));
-      }
+// :: (tr: Transaction) → Transaction
+// Returns a new transaction that removes a table if the cursor is inside
+export const removeTable = tr => {
+  const { $from } = tr.selection;
+  for (let depth = $from.depth; depth > 0; depth--) {
+    let node = $from.node(depth);
+    if (node.type.spec.tableRole === 'table') {
+      return cloneTr(tr.delete($from.before(depth), $from.after(depth)));
     }
   }
   return tr;
@@ -298,7 +296,7 @@ const removeSelectedTable = tr => {
 export const removeSelectedColumns = tr => {
   const { selection } = tr;
   if (isTableSelected(selection)) {
-    return removeSelectedTable(tr);
+    return removeTable(tr);
   }
   if (isCellSelection(selection) && selection.isColSelection()) {
     const table = findTable(selection);
@@ -322,7 +320,7 @@ export const removeSelectedColumns = tr => {
 export const removeSelectedRows = tr => {
   const { selection } = tr;
   if (isTableSelected(selection)) {
-    return removeSelectedTable(tr);
+    return removeTable(tr);
   }
   if (isCellSelection(selection) && selection.isRowSelection()) {
     const table = findTable(selection);

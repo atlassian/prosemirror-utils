@@ -28,7 +28,8 @@ import {
   removeColumnAt,
   removeRowAt,
   removeSelectedColumns,
-  removeSelectedRows
+  removeSelectedRows,
+  removeTable
 } from '../src';
 
 describe('table', () => {
@@ -609,6 +610,24 @@ describe('table', () => {
         )
       );
       const newTr = removeSelectedRows(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(p('')));
+    });
+  });
+
+  describe('removeTable', () => {
+    it('should return an original transaction that removes a table if cursor is not inside of it', () => {
+      const { state: { tr } } = createEditor(
+        doc(p('<cursor>'), table(row(td(p('1')), td(p('2')))))
+      );
+      const newTr = removeTable(tr);
+      expect(tr).toBe(newTr);
+    });
+    it('should return a new transaction that removes a table if cursor is inside', () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(table(row(td(p('1<cursor>')), tdEmpty), row(tdEmpty, tdEmpty)))
+      );
+      const newTr = removeTable(tr);
       expect(newTr).not.toBe(tr);
       toEqualDocument(newTr.doc, doc(p('')));
     });
