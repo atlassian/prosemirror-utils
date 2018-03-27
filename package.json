@@ -1,6 +1,6 @@
 {
   "name": "prosemirror-utils",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "Utils library for ProseMirror",
   "main": "dist/index.js",
   "author": {
@@ -8,7 +8,13 @@
     "email": "eshvedai@gmail.com",
     "url": "https://github.com/eshvedai/prosemirror-utils"
   },
-  "license": "MIT",
+  "maintainers": [
+    {
+      "name": "Eduard Shvedai",
+      "email": "eshvedai@atlassian.com"
+    }
+  ],
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/eshvedai/prosemirror-utils.git"
