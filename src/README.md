@@ -106,6 +106,8 @@ npm install prosemirror-utils
 
 @replaceSelectedNode
 
+@canInsert
+
 @safeInsert
 
 @setParentNodeMarkup

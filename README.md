@@ -191,7 +191,11 @@ npm install prosemirror-utils
    It will return the original transaction if current selection is not a NodeSelection, or replacing is not possible.
 
 
- * **`safeInsert`**`(node: ProseMirrorNode) → fn(tr: Transaction) → Transaction`\
+ * **`canInsert`**`($pos: ResolvedPos, content: ProseMirrorNode | Fragment) → boolean`\
+   Checks if a given `content` can be inserted at the given `$pos`
+
+
+ * **`safeInsert`**`(content: ProseMirrorNode | Fragment) → fn(tr: Transaction) → Transaction`\
    Returns a new transaction that inserts a given `node` at the current cursor position if it is allowed by schema. If schema restricts such nesting, it will try to find an appropriate place for a given `node` in the document, looping through parent nodes up until the root document node.
    It will return the original transaction if the place for insertion hasn't been found.
 

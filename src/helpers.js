@@ -1,4 +1,5 @@
-import { NodeSelection } from "prosemirror-state";
+import { NodeSelection } from 'prosemirror-state';
+import { Fragment, Node as PMNode } from 'prosemirror-model';
 
 // :: (selection: Selection) → boolean
 // Checks if current selection is a NodeSelection
@@ -64,4 +65,18 @@ export const tableNodeTypes = schema => {
   });
   schema.cached.tableNodeTypes = roles;
   return roles;
+};
+
+// :: ($pos: ResolvedPos, content: union<ProseMirrorNode, Fragment>) → boolean
+// Checks if a given `content` can be inserted at the given `$pos`
+export const canInsert = ($pos, content) => {
+  const index = $pos.index();
+  // Fragment
+  if (content instanceof Fragment) {
+    return $pos.parent.canReplace(index, index, content);
+  } else if (content instanceof PMNode) {
+    // Node
+    return $pos.parent.canReplaceWith(index, index, content.type);
+  }
+  return false;
 };

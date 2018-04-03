@@ -1,11 +1,12 @@
-import { NodeSelection } from "prosemirror-state";
-import { findParentNodeOfType } from "./selection";
+import { NodeSelection } from 'prosemirror-state';
+import { findParentNodeOfType } from './selection';
 import {
   cloneTr,
   isNodeSelection,
   replaceNodeAtPos,
-  removeNodeAtPos
-} from "./helpers";
+  removeNodeAtPos,
+  canInsert
+} from './helpers';
 
 // :: (nodeType: union<NodeType, [NodeType]>) → (tr: Transaction) → Transaction
 // Returns a new transaction that removes a node of a given `nodeType`.
@@ -56,25 +57,22 @@ export const replaceSelectedNode = node => tr => {
   return tr;
 };
 
-// :: (node: ProseMirrorNode) → (tr: Transaction) → Transaction
+// :: (content: union<ProseMirrorNode, Fragment>) → (tr: Transaction) → Transaction
 // Returns a new transaction that inserts a given `node` at the current cursor position if it is allowed by schema. If schema restricts such nesting, it will try to find an appropriate place for a given `node` in the document, looping through parent nodes up until the root document node.
 // It will return the original transaction if the place for insertion hasn't been found.
-export const safeInsert = node => tr => {
+export const safeInsert = content => tr => {
   const { $from } = tr.selection;
-  const index = $from.index();
-
   // given node is allowed at the current cursor position
-  if ($from.parent.canReplaceWith(index, index, node.type)) {
-    return cloneTr(tr.insert($from.pos, node));
+  if (canInsert($from, content)) {
+    return cloneTr(tr.insert($from.pos, content));
   }
 
   // looking for a place in the doc where the node is allowed
   for (let i = $from.depth; i > 0; i--) {
     const pos = $from.after(i);
     const $pos = tr.doc.resolve(pos);
-    const index = $pos.index();
-    if ($pos.parent.canReplaceWith(index, index, node.type)) {
-      return cloneTr(tr.insert(pos, node));
+    if (canInsert($pos, content)) {
+      return cloneTr(tr.insert(pos, content));
     }
   }
   return tr;
