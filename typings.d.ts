@@ -22,6 +22,8 @@ export function findSelectedNodeOfType(nodeType: NodeType | NodeType[]): (select
 
 export function isNodeSelection(selection: Selection): boolean;
 
+export function findPositionOfNodeBefore(selection: Selection): number | undefined;
+
 // Node
 export function flatten(node: ProsemirrorNode, descend?: boolean): {pos: number, node: ProsemirrorNode}[];
 
@@ -94,3 +96,5 @@ export function safeInsert(node: ProsemirrorNode | Fragment): (tr: Transaction) 
 export function setParentNodeMarkup(nodeType: NodeType | NodeType[], type?: NodeType | null, attrs?: { [key: string]: any } | null, marks?: Mark[]): (tr: Transaction) => Transaction;
 
 export function selectParentNodeOfType(nodeType: NodeType | NodeType[]): (tr: Transaction) => Transaction;
+
+export function removeNodeBefore(tr: Transaction): Transaction;

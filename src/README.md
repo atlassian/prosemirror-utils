@@ -36,6 +36,8 @@ npm install prosemirror-utils
 
 @isNodeSelection
 
+@findPositionOfNodeBefore
+
 ### Node
 
 @flatten
@@ -113,6 +115,8 @@ npm install prosemirror-utils
 @setParentNodeMarkup
 
 @selectParentNodeOfType
+
+@removeNodeBefore
 
 ## License
 

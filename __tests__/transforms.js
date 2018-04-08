@@ -23,7 +23,8 @@ import {
   safeInsert,
   replaceSelectedNode,
   setParentNodeMarkup,
-  selectParentNodeOfType
+  selectParentNodeOfType,
+  removeNodeBefore
 } from '../src';
 
 describe('transforms', () => {
@@ -271,6 +272,30 @@ describe('transforms', () => {
       const newTr = selectParentNodeOfType([table, paragraph])(tr);
       expect(newTr).not.toBe(tr);
       expect(newTr.selection.node.type.name).toEqual('paragraph');
+    });
+  });
+
+  describe('removeNodeBefore', () => {
+    it('should return an original transaction if there is no nodeBefore', () => {
+      const { state: { tr } } = createEditor(doc(p('<cursor>')));
+      const newTr = removeNodeBefore(tr);
+      expect(tr).toBe(newTr);
+    });
+    it('should a new transaction that removes nodeBefore if its a table', () => {
+      const { state: { tr } } = createEditor(
+        doc(p('text'), table(row(tdEmpty), row(tdEmpty)), '<cursor>')
+      );
+      const newTr = removeNodeBefore(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(p('text')));
+    });
+    it('should return position of nodeBefore if its a blockquote', () => {
+      const { state: { tr } } = createEditor(
+        doc(p('text'), blockquote(p('')), '<cursor>')
+      );
+      const newTr = removeNodeBefore(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(p('text')));
     });
   });
 });

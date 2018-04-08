@@ -52,6 +52,10 @@ npm install prosemirror-utils
    Checks if current selection is a NodeSelection
 
 
+ * **`findPositionOfNodeBefore`**`(selection: Selection) → ?number`\
+   Returns position of the previous node
+
+
 ### Node
 
  * **`flatten`**`(node: ProseMirrorNode, descend: ?boolean = true) → [{node: ProseMirrorNode, pos: number}]`\
@@ -206,6 +210,10 @@ npm install prosemirror-utils
 
  * **`selectParentNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(tr: Transaction) → Transaction`\
    Returns a transaction that sets a NodeSelection on a parent node of a given `nodeType`.
+
+
+ * **`removeNodeBefore`**`(tr: Transaction) → Transaction`\
+   Returns a transaction that deletes previous node from the current selection
 
 
 ## License

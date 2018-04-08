@@ -41,9 +41,9 @@ export const replaceNodeAtPos = (position, node) => tr => {
   return tr;
 };
 
-// (position: number, node: ProseMirrorNode) → (tr: Transaction) → Transaction
+// (position: number) → (tr: Transaction) → Transaction
 // Returns a `delete` transaction that removes a node at a given position with the given `node`.
-export const removeNodeAtPos = (position, node) => tr => {
+export const removeNodeAtPos = position => tr => {
   const $pos = tr.doc.resolve(position);
   const from = $pos.before($pos.depth);
   const to = $pos.after($pos.depth);

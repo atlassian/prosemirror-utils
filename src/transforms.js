@@ -1,5 +1,5 @@
 import { NodeSelection } from 'prosemirror-state';
-import { findParentNodeOfType } from './selection';
+import { findParentNodeOfType, findPositionOfNodeBefore } from './selection';
 import {
   cloneTr,
   isNodeSelection,
@@ -105,6 +105,16 @@ export const selectParentNodeOfType = nodeType => tr => {
         tr.setSelection(NodeSelection.create(tr.doc, parent.pos - 1))
       );
     }
+  }
+  return tr;
+};
+
+// :: (tr: Transaction) → Transaction
+// Returns a transaction that deletes previous node from the current selection
+export const removeNodeBefore = tr => {
+  const position = findPositionOfNodeBefore(tr.selection);
+  if (typeof position === 'number') {
+    return removeNodeAtPos(position)(tr);
   }
   return tr;
 };

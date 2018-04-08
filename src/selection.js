@@ -1,4 +1,5 @@
-import { equalNodeType, isNodeSelection } from "./helpers";
+import { Selection } from 'prosemirror-state';
+import { equalNodeType, isNodeSelection } from './helpers';
 
 // :: (predicate: (node: ProseMirrorNode) → boolean) → (selection: Selection) → ?{pos: number, node: ProseMirrorNode}
 // Iterates over parent nodes, returning the first node and its position `predicate` returns truthy for.
@@ -57,6 +58,19 @@ export const findSelectedNodeOfType = nodeType => selection => {
     const { node, $from } = selection;
     if (equalNodeType(nodeType, node)) {
       return { node, pos: $from.pos };
+    }
+  }
+};
+
+// :: (selection: Selection) → ?number
+// Returns position of the previous node
+export const findPositionOfNodeBefore = selection => {
+  const { nodeBefore } = selection.$from;
+  const maybeSelection = Selection.findFrom(selection.$from, -1);
+  if (maybeSelection && nodeBefore) {
+    const parent = findParentNodeOfType(nodeBefore.type)(maybeSelection);
+    if (parent) {
+      return parent.pos;
     }
   }
 };
