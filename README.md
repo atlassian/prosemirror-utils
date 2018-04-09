@@ -220,7 +220,7 @@ npm install prosemirror-utils
 
  * **`setTextSelection`**`(position: number) → fn(tr: Transaction) → Transaction`\
    Tries to find a valid cursor selection **starting** at the given `position` and returns a new transaction.
-   If a valid cursor position hasn't been not found, it will return the original transaction.
+   If a valid cursor position hasn't been found, it will return the original transaction.
 
 
 ## License
