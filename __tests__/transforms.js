@@ -175,6 +175,23 @@ describe('transforms', () => {
       );
       expect(newTr.selection.$from.parent.textContent).toEqual('two');
     });
+
+    it('should replace an empty parent paragraph with the given node', () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(p('one'), p('<cursor>'), p('three'))
+      );
+      const node = schema.nodes.blockquote.createChecked(
+        {},
+        schema.nodes.paragraph.createChecked({}, schema.text('two'))
+      );
+      const newTr = safeInsert(Fragment.from(node))(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(
+        newTr.doc,
+        doc(p('one'), blockquote(p('two')), p('three'))
+      );
+      expect(newTr.selection.$from.parent.textContent).toEqual('two');
+    });
   });
 
   describe('replaceSelectedNode', () => {

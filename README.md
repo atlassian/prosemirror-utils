@@ -180,8 +180,8 @@ npm install prosemirror-utils
    It will return the original transaction if parent node hasn't been found.
 
 
- * **`replaceParentNodeOfType`**`(nodeType: NodeType | [NodeType], node: ProseMirrorNode) → fn(tr: Transaction) → Transaction`\
-   Returns a new transaction that replaces parent node of a given `nodeType` with the given `node`.
+ * **`replaceParentNodeOfType`**`(nodeType: NodeType | [NodeType], content: ProseMirrorNode | Fragment) → fn(tr: Transaction) → Transaction`\
+   Returns a new transaction that replaces parent node of a given `nodeType` with the given `content`.
    It will return the original transaction if parent node hasn't been found, or replacing is not possible.
 
 
@@ -201,6 +201,7 @@ npm install prosemirror-utils
 
  * **`safeInsert`**`(content: ProseMirrorNode | Fragment) → fn(tr: Transaction) → Transaction`\
    Returns a new transaction that inserts a given `node` at the current cursor position if it is allowed by schema. If schema restricts such nesting, it will try to find an appropriate place for a given `node` in the document, looping through parent nodes up until the root document node.
+   If cursor is inside of an empty paragraph at the top level (depth=0), it will try to replace that paragraph with the given `content`.
    If insertion is successful and inserted node has content, it will set cursor inside of that content.
    It will return the original transaction if the place for insertion hasn't been found.
 

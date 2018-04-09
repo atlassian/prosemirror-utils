@@ -22,23 +22,31 @@ export const cloneTr = tr => {
   return Object.assign(Object.create(tr), tr).setTime(Date.now());
 };
 
-// (position: number, node: ProseMirrorNode) → (tr: Transaction) → Transaction
-// Returns a `delete` transaction that removes a node at a given position with the given `node`.
+// (position: number, content: union<ProseMirrorNode, Fragment>) → (tr: Transaction) → Transaction
+// Returns a `replace` transaction that replaces a node at a given position with the given `content`.
 // It will return the original transaction if replacing is not possible.
-export const replaceNodeAtPos = (position, node) => tr => {
+export const replaceNodeAtPos = (position, content) => tr => {
   const $pos = tr.doc.resolve(position);
-  const from = $pos.before($pos.depth);
-  const to = $pos.after($pos.depth);
-  if (
-    tr.doc.canReplaceWith(
-      $pos.index($pos.depth),
-      $pos.indexAfter($pos.depth),
-      node.type
-    )
-  ) {
-    return cloneTr(tr.replaceWith(from, to, node));
+  if (canReplace($pos, tr.doc, content)) {
+    return cloneTr(
+      tr.replaceWith($pos.before($pos.depth), $pos.after($pos.depth), content)
+    );
   }
   return tr;
+};
+
+// ($pos: ResolvedPos, doc: ProseMirrorNode, content: union<ProseMirrorNode, Fragment>, ) → boolean
+// Checks if replacing a node at a given `$pos` inside of the `doc` node with the given `content` is possible.
+export const canReplace = ($pos, doc, content) => {
+  const index = $pos.index($pos.depth);
+  const indexAfter = $pos.indexAfter($pos.depth);
+
+  if (content instanceof Fragment) {
+    return doc.canReplace(index, index, content);
+  } else if (content instanceof PMNode) {
+    return doc.canReplaceWith(index, indexAfter, content.type);
+  }
+  return false;
 };
 
 // (position: number) → (tr: Transaction) → Transaction
@@ -71,12 +79,17 @@ export const tableNodeTypes = schema => {
 // Checks if a given `content` can be inserted at the given `$pos`
 export const canInsert = ($pos, content) => {
   const index = $pos.index();
-  // Fragment
+
   if (content instanceof Fragment) {
     return $pos.parent.canReplace(index, index, content);
   } else if (content instanceof PMNode) {
-    // Node
     return $pos.parent.canReplaceWith(index, index, content.type);
   }
   return false;
+};
+
+// (node: ProseMirrorNode) → boolean
+// Checks if a given `node` is an empty paragraph
+export const isEmptyParagraph = node => {
+  return !node || (node.type.name === 'paragraph' && node.nodeSize === 2);
 };

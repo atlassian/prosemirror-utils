@@ -5,7 +5,8 @@ import {
   isNodeSelection,
   replaceNodeAtPos,
   removeNodeAtPos,
-  canInsert
+  canInsert,
+  isEmptyParagraph
 } from './helpers';
 
 // :: (nodeType: union<NodeType, [NodeType]>) → (tr: Transaction) → Transaction
@@ -19,13 +20,13 @@ export const removeParentNodeOfType = nodeType => tr => {
   return tr;
 };
 
-// :: (nodeType: union<NodeType, [NodeType]>, node: ProseMirrorNode) → (tr: Transaction) → Transaction
-// Returns a new transaction that replaces parent node of a given `nodeType` with the given `node`.
+// :: (nodeType: union<NodeType, [NodeType]>, content: union<ProseMirrorNode, Fragment>) → (tr: Transaction) → Transaction
+// Returns a new transaction that replaces parent node of a given `nodeType` with the given `content`.
 // It will return the original transaction if parent node hasn't been found, or replacing is not possible.
-export const replaceParentNodeOfType = (nodeType, node) => tr => {
+export const replaceParentNodeOfType = (nodeType, content) => tr => {
   const parent = findParentNodeOfType(nodeType)(tr.selection);
   if (parent) {
-    return replaceNodeAtPos(parent.pos, node)(tr);
+    return replaceNodeAtPos(parent.pos, content)(tr);
   }
   return tr;
 };
@@ -70,11 +71,18 @@ export const setTextSelection = position => tr => {
 
 // :: (content: union<ProseMirrorNode, Fragment>) → (tr: Transaction) → Transaction
 // Returns a new transaction that inserts a given `node` at the current cursor position if it is allowed by schema. If schema restricts such nesting, it will try to find an appropriate place for a given `node` in the document, looping through parent nodes up until the root document node.
+// If cursor is inside of an empty paragraph at the top level (depth=0), it will try to replace that paragraph with the given `content`.
 // If insertion is successful and inserted node has content, it will set cursor inside of that content.
 // It will return the original transaction if the place for insertion hasn't been found.
 export const safeInsert = content => tr => {
   const { $from } = tr.selection;
   const { parent, depth } = $from;
+
+  // try to replace an empty paragraph at top level with inserted content
+  if (isEmptyParagraph(parent) && depth === 1) {
+    tr = replaceParentNodeOfType(parent.type, content)(tr);
+    return setTextSelection($from.pos)(tr);
+  }
 
   // given node is allowed at the current cursor position
   if (canInsert($from, content)) {
