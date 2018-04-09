@@ -201,6 +201,7 @@ npm install prosemirror-utils
 
  * **`safeInsert`**`(content: ProseMirrorNode | Fragment) → fn(tr: Transaction) → Transaction`\
    Returns a new transaction that inserts a given `node` at the current cursor position if it is allowed by schema. If schema restricts such nesting, it will try to find an appropriate place for a given `node` in the document, looping through parent nodes up until the root document node.
+   If insertion is successful and inserted node has content, it will set cursor inside of that content.
    It will return the original transaction if the place for insertion hasn't been found.
 
 
@@ -214,6 +215,11 @@ npm install prosemirror-utils
 
  * **`removeNodeBefore`**`(tr: Transaction) → Transaction`\
    Returns a transaction that deletes previous node from the current selection
+
+
+ * **`setTextSelection`**`(position: number) → fn(tr: Transaction) → Transaction`\
+   Tries to find a valid cursor selection **starting** at the given `position` and returns a new transaction.
+   If a valid cursor position hasn't been not found, it will return the original transaction.
 
 
 ## License

@@ -148,7 +148,7 @@ describe('transforms', () => {
       toEqualDocument(newTr.doc, doc(p('one', atom())));
     });
 
-    it('should insert a node after the parent node if its not allowed at the cursor position', () => {
+    it('should insert a paragraph after the parent node if its not allowed at the cursor position and move cursor inside of the new paragraph', () => {
       const { state: { schema, tr } } = createEditor(
         doc(p(strong('zero'), 'o<cursor>ne'), p('three'))
       );
@@ -159,9 +159,10 @@ describe('transforms', () => {
         newTr.doc,
         doc(p(strong('zero'), 'one'), p('two'), p('three'))
       );
+      expect(newTr.selection.$from.parent.textContent).toEqual('two');
     });
 
-    it('should insert a Fragment after the parent node if its not allowed at the cursor position', () => {
+    it('should insert a Fragment after the parent node if its not allowed at the cursor position and move cursor inside of the new paragraph', () => {
       const { state: { schema, tr } } = createEditor(
         doc(p(strong('zero'), 'o<cursor>ne'), p('three'))
       );
@@ -172,6 +173,7 @@ describe('transforms', () => {
         newTr.doc,
         doc(p(strong('zero'), 'one'), p('two'), p('three'))
       );
+      expect(newTr.selection.$from.parent.textContent).toEqual('two');
     });
   });
 

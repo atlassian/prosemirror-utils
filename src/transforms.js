@@ -1,4 +1,4 @@
-import { NodeSelection } from 'prosemirror-state';
+import { NodeSelection, Selection } from 'prosemirror-state';
 import { findParentNodeOfType, findPositionOfNodeBefore } from './selection';
 import {
   cloneTr,
@@ -57,14 +57,29 @@ export const replaceSelectedNode = node => tr => {
   return tr;
 };
 
+// :: (position: number) → (tr: Transaction) → Transaction
+// Tries to find a valid cursor selection **starting** at the given `position` and returns a new transaction.
+// If a valid cursor position hasn't been not found, it will return the original transaction.
+export const setTextSelection = position => tr => {
+  const nextSelection = Selection.findFrom(tr.doc.resolve(position), 1, true);
+  if (nextSelection) {
+    return tr.setSelection(nextSelection);
+  }
+  return tr;
+};
+
 // :: (content: union<ProseMirrorNode, Fragment>) → (tr: Transaction) → Transaction
 // Returns a new transaction that inserts a given `node` at the current cursor position if it is allowed by schema. If schema restricts such nesting, it will try to find an appropriate place for a given `node` in the document, looping through parent nodes up until the root document node.
+// If insertion is successful and inserted node has content, it will set cursor inside of that content.
 // It will return the original transaction if the place for insertion hasn't been found.
 export const safeInsert = content => tr => {
   const { $from } = tr.selection;
+  const { parent, depth } = $from;
+
   // given node is allowed at the current cursor position
   if (canInsert($from, content)) {
-    return cloneTr(tr.insert($from.pos, content));
+    tr.insert($from.pos, content);
+    return cloneTr(setTextSelection($from.pos)(tr));
   }
 
   // looking for a place in the doc where the node is allowed
@@ -72,7 +87,8 @@ export const safeInsert = content => tr => {
     const pos = $from.after(i);
     const $pos = tr.doc.resolve(pos);
     if (canInsert($pos, content)) {
-      return cloneTr(tr.insert(pos, content));
+      tr.insert(pos, content);
+      return cloneTr(setTextSelection(pos)(tr));
     }
   }
   return tr;

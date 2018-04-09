@@ -98,3 +98,5 @@ export function setParentNodeMarkup(nodeType: NodeType | NodeType[], type?: Node
 export function selectParentNodeOfType(nodeType: NodeType | NodeType[]): (tr: Transaction) => Transaction;
 
 export function removeNodeBefore(tr: Transaction): Transaction;
+
+export function setTextSelection(position: number): (tr: Transaction) => Transaction;
