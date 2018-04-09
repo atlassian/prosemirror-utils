@@ -8,7 +8,8 @@ import {
   th,
   tdCursor,
   tdEmpty,
-  blockquote
+  blockquote,
+  atomBlock
 } from '../test-helpers';
 import {
   findParentNode,
@@ -219,6 +220,13 @@ describe('selection', () => {
     it('should return position of nodeBefore if its a blockquote', () => {
       const { state: { selection } } = createEditor(
         doc(p('text'), blockquote(p('')), '<cursor>')
+      );
+      const position = findPositionOfNodeBefore(selection);
+      expect(position).toEqual(7);
+    });
+    it('should return position of nodeBefore if its a leaf node', () => {
+      const { state: { selection } } = createEditor(
+        doc(p('text'), atomBlock(), '<cursor>')
       );
       const position = findPositionOfNodeBefore(selection);
       expect(position).toEqual(7);
