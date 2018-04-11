@@ -199,8 +199,8 @@ npm install prosemirror-utils
    Checks if a given `content` can be inserted at the given `$pos`
 
 
- * **`safeInsert`**`(content: ProseMirrorNode | Fragment) → fn(tr: Transaction) → Transaction`\
-   Returns a new transaction that inserts a given `node` at the current cursor position if it is allowed by schema. If schema restricts such nesting, it will try to find an appropriate place for a given `node` in the document, looping through parent nodes up until the root document node.
+ * **`safeInsert`**`(content: ProseMirrorNode | Fragment, position: ?number) → fn(tr: Transaction) → Transaction`\
+   Returns a new transaction that inserts a given `node` at the current cursor position, or at a given `position`, if it is allowed by schema. If schema restricts such nesting, it will try to find an appropriate place for a given `node` in the document, looping through parent nodes up until the root document node.
    If cursor is inside of an empty paragraph at the top level (depth=0), it will try to replace that paragraph with the given `content`.
    If insertion is successful and inserted node has content, it will set cursor inside of that content.
    It will return the original transaction if the place for insertion hasn't been found.

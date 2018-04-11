@@ -193,6 +193,47 @@ describe('transforms', () => {
       );
       expect(newTr.selection.$from.parent.textContent).toEqual('two');
     });
+
+    it('should insert a node at position 0 (start of the doc) and move cursor inside of the new paragraph', () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(p('one'), p('two<cursor>'))
+      );
+      const node = schema.nodes.paragraph.createChecked({}, schema.text('new'));
+      const newTr = safeInsert(node, 0)(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(p('new'), p('one'), p('two')));
+      expect(newTr.selection.$from.parent.textContent).toEqual('new');
+    });
+    it('should insert a Fragment at position 0 (start of the doc) and move cursor inside of the new paragraph', () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(p('one'), p('two<cursor>'))
+      );
+      const node = schema.nodes.paragraph.createChecked({}, schema.text('new'));
+      const newTr = safeInsert(Fragment.from(node), 0)(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(p('new'), p('one'), p('two')));
+      expect(newTr.selection.$from.parent.textContent).toEqual('new');
+    });
+    it('should insert a node at position 1 and move cursor inside of the new paragraph', () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(p('one'), p('two<cursor>'))
+      );
+      const node = schema.nodes.paragraph.createChecked({}, schema.text('new'));
+      const newTr = safeInsert(node, 1)(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(p('one'), p('new'), p('two')));
+      expect(newTr.selection.$from.parent.textContent).toEqual('new');
+    });
+    it('should insert a node at position in between two nodes and move cursor inside of the new paragraph', () => {
+      const { state: { schema, tr } } = createEditor(
+        doc(p('one'), p('two<cursor>'))
+      );
+      const node = schema.nodes.paragraph.createChecked({}, schema.text('new'));
+      const newTr = safeInsert(node, 5)(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(p('one'), p('new'), p('two')));
+      expect(newTr.selection.$from.parent.textContent).toEqual('new');
+    });
   });
 
   describe('replaceSelectedNode', () => {
