@@ -1,6 +1,13 @@
-import { createEditor, doc, p, strong, atom } from '../test-helpers';
+import {
+  createEditor,
+  doc,
+  p,
+  strong,
+  atom,
+  toEqualDocument
+} from '../test-helpers';
 import { Fragment } from 'prosemirror-model';
-import { canInsert } from '../src';
+import { canInsert, removeNodeAtPos } from '../src/helpers';
 
 describe('helpers', () => {
   describe('canInsert', () => {
@@ -40,6 +47,22 @@ describe('helpers', () => {
         state.schema.text('two')
       );
       expect(canInsert($from, Fragment.from(node))).toBe(false);
+    });
+  });
+
+  describe('removeNodeAtPos', () => {
+    it('should remove a block top level node at the given position', () => {
+      const { state: { tr } } = createEditor(doc(p('x'), p('one')));
+      const newTr = removeNodeAtPos(4)(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(p('x')));
+    });
+
+    it('should remove a nested inline node at the given position', () => {
+      const { state: { tr } } = createEditor(doc(p('one', atom())));
+      const newTr = removeNodeAtPos(5)(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(p('one')));
     });
   });
 });

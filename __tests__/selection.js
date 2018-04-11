@@ -229,7 +229,7 @@ describe('selection', () => {
         doc(p('text'), atomBlock(), '<cursor>')
       );
       const position = findPositionOfNodeBefore(selection);
-      expect(position).toEqual(6);
+      expect(position).toEqual(7);
     });
   });
 });

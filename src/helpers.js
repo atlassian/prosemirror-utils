@@ -25,12 +25,13 @@ export const cloneTr = tr => {
 // (position: number, content: union<ProseMirrorNode, Fragment>) → (tr: Transaction) → Transaction
 // Returns a `replace` transaction that replaces a node at a given position with the given `content`.
 // It will return the original transaction if replacing is not possible.
+// `position` should point at the start of a node in the document.
 export const replaceNodeAtPos = (position, content) => tr => {
-  const $pos = tr.doc.resolve(position);
+  const before = position - 1;
+  const node = tr.doc.nodeAt(before);
+  const $pos = tr.doc.resolve(before);
   if (canReplace($pos, tr.doc, content)) {
-    return cloneTr(
-      tr.replaceWith($pos.before($pos.depth), $pos.after($pos.depth), content)
-    );
+    return cloneTr(tr.replaceWith(before, before + node.nodeSize, content));
   }
   return tr;
 };
@@ -51,11 +52,11 @@ export const canReplace = ($pos, doc, content) => {
 
 // (position: number) → (tr: Transaction) → Transaction
 // Returns a `delete` transaction that removes a node at a given position with the given `node`.
+// `position` should point at the start of a node in the document.
 export const removeNodeAtPos = position => tr => {
-  const $pos = tr.doc.resolve(position);
-  const from = $pos.before($pos.depth);
-  const to = $pos.after($pos.depth);
-  return cloneTr(tr.delete(from, to));
+  const before = position - 1;
+  const node = tr.doc.nodeAt(before);
+  return cloneTr(tr.delete(before, before + node.nodeSize));
 };
 
 // (schema: Schema) → {[key: string]: NodeType}

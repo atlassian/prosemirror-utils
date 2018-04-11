@@ -12,7 +12,8 @@ import {
   tdCursor,
   tdEmpty,
   thEmpty,
-  blockquote
+  blockquote,
+  atomBlock
 } from '../test-helpers';
 import { NodeSelection, TextSelection } from 'prosemirror-state';
 import { Fragment } from 'prosemirror-model';
@@ -302,19 +303,27 @@ describe('transforms', () => {
     });
     it('should a new transaction that removes nodeBefore if its a table', () => {
       const { state: { tr } } = createEditor(
-        doc(p('text'), table(row(tdEmpty), row(tdEmpty)), '<cursor>')
+        doc(p('one'), table(row(tdEmpty), row(tdEmpty)), '<cursor>', p('two'))
       );
       const newTr = removeNodeBefore(tr);
       expect(newTr).not.toBe(tr);
-      toEqualDocument(newTr.doc, doc(p('text')));
+      toEqualDocument(newTr.doc, doc(p('one'), p('two')));
     });
-    it('should return position of nodeBefore if its a blockquote', () => {
+    it('should a new transaction that removes nodeBefore if its a blockquote', () => {
       const { state: { tr } } = createEditor(
-        doc(p('text'), blockquote(p('')), '<cursor>')
+        doc(p('one'), blockquote(p('')), '<cursor>', p('two'))
       );
       const newTr = removeNodeBefore(tr);
       expect(newTr).not.toBe(tr);
-      toEqualDocument(newTr.doc, doc(p('text')));
+      toEqualDocument(newTr.doc, doc(p('one'), p('two')));
+    });
+    it('should a new transaction that removes nodeBefore if its a leaf node', () => {
+      const { state: { tr } } = createEditor(
+        doc(p('one'), atomBlock(), '<cursor>', p('two'))
+      );
+      const newTr = removeNodeBefore(tr);
+      expect(newTr).not.toBe(tr);
+      toEqualDocument(newTr.doc, doc(p('one'), p('two')));
     });
   });
 });
