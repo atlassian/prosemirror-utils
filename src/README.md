@@ -2,9 +2,9 @@
 
 [![npm](https://img.shields.io/npm/v/prosemirror-utils.svg?style=flat-square)](https://www.npmjs.com/package/prosemirror-utils)
 [![License](https://img.shields.io/npm/l/prosemirror-utils.svg?style=flat-square)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Github Issues](https://img.shields.io/github/issues/atlassial/prosemirror-utils.svg?style=flat-square)](https://github.com/atlassial/prosemirror-utils/issues)
+[![Github Issues](https://img.shields.io/github/issues/atlassian/prosemirror-utils.svg?style=flat-square)](https://github.com/atlassian/prosemirror-utils/issues)
 [![Downloads](https://img.shields.io/npm/dw/prosemirror-utils.svg?style=flat-square)](https://www.npmjs.com/package/prosemirror-utils)
-[![Code size](https://img.shields.io/github/languages/code-size/atlassial/prosemirror-utils.svg?style=flat-square)](https://www.npmjs.com/package/prosemirror-utils)
+[![Code size](https://img.shields.io/github/languages/code-size/atlassian/prosemirror-utils.svg?style=flat-square)](https://www.npmjs.com/package/prosemirror-utils)
 
 ## Quick Start
 
