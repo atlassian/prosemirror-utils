@@ -81,8 +81,8 @@ export const safeInsert = (content, position) => tr => {
       : tr.selection.$from;
   const { parent, depth } = $from;
 
-  // try to replace an empty paragraph at top level with inserted content
-  if (isEmptyParagraph(parent) && depth === 1) {
+  // try to replace an empty paragraph
+  if (isEmptyParagraph(parent)) {
     tr = replaceParentNodeOfType(parent.type, content)(tr);
     return setTextSelection($from.pos)(tr);
   }
