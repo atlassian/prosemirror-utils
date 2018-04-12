@@ -2,11 +2,9 @@
 
 [![npm](https://img.shields.io/npm/v/prosemirror-utils.svg?style=flat-square)](https://www.npmjs.com/package/prosemirror-utils)
 [![License](https://img.shields.io/npm/l/prosemirror-utils.svg?style=flat-square)](http://www.apache.org/licenses/LICENSE-2.0)
-[![CircleCI](https://img.shields.io/circleci/project/github/eshvedai/prosemirror-utils.svg?style=flat-square)](https://circleci.com/gh/eshvedai/prosemirror-utils)
-[![Codecov](https://img.shields.io/codecov/c/github/eshvedai/prosemirror-utils.svg?style=flat-square)](https://codecov.io/gh/eshvedai/prosemirror-utils)
-[![Github Issues](https://img.shields.io/github/issues/eshvedai/prosemirror-utils.svg?style=flat-square)](https://github.com/eshvedai/prosemirror-utils/issues)
+[![Github Issues](https://img.shields.io/github/issues/atlassial/prosemirror-utils.svg?style=flat-square)](https://github.com/atlassial/prosemirror-utils/issues)
 [![Downloads](https://img.shields.io/npm/dw/prosemirror-utils.svg?style=flat-square)](https://www.npmjs.com/package/prosemirror-utils)
-[![Code size](https://img.shields.io/github/languages/code-size/eshvedai/prosemirror-utils.svg?style=flat-square)](https://www.npmjs.com/package/prosemirror-utils)
+[![Code size](https://img.shields.io/github/languages/code-size/atlassial/prosemirror-utils.svg?style=flat-square)](https://www.npmjs.com/package/prosemirror-utils)
 
 ## Quick Start
 
