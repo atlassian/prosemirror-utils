@@ -9,6 +9,7 @@ import {
   tdCursor,
   tdEmpty,
   blockquote,
+  atomContainer,
   atomBlock
 } from '../test-helpers';
 import {
@@ -227,6 +228,13 @@ describe('selection', () => {
     it('should return position of nodeBefore if its a leaf node', () => {
       const { state: { selection } } = createEditor(
         doc(p('text'), atomBlock(), '<cursor>')
+      );
+      const position = findPositionOfNodeBefore(selection);
+      expect(position).toEqual(7);
+    });
+    it('should return position of nodeBefore if its a leaf node with nested inline atom node', () => {
+      const { state: { selection } } = createEditor(
+        doc(p('text'), atomContainer(atomBlock()), '<cursor>')
       );
       const position = findPositionOfNodeBefore(selection);
       expect(position).toEqual(7);

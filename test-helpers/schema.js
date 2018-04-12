@@ -12,11 +12,11 @@ const { table, table_cell, table_header, table_row } = tableNodes({
   }
 });
 
-const atom = {
+const atomInline = {
   inline: true,
   group: 'inline',
   atom: true,
-  selectable: false,
+  selectable: true,
   parseDOM: [
     {
       tag: 'span[data-node-type="atom"]'
@@ -42,13 +42,28 @@ const atomBlock = {
   }
 };
 
+const atomContainer = {
+  inline: false,
+  group: 'block',
+  content: 'atomBlock',
+  parseDOM: [
+    {
+      tag: 'div[data-node-type="atomBlockContainer"]'
+    }
+  ],
+  toDOM() {
+    return ['div', { 'data-node-type': 'atomBlockContainer' }];
+  }
+};
+
 export default new Schema({
   nodes: {
     doc,
     paragraph,
     text,
-    atom,
+    atomInline,
     atomBlock,
+    atomContainer,
     table,
     table_row,
     table_cell,

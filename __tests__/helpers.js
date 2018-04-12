@@ -3,7 +3,7 @@ import {
   doc,
   p,
   strong,
-  atom,
+  atomInline,
   toEqualDocument
 } from '../test-helpers';
 import { Fragment } from 'prosemirror-model';
@@ -14,14 +14,14 @@ describe('helpers', () => {
     it('should return true if insertion of a given node is allowed at the current cursor position', () => {
       const { state } = createEditor(doc(p('one<cursor>')));
       const { selection: { $from } } = state;
-      const node = state.schema.nodes.atom.createChecked();
+      const node = state.schema.nodes.atomInline.createChecked();
       expect(canInsert($from, node)).toBe(true);
     });
 
     it('should return true if insertion of a given Fragment is allowed at the current cursor position', () => {
       const { state } = createEditor(doc(p('one<cursor>')));
       const { selection: { $from } } = state;
-      const node = state.schema.nodes.atom.createChecked();
+      const node = state.schema.nodes.atomInline.createChecked();
       expect(canInsert($from, Fragment.from(node))).toBe(true);
     });
 
@@ -59,7 +59,7 @@ describe('helpers', () => {
     });
 
     it('should remove a nested inline node at the given position', () => {
-      const { state: { tr } } = createEditor(doc(p('one', atom())));
+      const { state: { tr } } = createEditor(doc(p('one', atomInline())));
       const newTr = removeNodeAtPos(5)(tr);
       expect(newTr).not.toBe(tr);
       toEqualDocument(newTr.doc, doc(p('one')));

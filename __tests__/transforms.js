@@ -4,7 +4,6 @@ import {
   doc,
   p,
   strong,
-  atom,
   table,
   tr as row,
   td,
@@ -13,6 +12,7 @@ import {
   tdEmpty,
   thEmpty,
   blockquote,
+  atomInline,
   atomBlock
 } from '../test-helpers';
 import { NodeSelection, TextSelection } from 'prosemirror-state';
@@ -116,7 +116,7 @@ describe('transforms', () => {
 
     it('should remove selected inline node', () => {
       const { state: { tr } } = createEditor(
-        doc(p('one<node>', atom(), 'two'))
+        doc(p('one<node>', atomInline(), 'two'))
       );
       const newTr = removeSelectedNode(tr);
       expect(newTr).not.toBe(tr);
@@ -135,18 +135,18 @@ describe('transforms', () => {
   describe('safeInsert', () => {
     it('should insert a node if its allowed at the current cursor position', () => {
       const { state: { schema, tr } } = createEditor(doc(p('one<cursor>')));
-      const node = schema.nodes.atom.createChecked();
+      const node = schema.nodes.atomInline.createChecked();
       const newTr = safeInsert(node)(tr);
       expect(newTr).not.toBe(tr);
-      toEqualDocument(newTr.doc, doc(p('one', atom())));
+      toEqualDocument(newTr.doc, doc(p('one', atomInline())));
     });
 
     it('should insert a Fragment if its allowed at the current cursor position', () => {
       const { state: { schema, tr } } = createEditor(doc(p('one<cursor>')));
-      const node = schema.nodes.atom.createChecked();
+      const node = schema.nodes.atomInline.createChecked();
       const newTr = safeInsert(Fragment.from(node))(tr);
       expect(newTr).not.toBe(tr);
-      toEqualDocument(newTr.doc, doc(p('one', atom())));
+      toEqualDocument(newTr.doc, doc(p('one', atomInline())));
     });
 
     it('should insert a paragraph after the parent node if its not allowed at the cursor position and move cursor inside of the new paragraph', () => {

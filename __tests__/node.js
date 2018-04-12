@@ -8,9 +8,9 @@ import {
   td,
   tdEmpty,
   tdCursor,
-  atom,
+  atomInline,
   strong
-} from "../test-helpers";
+} from '../test-helpers';
 import {
   flatten,
   findChildren,
@@ -21,29 +21,29 @@ import {
   findChildrenByType,
   findChildrenByMark,
   contains
-} from "../src";
+} from '../src';
 
-describe("node", () => {
-  describe("flatten", () => {
-    it("should throw an error if `node` param is missing", () => {
+describe('node', () => {
+  describe('flatten', () => {
+    it('should throw an error if `node` param is missing', () => {
       expect(flatten).toThrow();
     });
-    describe("when `descend` param = `false`", () => {
-      it("should flatten a given node a single level deep", () => {
+    describe('when `descend` param = `false`', () => {
+      it('should flatten a given node a single level deep', () => {
         const { state } = createEditor(
           doc(table(tr(tdEmpty), tr(tdEmpty), tr(tdEmpty)))
         );
         const result = flatten(state.doc.firstChild, false);
         expect(result.length).toEqual(3);
         result.forEach(item => {
-          expect(Object.keys(item)).toEqual(["node", "pos"]);
-          expect(typeof item.pos).toEqual("number");
-          expect(item.node.type.name).toEqual("table_row");
+          expect(Object.keys(item)).toEqual(['node', 'pos']);
+          expect(typeof item.pos).toEqual('number');
+          expect(item.node.type.name).toEqual('table_row');
         });
       });
     });
-    describe("when `descend` param is missing (defaults to `true`)", () => {
-      it("should deep flatten a given node", () => {
+    describe('when `descend` param is missing (defaults to `true`)', () => {
+      it('should deep flatten a given node', () => {
         const { state } = createEditor(
           doc(table(tr(tdEmpty), tr(tdEmpty), tr(tdEmpty)))
         );
@@ -53,8 +53,8 @@ describe("node", () => {
     });
   });
 
-  describe("findChildren", () => {
-    it("should return an array of matched nodes `predicate` returns truthy for", () => {
+  describe('findChildren', () => {
+    it('should return an array of matched nodes `predicate` returns truthy for', () => {
       const { state } = createEditor(
         doc(table(tr(tdEmpty), tr(tdEmpty), tr(tdEmpty)))
       );
@@ -64,28 +64,28 @@ describe("node", () => {
       );
       expect(result.length).toEqual(3);
       result.forEach(item => {
-        expect(item.node.type.name).toEqual("paragraph");
+        expect(item.node.type.name).toEqual('paragraph');
       });
     });
-    it("should return an empty array if `predicate` returns falthy", () => {
+    it('should return an empty array if `predicate` returns falthy', () => {
       const { state } = createEditor(doc(table(tr(tdEmpty))));
       const result = findChildren(
         state.doc.firstChild,
-        node => node.type === state.schema.nodes.atom
+        node => node.type === state.schema.nodes.atomInline
       );
       expect(result.length).toEqual(0);
     });
   });
 
-  describe("findTextNodes", () => {
-    it("should return an empty array if a given node does not have text nodes", () => {
+  describe('findTextNodes', () => {
+    it('should return an empty array if a given node does not have text nodes', () => {
       const { state } = createEditor(doc(table(tr(tdEmpty))));
       const result = findTextNodes(state.doc.firstChild);
       expect(result.length).toEqual(0);
     });
-    it("should return an array if text nodes of a given node", () => {
+    it('should return an array if text nodes of a given node', () => {
       const { state } = createEditor(
-        doc(table(tr(td(p("one", atom(), "two"), td(p("three"))))))
+        doc(table(tr(td(p('one', atomInline(), 'two'), td(p('three'))))))
       );
       const result = findTextNodes(state.doc.firstChild);
       expect(result.length).toEqual(3);
@@ -95,13 +95,13 @@ describe("node", () => {
     });
   });
 
-  describe("findBlockNodes", () => {
-    it("should return an empty array if a given node does not have block nodes", () => {
-      const { state } = createEditor(doc(p("")));
+  describe('findBlockNodes', () => {
+    it('should return an empty array if a given node does not have block nodes', () => {
+      const { state } = createEditor(doc(p('')));
       const result = findBlockNodes(state.doc.firstChild);
       expect(result.length).toEqual(0);
     });
-    it("should return an array if block nodes of a given node", () => {
+    it('should return an array if block nodes of a given node', () => {
       const { state } = createEditor(doc(table(tr(tdEmpty, tdEmpty))));
       const result = findBlockNodes(state.doc.firstChild);
       expect(result.length).toEqual(5);
@@ -111,21 +111,21 @@ describe("node", () => {
     });
   });
 
-  describe("findChildrenByAttr", () => {
-    it("should return an empty array if a given node does not have nodes with the given attribute", () => {
-      const { state } = createEditor(doc(p("")));
+  describe('findChildrenByAttr', () => {
+    it('should return an empty array if a given node does not have nodes with the given attribute', () => {
+      const { state } = createEditor(doc(p('')));
       const result = findChildrenByAttr(
         state.doc.firstChild,
         attrs => attrs && attrs.colspan === 2
       );
       expect(result.length).toEqual(0);
     });
-    it("should return an array if child nodes with the given attribute", () => {
+    it('should return an array if child nodes with the given attribute', () => {
       const { state } = createEditor(
         doc(
           table(
-            tr(tdEmpty, td({ colspan: 2 }, p("2")), td({ colspan: 3 }, p("3"))),
-            tr(td({ colspan: 2 }, p("2")), tdEmpty, tdEmpty)
+            tr(tdEmpty, td({ colspan: 2 }, p('2')), td({ colspan: 3 }, p('3'))),
+            tr(td({ colspan: 2 }, p('2')), tdEmpty, tdEmpty)
           )
         )
       );
@@ -140,13 +140,13 @@ describe("node", () => {
     });
   });
 
-  describe("findChildrenByType", () => {
-    it("should return an empty array if a given node does not have nodes of a given `nodeType`", () => {
-      const { state } = createEditor(doc(p("")));
+  describe('findChildrenByType', () => {
+    it('should return an empty array if a given node does not have nodes of a given `nodeType`', () => {
+      const { state } = createEditor(doc(p('')));
       const result = findChildrenByType(state.doc, state.schema.nodes.table);
       expect(result.length).toEqual(0);
     });
-    it("should return an array if child nodes of a given `nodeType`", () => {
+    it('should return an array if child nodes of a given `nodeType`', () => {
       const { state } = createEditor(doc(table(tr(tdEmpty, tdEmpty, tdEmpty))));
       const result = findChildrenByType(
         state.doc,
@@ -154,25 +154,25 @@ describe("node", () => {
       );
       expect(result.length).toEqual(3);
       result.forEach(item => {
-        expect(item.node.type.name).toEqual("table_cell");
+        expect(item.node.type.name).toEqual('table_cell');
       });
     });
   });
 
-  describe("findChildrenByMark", () => {
-    it("should return an empty array if a given node does not have child nodes with the given mark", () => {
-      const { state } = createEditor(doc(p("")));
+  describe('findChildrenByMark', () => {
+    it('should return an empty array if a given node does not have child nodes with the given mark', () => {
+      const { state } = createEditor(doc(p('')));
       const result = findChildrenByMark(state.doc, state.schema.marks.strong);
       expect(result.length).toEqual(0);
     });
-    it("should return an array if child nodes if a given node has child nodes with the given mark", () => {
+    it('should return an array if child nodes if a given node has child nodes with the given mark', () => {
       const { state } = createEditor(
         doc(
           table(
             tr(
-              td(p(strong("one"), "two")),
+              td(p(strong('one'), 'two')),
               tdEmpty,
-              td(p("three", strong("four")))
+              td(p('three', strong('four')))
             )
           )
         )
@@ -180,19 +180,19 @@ describe("node", () => {
       const result = findChildrenByMark(state.doc, state.schema.marks.strong);
       expect(result.length).toEqual(2);
       result.forEach(item => {
-        expect(item.node.marks[0].type.name).toEqual("strong");
+        expect(item.node.marks[0].type.name).toEqual('strong');
       });
     });
   });
 
-  describe("contains", () => {
-    it("should return `false` if a given `node` does not contain nodes of a given `nodeType`", () => {
-      const { state } = createEditor(doc(p("")));
+  describe('contains', () => {
+    it('should return `false` if a given `node` does not contain nodes of a given `nodeType`', () => {
+      const { state } = createEditor(doc(p('')));
       const result = contains(state.doc, state.schema.nodes.table);
       expect(result).toBe(false);
     });
-    it("should return `true` if a given `node` contains nodes of a given `nodeType`", () => {
-      const { state } = createEditor(doc(p("")));
+    it('should return `true` if a given `node` contains nodes of a given `nodeType`', () => {
+      const { state } = createEditor(doc(p('')));
       const result = contains(state.doc, state.schema.nodes.paragraph);
       expect(result).toBe(true);
     });
