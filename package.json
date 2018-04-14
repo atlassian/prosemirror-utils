@@ -27,7 +27,8 @@
   "jest": {
     "transform": {
       "^.+\\.js$": "babel-jest"
-    }
+    },
+    "setupTestFrameworkScriptFile": "./jestFrameworkSetup.js"
   },
   "typings": "typings.d.ts",
   "files": [
