@@ -83,8 +83,11 @@ export const safeInsert = (content, position) => tr => {
 
   // try to replace an empty paragraph
   if (isEmptyParagraph(parent)) {
+    const oldTr = tr;
     tr = replaceParentNodeOfType(parent.type, content)(tr);
-    return setTextSelection($from.pos)(tr);
+    if (oldTr !== tr) {
+      return setTextSelection($from.pos)(tr);
+    }
   }
 
   // given node is allowed at the current cursor position

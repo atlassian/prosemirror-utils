@@ -5,6 +5,7 @@ import {
   strong,
   table,
   tr as row,
+  containerWithRestrictedContent,
   td,
   th,
   tdCursor,
@@ -202,6 +203,22 @@ describe('transforms', () => {
       expect(newTr.selection.$from.parent.textContent).toEqual('two');
     });
 
+    it("should replace an empty paragraph inside other node if it's allowed by schema", () => {
+      const {
+        state: { schema, tr }
+      } = createEditor(doc(table(row(td(p('<cursor>'))))));
+      const node = schema.nodes.blockquote.createChecked(
+        {},
+        schema.nodes.paragraph.createChecked({}, schema.text('two'))
+      );
+      const newTr = safeInsert(node)(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.doc).toEqualDocument(
+        doc(table(row(td(blockquote(p('two'))))))
+      );
+      expect(newTr.selection.$from.parent.textContent).toEqual('two');
+    });
+
     it('should insert a node at position 0 (start of the doc) and move cursor inside of the new paragraph', () => {
       const {
         state: { schema, tr }
@@ -240,6 +257,25 @@ describe('transforms', () => {
       const newTr = safeInsert(node, 5)(tr);
       expect(newTr).not.toBe(tr);
       expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
+      expect(newTr.selection.$from.parent.textContent).toEqual('new');
+    });
+
+    it("should not split a node when it's impossible to replace it, should append instead", () => {
+      const {
+        state: { schema, tr }
+      } = createEditor(doc(containerWithRestrictedContent(p('<cursor>'))));
+      const node = schema.nodes.containerWithRestrictedContent.createChecked(
+        {},
+        schema.nodes.paragraph.createChecked({}, schema.text('new'))
+      );
+      const newTr = safeInsert(node)(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.doc).toEqualDocument(
+        doc(
+          containerWithRestrictedContent(p('')),
+          containerWithRestrictedContent(p('new'))
+        )
+      );
       expect(newTr.selection.$from.parent.textContent).toEqual('new');
     });
   });
