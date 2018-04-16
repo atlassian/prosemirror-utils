@@ -30,7 +30,7 @@ export const replaceNodeAtPos = (position, content) => tr => {
   const before = position - 1;
   const node = tr.doc.nodeAt(before);
   const $pos = tr.doc.resolve(before);
-  if (canReplace($pos, tr.doc, content)) {
+  if (canReplace($pos, content)) {
     return cloneTr(tr.replaceWith(before, before + node.nodeSize, content));
   }
   return tr;
@@ -38,16 +38,16 @@ export const replaceNodeAtPos = (position, content) => tr => {
 
 // ($pos: ResolvedPos, doc: ProseMirrorNode, content: union<ProseMirrorNode, Fragment>, ) → boolean
 // Checks if replacing a node at a given `$pos` inside of the `doc` node with the given `content` is possible.
-export const canReplace = ($pos, doc, content) => {
+export const canReplace = ($pos, content) => {
   const index = $pos.index($pos.depth);
   const indexAfter = $pos.indexAfter($pos.depth);
-
-  if (content instanceof Fragment) {
-    return doc.canReplace(index, index, content);
-  } else if (content instanceof PMNode) {
-    return doc.canReplaceWith(index, indexAfter, content.type);
-  }
-  return false;
+  const node = $pos.node($pos.depth);
+  return (
+    node &&
+    node.type.validContent(
+      content instanceof Fragment ? content : Fragment.from(content)
+    )
+  );
 };
 
 // (position: number) → (tr: Transaction) → Transaction

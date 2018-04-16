@@ -56,6 +56,20 @@ const atomContainer = {
   }
 };
 
+const containerWithRestrictedContent = {
+  inline: false,
+  group: 'block',
+  content: 'paragraph+',
+  parseDOM: [
+    {
+      tag: 'div[data-node-type="containerWithRestrictedContent"]'
+    }
+  ],
+  toDOM() {
+    return ['div', { 'data-node-type': 'containerWithRestrictedContent' }];
+  }
+};
+
 export default new Schema({
   nodes: {
     doc,
@@ -64,6 +78,7 @@ export default new Schema({
     atomInline,
     atomBlock,
     atomContainer,
+    containerWithRestrictedContent,
     table,
     table_row,
     table_cell,
