@@ -38,6 +38,8 @@ npm install prosemirror-utils
 
 @findPositionOfNodeBefore
 
+@findDomRefAtPos
+
 ### Node
 
 @flatten
