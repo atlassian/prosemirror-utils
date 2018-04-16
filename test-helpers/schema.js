@@ -19,11 +19,11 @@ const atomInline = {
   selectable: true,
   parseDOM: [
     {
-      tag: 'span[data-node-type="atom"]'
+      tag: 'span[data-node-type="atomInline"]'
     }
   ],
   toDOM() {
-    return ['span', { 'data-node-type': 'atom' }];
+    return ['span', { 'data-node-type': 'atomInline' }];
   }
 };
 

@@ -21,7 +21,7 @@ export const findParentNode = predicate => selection => {
 export const findParentDomRef = (predicate, domAtPos) => selection => {
   const parent = findParentNode(predicate)(selection);
   if (parent) {
-    return domAtPos(parent.pos).node;
+    return findDomRefAtPos(parent.pos, domAtPos);
   }
 };
 
@@ -78,4 +78,21 @@ export const findPositionOfNodeBefore = selection => {
       return parent.pos;
     }
   }
+};
+
+// :: (position: number, domAtPos: (pos: number) → {node: dom.Node, offset: number}) → dom.Node
+// Returns DOM reference of a node at a given `position`.
+// @see https://github.com/atlassian/prosemirror-utils/issues/8 for more context.
+//
+// Example
+// ```javascript
+// const domAtPos = view.domAtPos.bind(view);
+// const ref = findDomRefAtPos($from.pos, domAtPos);
+// ```
+export const findDomRefAtPos = (position, domAtPos) => {
+  const dom = domAtPos(position);
+  if (dom.offset > 0) {
+    return dom.node.childNodes[dom.offset - 1];
+  }
+  return dom.node;
 };

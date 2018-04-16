@@ -56,6 +56,17 @@ npm install prosemirror-utils
    Returns position of the previous node
 
 
+ * **`findDomRefAtPos`**`(position: number, domAtPos: fn(pos: number) → {node: dom.Node, offset: number}) → dom.Node`\
+   Returns DOM reference of a node at a given `position`.
+   @see https://github.com/atlassian/prosemirror-utils/issues/8 for more context.
+
+   Example
+   ```javascript
+   const domAtPos = view.domAtPos.bind(view);
+   const ref = findDomRefAtPos($from.pos, domAtPos);
+   ```
+
+
 ### Node
 
  * **`flatten`**`(node: ProseMirrorNode, descend: ?boolean = true) → [{node: ProseMirrorNode, pos: number}]`\

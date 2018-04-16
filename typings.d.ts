@@ -24,6 +24,8 @@ export function isNodeSelection(selection: Selection): boolean;
 
 export function findPositionOfNodeBefore(selection: Selection): number | undefined;
 
+export function findDomRefAtPos(position: number, domAtPos: DomAtPos): Node;
+
 // Node
 export function flatten(node: ProsemirrorNode, descend?: boolean): {pos: number, node: ProsemirrorNode}[];
 
