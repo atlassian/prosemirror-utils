@@ -16,9 +16,9 @@ Install `prosemirror-utils` package from npm:
 npm install prosemirror-utils
 ```
 
-## Documentation
+## Public API documentation
 
-### Selection
+### Utils for working with `selection`
 
 @findParentNode
 
@@ -40,7 +40,7 @@ npm install prosemirror-utils
 
 @findDomRefAtPos
 
-### Node
+### Utils for working with ProseMirror `node`
 
 @flatten
 
@@ -60,7 +60,7 @@ npm install prosemirror-utils
 
 @contains
 
-### Tables
+### Utils for working with `table`
 
 @findTable
 
@@ -100,7 +100,7 @@ npm install prosemirror-utils
 
 @removeSelectedRows
 
-### Transforms
+### Utils for document transformation
 
 @removeParentNodeOfType
 

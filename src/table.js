@@ -11,20 +11,37 @@ import { findParentNode } from './selection';
 import { cloneTr, tableNodeTypes } from './helpers';
 
 // :: (selection: Selection) → ?{pos: number, node: ProseMirrorNode}
-// Iterates over parent nodes, returning the first found table node.
+// Iterates over parent nodes, returning the closest table node.
+//
+// Example
+// ```javascript
+// const table = findTable(selection);
+// ```
 export const findTable = selection =>
   findParentNode(
     node => node.type.spec.tableRole && node.type.spec.tableRole === 'table'
   )(selection);
 
 // :: (selection: Selection) → boolean
-// Checks if current selection is a CellSelection
+// Checks if current selection is a `CellSelection`.
+//
+// Example
+// ```javascript
+// if (isCellSelection(selection)) {
+//   // ...
+// }
+// ```
 export const isCellSelection = selection => {
   return selection instanceof CellSelection;
 };
 
 // :: (columnIndex: number) → (selection: Selection) → boolean
-// Checks if entire column at index `columnIndex` is selected
+// Checks if entire column at index `columnIndex` is selected.
+//
+// Example
+// ```javascript
+// const className = isColumnSelected(i)(selection) ? 'selected' : '';
+// ```
 export const isColumnSelected = columnIndex => selection => {
   if (isCellSelection(selection)) {
     const { $anchorCell, $headCell } = selection;
@@ -44,7 +61,12 @@ export const isColumnSelected = columnIndex => selection => {
 };
 
 // :: (rowIndex: number) → (selection: Selection) → boolean
-// Checks if entire row at index `rowIndex` is selected
+// Checks if entire row at index `rowIndex` is selected.
+//
+// Example
+// ```javascript
+// const className = isRowSelected(i)(selection) ? 'selected' : '';
+// ```
 export const isRowSelected = rowIndex => selection => {
   if (isCellSelection(selection)) {
     const { $anchorCell, $headCell } = selection;
@@ -62,6 +84,11 @@ export const isRowSelected = rowIndex => selection => {
 
 // :: (selection: Selection) → boolean
 // Checks if entire table is selected
+//
+// Example
+// ```javascript
+// const className = isTableSelected(selection) ? 'selected' : '';
+// ```
 export const isTableSelected = selection => {
   if (isCellSelection(selection)) {
     return selection.isColSelection() && selection.isRowSelection();
@@ -72,6 +99,11 @@ export const isTableSelected = selection => {
 
 // :: (columnIndex: number) → (selection: Selection) → ?[{ pos: number, node: ProseMirrorNode }]
 // Returns an array of cells in a column at index `columnIndex`.
+//
+// Example
+// ```javascript
+// const cells = getCellsInColumn(i)(selection); // [{node, pos}, {node, pos}]
+// ```
 export const getCellsInColumn = columnIndex => selection => {
   const table = findTable(selection);
   if (table) {
@@ -93,6 +125,11 @@ export const getCellsInColumn = columnIndex => selection => {
 
 // :: (rowIndex: number) → (selection: Selection) → ?[{ pos: number, node: ProseMirrorNode }]
 // Returns an array of cells in a row at index `rowIndex`.
+//
+// Example
+// ```javascript
+// const cells = getCellsInRow(i)(selection); // [{node, pos}, {node, pos}]
+// ```
 export const getCellsInRow = rowIndex => selection => {
   const table = findTable(selection);
   if (table) {
@@ -114,6 +151,11 @@ export const getCellsInRow = rowIndex => selection => {
 
 // :: (selection: Selection) → ?[{ pos: number, node: ProseMirrorNode }]
 // Returns an array of all cells in a table.
+//
+// Example
+// ```javascript
+// const cells = getCellsInTable(selection); // [{node, pos}, {node, pos}]
+// ```
 export const getCellsInTable = selection => {
   const table = findTable(selection);
   if (table) {
@@ -132,7 +174,14 @@ export const getCellsInTable = selection => {
 };
 
 // :: (columnIndex: number) → (tr: Transaction) → Transaction
-// Creates a CellSelection on a column at `columnIndex`.
+// Returns a new transaction that creates a `CellSelection` on a column at index `columnIndex`.
+//
+// Example
+// ```javascript
+// dispatch(
+//   selectColumn(i)(state.tr)
+// );
+// ```
 export const selectColumn = columnIndex => tr => {
   const cells = getCellsInColumn(columnIndex)(tr.selection);
   if (cells) {
@@ -144,7 +193,14 @@ export const selectColumn = columnIndex => tr => {
 };
 
 // :: (rowIndex: number) → (tr: Transaction) → Transaction
-// Creates a CellSelection on a row at `rowIndex`.
+// Returns a new transaction that creates a `CellSelection` on a column at index `rowIndex`.
+//
+// Example
+// ```javascript
+// dispatch(
+//   selectRow(i)(state.tr)
+// );
+// ```
 export const selectRow = rowIndex => tr => {
   const cells = getCellsInRow(rowIndex)(tr.selection);
   if (cells) {
@@ -156,7 +212,14 @@ export const selectRow = rowIndex => tr => {
 };
 
 // :: (selection: Selection) → (tr: Transaction) → Transaction
-// Creates a CellSelection on the entire table.
+// Returns a new transaction that creates a `CellSelection` on the entire table.
+//
+// Example
+// ```javascript
+// dispatch(
+//   selectTable(i)(state.tr)
+// );
+// ```
 export const selectTable = tr => {
   const cells = getCellsInTable(tr.selection);
   if (cells) {
@@ -168,7 +231,14 @@ export const selectTable = tr => {
 };
 
 // :: (schema: Schema) → (tr: Transaction) → Transaction
-// Clears the content of selected cells.
+// Returns a new transaction that clears the content of selected cells.
+//
+// Example
+// ```javascript
+// dispatch(
+//   emptySelectedCells(state.schema)(state.tr)
+// );
+// ```
 export const emptySelectedCells = schema => tr => {
   if (isCellSelection(tr.selection)) {
     const emptyCell = tableNodeTypes(schema).cell.createAndFill().content;
@@ -189,7 +259,14 @@ export const emptySelectedCells = schema => tr => {
 };
 
 // :: (columnIndex: number) → (tr: Transaction) → Transaction
-// Returns a new transaction that adds a new column at `columnIndex`.
+// Returns a new transaction that adds a new column at index `columnIndex`.
+//
+// Example
+// ```javascript
+// dispatch(
+//   addColumnAt(i)(state.tr)
+// );
+// ```
 export const addColumnAt = columnIndex => tr => {
   const table = findTable(tr.selection);
   if (table) {
@@ -212,7 +289,14 @@ export const addColumnAt = columnIndex => tr => {
 };
 
 // :: (rowIndex: number) → (tr: Transaction) → Transaction
-// Returns a new transaction that adds a new row at `rowIndex`.
+// Returns a new transaction that adds a new row at index `rowIndex`.
+//
+// Example
+// ```javascript
+// dispatch(
+//   addRowAt(i)(state.tr)
+// );
+// ```
 export const addRowAt = rowIndex => tr => {
   const table = findTable(tr.selection);
   if (table) {
@@ -235,7 +319,14 @@ export const addRowAt = rowIndex => tr => {
 };
 
 // :: (columnIndex: number) → (tr: Transaction) → Transaction
-// Returns a new transaction that removes a column at `columnIndex`.
+// Returns a new transaction that removes a column at index `columnIndex`.
+//
+// Example
+// ```javascript
+// dispatch(
+//   removeColumnAt(i)(state.tr)
+// );
+// ```
 export const removeColumnAt = columnIndex => tr => {
   const table = findTable(tr.selection);
   if (table) {
@@ -257,7 +348,14 @@ export const removeColumnAt = columnIndex => tr => {
 };
 
 // :: (rowIndex: number) → (tr: Transaction) → Transaction
-// Returns a new transaction that removes a row at `rowIndex`.
+// Returns a new transaction that removes a row at index `rowIndex`.
+//
+// Example
+// ```javascript
+// dispatch(
+//   removeRowAt(i)(state.tr)
+// );
+// ```
 export const removeRowAt = rowIndex => tr => {
   const table = findTable(tr.selection);
   if (table) {
@@ -279,7 +377,14 @@ export const removeRowAt = rowIndex => tr => {
 };
 
 // :: (tr: Transaction) → Transaction
-// Returns a new transaction that removes a table if the cursor is inside
+// Returns a new transaction that removes a table node if the cursor is inside of it.
+//
+// Example
+// ```javascript
+// dispatch(
+//   removeTable(state.tr)
+// );
+// ```
 export const removeTable = tr => {
   const { $from } = tr.selection;
   for (let depth = $from.depth; depth > 0; depth--) {
@@ -292,7 +397,14 @@ export const removeTable = tr => {
 };
 
 // :: (tr: Transaction) → Transaction
-// Returns a new transaction that removes selected columns
+// Returns a new transaction that removes selected columns.
+//
+// Example
+// ```javascript
+// dispatch(
+//   removeSelectedColumns(state.tr)
+// );
+// ```
 export const removeSelectedColumns = tr => {
   const { selection } = tr;
   if (isTableSelected(selection)) {
@@ -316,7 +428,14 @@ export const removeSelectedColumns = tr => {
 };
 
 // :: (tr: Transaction) → Transaction
-// Returns a new transaction that removes selected rows
+// Returns a new transaction that removes selected rows.
+//
+// Example
+// ```javascript
+// dispatch(
+//   removeSelectedRows(state.tr)
+// );
+// ```
 export const removeSelectedRows = tr => {
   const { selection } = tr;
   if (isTableSelected(selection)) {
