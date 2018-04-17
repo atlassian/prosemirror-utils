@@ -10,8 +10,14 @@ import {
 } from './helpers';
 
 // :: (nodeType: union<NodeType, [NodeType]>) → (tr: Transaction) → Transaction
-// Returns a new transaction that removes a node of a given `nodeType`.
-// It will return the original transaction if parent node hasn't been found.
+// Returns a new transaction that removes a node of a given `nodeType`. It will return an original transaction if parent node hasn't been found.
+//
+// Example
+// ```javascript
+// dispatch(
+//   removeParentNodeOfType(schema.nodes.table)(tr)
+// );
+// ```
 export const removeParentNodeOfType = nodeType => tr => {
   const parent = findParentNodeOfType(nodeType)(tr.selection);
   if (parent) {
@@ -21,8 +27,16 @@ export const removeParentNodeOfType = nodeType => tr => {
 };
 
 // :: (nodeType: union<NodeType, [NodeType]>, content: union<ProseMirrorNode, Fragment>) → (tr: Transaction) → Transaction
-// Returns a new transaction that replaces parent node of a given `nodeType` with the given `content`.
-// It will return the original transaction if parent node hasn't been found, or replacing is not possible.
+// Returns a new transaction that replaces parent node of a given `nodeType` with the given `content`. It will return an original transaction if either parent node hasn't been found or replacing is not possible.
+//
+// Example
+// ```javascript
+// const node = schema.nodes.paragraph.createChecked({}, schema.text('new'));
+//
+// dispatch(
+//  replaceParentNodeOfType(schema.nodes.table, node)(tr)
+// );
+// ```
 export const replaceParentNodeOfType = (nodeType, content) => tr => {
   const parent = findParentNodeOfType(nodeType)(tr.selection);
   if (parent) {
@@ -32,8 +46,14 @@ export const replaceParentNodeOfType = (nodeType, content) => tr => {
 };
 
 // :: (tr: Transaction) → Transaction
-// Returns a new transaction that removes selected node.
-// It will return the original transaction if current selection is not a NodeSelection
+// Returns a new transaction that removes selected node. It will return an original transaction if current selection is not a `NodeSelection`.
+//
+// Example
+// ```javascript
+// dispatch(
+//   removeSelectedNode(tr)
+// );
+// ```
 export const removeSelectedNode = tr => {
   if (isNodeSelection(tr.selection)) {
     const from = tr.selection.$from.pos;
@@ -45,7 +65,15 @@ export const removeSelectedNode = tr => {
 
 // :: (node: ProseMirrorNode) → (tr: Transaction) → Transaction
 // Returns a new transaction that replaces selected node with a given `node`.
-// It will return the original transaction if current selection is not a NodeSelection, or replacing is not possible.
+// It will return the original transaction if either current selection is not a NodeSelection or replacing is not possible.
+//
+// Example
+// ```javascript
+// const node = schema.nodes.paragraph.createChecked({}, schema.text('new'));
+// dispatch(
+//   replaceSelectedNode(node)(tr)
+// );
+// ```
 export const replaceSelectedNode = node => tr => {
   if (isNodeSelection(tr.selection)) {
     const { $from, $to } = tr.selection;
@@ -59,8 +87,15 @@ export const replaceSelectedNode = node => tr => {
 };
 
 // :: (position: number) → (tr: Transaction) → Transaction
-// Tries to find a valid cursor selection **starting** at the given `position` and returns a new transaction.
+// Returns a new transaction that tries to find a valid cursor selection starting at the given `position`.
 // If a valid cursor position hasn't been found, it will return the original transaction.
+//
+// Example
+// ```javascript
+// dispatch(
+//   setTextSelection(5)(tr)
+// );
+// ```
 export const setTextSelection = position => tr => {
   const nextSelection = Selection.findFrom(tr.doc.resolve(position), 1, true);
   if (nextSelection) {
@@ -70,10 +105,17 @@ export const setTextSelection = position => tr => {
 };
 
 // :: (content: union<ProseMirrorNode, Fragment>, position: ?number) → (tr: Transaction) → Transaction
-// Returns a new transaction that inserts a given `node` at the current cursor position, or at a given `position`, if it is allowed by schema. If schema restricts such nesting, it will try to find an appropriate place for a given `node` in the document, looping through parent nodes up until the root document node.
-// If cursor is inside of an empty paragraph at the top level (depth=0), it will try to replace that paragraph with the given `content`.
-// If insertion is successful and inserted node has content, it will set cursor inside of that content.
-// It will return the original transaction if the place for insertion hasn't been found.
+// Returns a new transaction that inserts a given `content` at the current cursor position, or at a given `position`, if it is allowed by schema. If schema restricts such nesting, it will try to find an appropriate place for a given node in the document, looping through parent nodes up until the root document node.
+// If cursor is inside of an empty paragraph, it will try to replace that paragraph with the given content. If insertion is successful and inserted node has content, it will set cursor inside of that content.
+// It will return an original transaction if the place for insertion hasn't been found.
+//
+// Example
+// ```javascript
+// const node = schema.nodes.extension.createChecked({});
+// dispatch(
+//   safeInsert(node)(tr)
+// );
+// ```
 export const safeInsert = (content, position) => tr => {
   const $from =
     typeof position === 'number'
@@ -110,6 +152,14 @@ export const safeInsert = (content, position) => tr => {
 
 // :: (nodeType: union<NodeType, [NodeType]>, type: ?union<NodeType, null>, attrs: ?union<Object, null>, marks?: [Mark]) → (tr: Transaction) → Transaction
 // Returns a transaction that changes the type, attributes, and/or marks of the parent node of a given `nodeType`.
+//
+// Example
+// ```javascript
+// const node = schema.nodes.extension.createChecked({});
+// dispatch(
+//   safeInsert(node)(tr)
+// );
+// ```
 export const setParentNodeMarkup = (nodeType, type, attrs, marks) => tr => {
   const parent = findParentNodeOfType(nodeType)(tr.selection);
   if (parent) {
@@ -126,7 +176,14 @@ export const setParentNodeMarkup = (nodeType, type, attrs, marks) => tr => {
 };
 
 // :: (nodeType: union<NodeType, [NodeType]>) → (tr: Transaction) → Transaction
-// Returns a transaction that sets a NodeSelection on a parent node of a given `nodeType`.
+// Returns a new transaction that sets a `NodeSelection` on a parent node of a `given nodeType`.
+//
+// Example
+// ```javascript
+// dispatch(
+//   selectParentNodeOfType([tableCell, tableHeader])(state.tr)
+// );
+// ```
 export const selectParentNodeOfType = nodeType => tr => {
   if (!isNodeSelection(tr.selection)) {
     const parent = findParentNodeOfType(nodeType)(tr.selection);
@@ -140,7 +197,14 @@ export const selectParentNodeOfType = nodeType => tr => {
 };
 
 // :: (tr: Transaction) → Transaction
-// Returns a transaction that deletes previous node from the current selection
+// Returns a new transaction that deletes previous node.
+//
+// Example
+// ```javascript
+// dispatch(
+//   removeNodeBefore(state.tr)
+// );
+// ```
 export const removeNodeBefore = tr => {
   const position = findPositionOfNodeBefore(tr.selection);
   if (typeof position === 'number') {
