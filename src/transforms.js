@@ -86,8 +86,9 @@ export const replaceSelectedNode = node => tr => {
   return tr;
 };
 
-// :: (position: number) → (tr: Transaction) → Transaction
-// Returns a new transaction that tries to find a valid cursor selection starting at the given `position`.
+// :: (position: number, dir: ?number = 1) → (tr: Transaction) → Transaction
+// Returns a new transaction that tries to find a valid cursor selection starting at the given `position`
+// and searching back if `dir` is negative, and forward if positive.
 // If a valid cursor position hasn't been found, it will return the original transaction.
 //
 // Example
@@ -96,8 +97,8 @@ export const replaceSelectedNode = node => tr => {
 //   setTextSelection(5)(tr)
 // );
 // ```
-export const setTextSelection = position => tr => {
-  const nextSelection = Selection.findFrom(tr.doc.resolve(position), 1, true);
+export const setTextSelection = (position, dir = 1) => tr => {
+  const nextSelection = Selection.findFrom(tr.doc.resolve(position), dir, true);
   if (nextSelection) {
     return tr.setSelection(nextSelection);
   }
@@ -117,10 +118,8 @@ export const setTextSelection = position => tr => {
 // );
 // ```
 export const safeInsert = (content, position) => tr => {
-  const $from =
-    typeof position === 'number'
-      ? tr.doc.resolve(position)
-      : tr.selection.$from;
+  const hasPosition = typeof position === 'number';
+  const $from = hasPosition ? tr.doc.resolve(position) : tr.selection.$from;
   const { parent, depth } = $from;
 
   // try to replace an empty paragraph
@@ -135,7 +134,9 @@ export const safeInsert = (content, position) => tr => {
   // given node is allowed at the current cursor position
   if (canInsert($from, content)) {
     tr.insert($from.pos, content);
-    return cloneTr(setTextSelection($from.pos)(tr));
+    return cloneTr(
+      setTextSelection(hasPosition ? $from.pos : tr.selection.$anchor.pos)(tr)
+    );
   }
 
   // looking for a place in the doc where the node is allowed
@@ -144,7 +145,7 @@ export const safeInsert = (content, position) => tr => {
     const $pos = tr.doc.resolve(pos);
     if (canInsert($pos, content)) {
       tr.insert(pos, content);
-      return cloneTr(setTextSelection(pos)(tr));
+      return cloneTr(setTextSelection(tr.mapping.map(pos), -1)(tr));
     }
   }
   return tr;

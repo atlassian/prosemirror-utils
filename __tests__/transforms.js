@@ -278,6 +278,25 @@ describe('transforms', () => {
       );
       expect(newTr.selection.$from.parent.textContent).toEqual('new');
     });
+    it('should set the selection after the inserted content (text)', () => {
+      const {
+        state: { schema, tr }
+      } = createEditor(doc(p('<cursor>')));
+      const newTr = safeInsert(Fragment.from(schema.text('new')))(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.doc).toEqualDocument(doc(p('new')));
+      expect(newTr.selection.head).toEqual(4);
+    });
+    it('should set the selection after the inserted content (block)', () => {
+      const {
+        state: { schema, tr }
+      } = createEditor(doc(p('old<cursor>')));
+      const node = schema.nodes.paragraph.createChecked({}, schema.text('new'));
+      const newTr = safeInsert(node)(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.doc).toEqualDocument(doc(p('old'), p('new')));
+      expect(newTr.selection.head).toEqual(9);
+    });
   });
 
   describe('replaceSelectedNode', () => {
