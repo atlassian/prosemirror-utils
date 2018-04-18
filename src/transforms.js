@@ -86,7 +86,7 @@ export const replaceSelectedNode = node => tr => {
   return tr;
 };
 
-// :: (position: number, dir: ?number = 1) → (tr: Transaction) → Transaction
+// :: (position: number, dir: ?number) → (tr: Transaction) → Transaction
 // Returns a new transaction that tries to find a valid cursor selection starting at the given `position`
 // and searching back if `dir` is negative, and forward if positive.
 // If a valid cursor position hasn't been found, it will return the original transaction.

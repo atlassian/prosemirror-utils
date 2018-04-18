@@ -41,7 +41,7 @@
     "build_all": "npm run build && npm run build_readme",
     "test": "NODE_ENV=testing jest",
     "test-ci": "NODE_ENV=testing jest --coverage && codecov",
-    "prepare": "npm run build",
+    "prepare": "npm run build_all",
     "precommit": "lint-staged"
   },
   "peerDependencies": {
