@@ -1,7 +1,6 @@
 // :: (node: ProseMirrorNode, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Flattens descendants of a given `node`. It doesn't descend into a node when descend argument is `false` (defaults to `true`).
 //
-// Example
 // ```javascript
 // const children = flatten(node);
 // ```
@@ -22,7 +21,6 @@ export const flatten = (node, descend = true) => {
 // :: (node: ProseMirrorNode, predicate: (node: ProseMirrorNode) → boolean, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Iterates over descendants of a given `node`, returning child nodes predicate returns truthy for. It doesn't descend into a node when descend argument is `false` (defaults to `true`).
 //
-// Example
 // ```javascript
 // const textNodes = findChildren(node, child => child.isText, false);
 // ```
@@ -38,7 +36,6 @@ export const findChildren = (node, predicate, descend) => {
 // :: (node: ProseMirrorNode, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Returns text nodes of a given `node`. It doesn't descend into a node when descend argument is `false` (defaults to `true`).
 //
-// Example
 // ```javascript
 // const textNodes = findTextNodes(node);
 // ```
@@ -49,7 +46,6 @@ export const findTextNodes = (node, descend) => {
 // :: (node: ProseMirrorNode, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Returns inline nodes of a given `node`. It doesn't descend into a node when descend argument is `false` (defaults to `true`).
 //
-// Example
 // ```javascript
 // const inlineNodes = findInlineNodes(node);
 // ```
@@ -60,7 +56,6 @@ export const findInlineNodes = (node, descend) => {
 // :: (node: ProseMirrorNode, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Returns block descendants of a given `node`. It doesn't descend into a node when descend argument is `false` (defaults to `true`).
 //
-// Example
 // ```javascript
 // const blockNodes = findBlockNodes(node);
 // ```
@@ -71,7 +66,6 @@ export const findBlockNodes = (node, descend) => {
 // :: (node: ProseMirrorNode, predicate: (attrs: ?Object) → boolean, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Iterates over descendants of a given `node`, returning child nodes predicate returns truthy for. It doesn't descend into a node when descend argument is `false` (defaults to `true`).
 //
-// Example
 // ```javascript
 // const mergedCells = findChildrenByAttr(table, attrs => attrs.colspan === 2);
 // ```
@@ -82,7 +76,6 @@ export const findChildrenByAttr = (node, predicate, descend) => {
 // :: (node: ProseMirrorNode, nodeType: NodeType, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Iterates over descendants of a given `node`, returning child nodes of a given nodeType. It doesn't descend into a node when descend argument is `false` (defaults to `true`).
 //
-// Example
 // ```javascript
 // const cells = findChildrenByType(table, schema.nodes.tableCell);
 // ```
@@ -93,7 +86,6 @@ export const findChildrenByType = (node, nodeType, descend) => {
 // :: (node: ProseMirrorNode, markType: markType, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Iterates over descendants of a given `node`, returning child nodes that have a mark of a given markType. It doesn't descend into a `node` when descend argument is `false` (defaults to `true`).
 //
-// Example
 // ```javascript
 // const nodes = findChildrenByMark(state.doc, schema.marks.strong);
 // ```
@@ -104,7 +96,6 @@ export const findChildrenByMark = (node, markType, descend) => {
 // :: (node: ProseMirrorNode, nodeType: NodeType) → boolean
 // Returns `true` if a given node contains nodes of a given `nodeType`
 //
-// Example
 // ```javascript
 // if (contains(panel, schema.nodes.listItem)) {
 //   // ...
