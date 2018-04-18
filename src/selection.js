@@ -114,14 +114,11 @@ export const findPositionOfNodeBefore = selection => {
   const maybeSelection = Selection.findFrom(selection.$from, -1);
   if (maybeSelection && nodeBefore) {
     // leaf node
-    if (maybeSelection.$from.depth === 0) {
-      return maybeSelection.$from.pos + 1;
-    }
-
     const parent = findParentNodeOfType(nodeBefore.type)(maybeSelection);
     if (parent) {
       return parent.pos;
     }
+    return maybeSelection.$from.pos + 1;
   }
 };
 

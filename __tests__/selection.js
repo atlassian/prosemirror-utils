@@ -6,6 +6,7 @@ import {
   table,
   tr,
   th,
+  td,
   tdCursor,
   tdEmpty,
   blockquote,
@@ -239,6 +240,15 @@ describe('selection', () => {
       } = createEditor(doc(p('text'), blockquote(p('')), '<cursor>'));
       const position = findPositionOfNodeBefore(selection);
       expect(position).toEqual(7);
+    });
+    it('should return position of nodeBefore if its a nested leaf node', () => {
+      const {
+        state: { selection }
+      } = createEditor(
+        doc(p('text'), table(tr(td(p('1'), atomBlock(), '<cursor>'))))
+      );
+      const position = findPositionOfNodeBefore(selection);
+      expect(position).toEqual(13);
     });
     it('should return position of nodeBefore if its a leaf node', () => {
       const {
