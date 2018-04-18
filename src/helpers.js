@@ -4,7 +4,6 @@ import { Fragment, Node as PMNode } from 'prosemirror-model';
 // :: (selection: Selection) → boolean
 // Checks if current selection is a `NodeSelection`.
 //
-// Example
 // ```javascript
 // if (isNodeSelection(tr.selection)) {
 //   // ...
@@ -86,7 +85,6 @@ export const tableNodeTypes = schema => {
 // :: ($pos: ResolvedPos, content: union<ProseMirrorNode, Fragment>) → boolean
 // Checks if a given `content` can be inserted at the given `$pos`
 //
-// Example
 // ```javascript
 // const { selection: { $from } } = state;
 // const node = state.schema.nodes.atom.createChecked();
