@@ -141,7 +141,7 @@ describe('transforms', () => {
   });
 
   describe('safeInsert', () => {
-    it('should insert a node if its allowed at the current cursor position', () => {
+    it('should insert an inline node at the current cursor position into a non-empty paragraph', () => {
       const {
         state: { schema, tr }
       } = createEditor(doc(p('one<cursor>')));
@@ -151,7 +151,17 @@ describe('transforms', () => {
       expect(newTr.doc).toEqualDocument(doc(p('one', atomInline())));
     });
 
-    it('should insert a Fragment if its allowed at the current cursor position', () => {
+    it('should insert an inline node at the current cursor position into an empty paragraph', () => {
+      const {
+        state: { schema, tr }
+      } = createEditor(doc(p('<cursor>')));
+      const node = schema.nodes.atomInline.createChecked();
+      const newTr = safeInsert(node)(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.doc).toEqualDocument(doc(p(atomInline())));
+    });
+
+    it('should insert a Fragment at the current cursor position into a non-empty paragraph', () => {
       const {
         state: { schema, tr }
       } = createEditor(doc(p('one<cursor>')));
@@ -159,6 +169,16 @@ describe('transforms', () => {
       const newTr = safeInsert(Fragment.from(node))(tr);
       expect(newTr).not.toBe(tr);
       expect(newTr.doc).toEqualDocument(doc(p('one', atomInline())));
+    });
+
+    it('should insert a Fragment at the current cursor position into an empty paragraph', () => {
+      const {
+        state: { schema, tr }
+      } = createEditor(doc(p('<cursor>')));
+      const node = schema.nodes.atomInline.createChecked();
+      const newTr = safeInsert(Fragment.from(node))(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.doc).toEqualDocument(doc(p(atomInline())));
     });
 
     it('should insert a paragraph after the parent node if its not allowed at the cursor position and move cursor inside of the new paragraph', () => {
