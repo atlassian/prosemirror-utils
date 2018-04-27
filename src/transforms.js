@@ -36,9 +36,17 @@ export const removeParentNodeOfType = nodeType => tr => {
 // );
 // ```
 export const replaceParentNodeOfType = (nodeType, content) => tr => {
-  const parent = findParentNodeOfType(nodeType)(tr.selection);
-  if (parent) {
-    return replaceNodeAtPos(parent.pos, content)(tr);
+  if (!Array.isArray(nodeType)) {
+    nodeType = [nodeType];
+  }
+  for (let i = 0, count = nodeType.length; i < count; i++) {
+    const parent = findParentNodeOfType(nodeType[i])(tr.selection);
+    if (parent) {
+      const newTr = replaceNodeAtPos(parent.pos, content)(tr);
+      if (newTr !== tr) {
+        return newTr;
+      }
+    }
   }
   return tr;
 };

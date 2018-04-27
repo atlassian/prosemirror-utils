@@ -113,6 +113,18 @@ describe('transforms', () => {
       expect(newTr2).not.toBe(newTr);
       expect(newTr2.doc).toEqualDocument(doc(p('one'), p('two')));
     });
+
+    it('should replace parent if array of nodeTypes is given', () => {
+      const {
+        state: { schema, tr }
+      } = createEditor(doc(p('one'), blockquote(p('two<cursor>')), p('three')));
+      const { paragraph, blockquote: quote } = schema.nodes;
+      const node = paragraph.createChecked({}, schema.text('new'));
+
+      const newTr = replaceParentNodeOfType([quote, paragraph], node)(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('three')));
+    });
   });
 
   describe('removeSelectedNode', () => {
