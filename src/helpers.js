@@ -1,5 +1,6 @@
 import { NodeSelection } from 'prosemirror-state';
 import { Fragment, Node as PMNode } from 'prosemirror-model';
+import { setTextSelection } from './transforms';
 
 // :: (selection: Selection) → boolean
 // Checks if current selection is a `NodeSelection`.
@@ -37,7 +38,8 @@ export const replaceNodeAtPos = (position, content) => tr => {
   const node = tr.doc.nodeAt(before);
   const $pos = tr.doc.resolve(before);
   if (canReplace($pos, content)) {
-    return cloneTr(tr.replaceWith(before, before + node.nodeSize, content));
+    tr = tr.replaceWith(before, before + node.nodeSize, content);
+    return cloneTr(setTextSelection(tr.selection.$from.pos - 1, -1)(tr));
   }
   return tr;
 };

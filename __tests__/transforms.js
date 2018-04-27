@@ -67,7 +67,7 @@ describe('transforms', () => {
       expect(tr).toBe(newTr);
     });
     describe('when there is a p("one") before the table node and p("two") after', () => {
-      it('should replace table with p("new") and preserve p("one") and p("two")', () => {
+      it('should replace table with p("new"), preserve p("one") and p("two"), and put cursor inside of the new node', () => {
         const {
           state: { schema, tr }
         } = createEditor(doc(p('one'), table(row(tdCursor)), p('two')));
@@ -78,10 +78,11 @@ describe('transforms', () => {
         const newTr = replaceParentNodeOfType(schema.nodes.table, node)(tr);
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
+        expect(newTr.selection.$from.pos).toEqual(9);
       });
     });
     describe('when there are tree paragraphs', () => {
-      it('should replace the middle paragraph with p("new") and preserve p("one") and p("two")', () => {
+      it('should replace the middle paragraph with p("new"), preserve p("one") and p("two"), and put cursor inside of the new node', () => {
         const {
           state: { schema, tr }
         } = createEditor(doc(p('one'), p('hello<cursor>there'), p('two')));
@@ -92,6 +93,7 @@ describe('transforms', () => {
         const newTr = replaceParentNodeOfType(schema.nodes.paragraph, node)(tr);
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
+        expect(newTr.selection.$from.pos).toEqual(9);
       });
     });
     it('should be composable with other transforms', () => {
@@ -109,7 +111,7 @@ describe('transforms', () => {
 
       const newTr2 = removeParentNodeOfType(paragraph)(newTr);
       expect(newTr2).not.toBe(newTr);
-      expect(newTr2.doc).toEqualDocument(doc(p('one'), p('new')));
+      expect(newTr2.doc).toEqualDocument(doc(p('one'), p('two')));
     });
   });
 
