@@ -121,29 +121,36 @@ export const setTextSelection = (position, dir = 1) => tr => {
 // ```
 export const safeInsert = (content, position) => tr => {
   const hasPosition = typeof position === 'number';
-  const $from = hasPosition ? tr.doc.resolve(position) : tr.selection.$from;
-  const { parent, depth } = $from;
+  const { $from } = tr.selection;
+  const $insertPos = hasPosition
+    ? tr.doc.resolve(position)
+    : isNodeSelection(tr.selection)
+      ? tr.doc.resolve($from.pos + 1)
+      : $from;
+  const { parent, depth } = $insertPos;
 
   // try to replace an empty paragraph
   if (isEmptyParagraph(parent)) {
     const oldTr = tr;
     tr = replaceParentNodeOfType(parent.type, content)(tr);
     if (oldTr !== tr) {
-      return setTextSelection($from.pos)(tr);
+      return setTextSelection($insertPos.pos)(tr);
     }
   }
 
   // given node is allowed at the current cursor position
-  if (canInsert($from, content)) {
-    tr.insert($from.pos, content);
+  if (canInsert($insertPos, content)) {
+    tr.insert($insertPos.pos, content);
     return cloneTr(
-      setTextSelection(hasPosition ? $from.pos : tr.selection.$anchor.pos)(tr)
+      setTextSelection(hasPosition ? $insertPos.pos : tr.selection.$anchor.pos)(
+        tr
+      )
     );
   }
 
   // looking for a place in the doc where the node is allowed
-  for (let i = $from.depth; i > 0; i--) {
-    const pos = $from.after(i);
+  for (let i = $insertPos.depth; i > 0; i--) {
+    const pos = $insertPos.after(i);
     const $pos = tr.doc.resolve(pos);
     if (canInsert($pos, content)) {
       tr.insert(pos, content);
