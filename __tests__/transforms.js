@@ -155,181 +155,223 @@ describe('transforms', () => {
   });
 
   describe('safeInsert', () => {
-    it('should insert an inline node at the current cursor position into a non-empty paragraph', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(p('one<cursor>')));
-      const node = schema.nodes.atomInline.createChecked();
-      const newTr = safeInsert(node)(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(doc(p('one', atomInline())));
+    describe('inserting at the cursor position', () => {
+      describe('inserting into the current node', () => {
+        it('should insert an inline node into a non-empty paragraph', () => {
+          const {
+            state: { schema, tr }
+          } = createEditor(doc(p('one<cursor>')));
+          const node = schema.nodes.atomInline.createChecked();
+          const newTr = safeInsert(node)(tr);
+          expect(newTr).not.toBe(tr);
+          expect(newTr.doc).toEqualDocument(doc(p('one', atomInline())));
+        });
+        it('should insert an inline node into an empty paragraph', () => {
+          const {
+            state: { schema, tr }
+          } = createEditor(doc(p('<cursor>')));
+          const node = schema.nodes.atomInline.createChecked();
+          const newTr = safeInsert(node)(tr);
+          expect(newTr).not.toBe(tr);
+          expect(newTr.doc).toEqualDocument(doc(p(atomInline())));
+        });
+        it('should insert a Fragment into a non-empty paragraph', () => {
+          const {
+            state: { schema, tr }
+          } = createEditor(doc(p('one<cursor>')));
+          const node = schema.nodes.atomInline.createChecked();
+          const newTr = safeInsert(Fragment.from(node))(tr);
+          expect(newTr).not.toBe(tr);
+          expect(newTr.doc).toEqualDocument(doc(p('one', atomInline())));
+        });
+        it('should insert a Fragment into an empty paragraph', () => {
+          const {
+            state: { schema, tr }
+          } = createEditor(doc(p('<cursor>')));
+          const node = schema.nodes.atomInline.createChecked();
+          const newTr = safeInsert(Fragment.from(node))(tr);
+          expect(newTr).not.toBe(tr);
+          expect(newTr.doc).toEqualDocument(doc(p(atomInline())));
+        });
+      });
+
+      describe('appending after the current node', () => {
+        it('should insert a paragraph after the parent node if its not allowed and move cursor inside of the new paragraph', () => {
+          const {
+            state: { schema, tr }
+          } = createEditor(doc(p(strong('zero'), 'o<cursor>ne'), p('three')));
+          const node = schema.nodes.paragraph.createChecked(
+            {},
+            schema.text('two')
+          );
+          const newTr = safeInsert(node)(tr);
+          expect(newTr).not.toBe(tr);
+          expect(newTr.doc).toEqualDocument(
+            doc(p(strong('zero'), 'one'), p('two'), p('three'))
+          );
+          expect(newTr.selection.$from.parent.textContent).toEqual('two');
+        });
+        it('should insert a Fragment after the parent node if its not allowed and move cursor inside of the new paragraph', () => {
+          const {
+            state: { schema, tr }
+          } = createEditor(doc(p(strong('zero'), 'o<cursor>ne'), p('three')));
+          const node = schema.nodes.paragraph.createChecked(
+            {},
+            schema.text('two')
+          );
+          const newTr = safeInsert(Fragment.from(node))(tr);
+          expect(newTr).not.toBe(tr);
+          expect(newTr.doc).toEqualDocument(
+            doc(p(strong('zero'), 'one'), p('two'), p('three'))
+          );
+          expect(newTr.selection.$from.parent.textContent).toEqual('two');
+        });
+        it("should not split a node when it's impossible to replace it, should append instead", () => {
+          const {
+            state: { schema, tr }
+          } = createEditor(doc(containerWithRestrictedContent(p('<cursor>'))));
+          const node = schema.nodes.containerWithRestrictedContent.createChecked(
+            {},
+            schema.nodes.paragraph.createChecked({}, schema.text('new'))
+          );
+          const newTr = safeInsert(node)(tr);
+          expect(newTr).not.toBe(tr);
+          expect(newTr.doc).toEqualDocument(
+            doc(
+              containerWithRestrictedContent(p('')),
+              containerWithRestrictedContent(p('new'))
+            )
+          );
+          expect(newTr.selection.$from.parent.textContent).toEqual('new');
+        });
+        it('should append a node if selection is a NodeSelection', () => {
+          const { state } = createEditor(doc(table(row(td(atomBlock())))));
+          const tr = state.tr.setSelection(NodeSelection.create(state.doc, 3));
+          const node = state.schema.nodes.paragraph.createChecked(
+            {},
+            state.schema.text('new')
+          );
+          const newTr = safeInsert(node)(tr);
+          expect(newTr).not.toBe(tr);
+          expect(newTr.doc).toEqualDocument(
+            doc(table(row(td(atomBlock(), p('new')))))
+          );
+          expect(newTr.selection.$from.parent.textContent).toEqual('new');
+        });
+      });
     });
 
-    it('should insert an inline node at the current cursor position into an empty paragraph', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(p('<cursor>')));
-      const node = schema.nodes.atomInline.createChecked();
-      const newTr = safeInsert(node)(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(doc(p(atomInline())));
+    describe('replacing an empty parent paragraph', () => {
+      it('should replace an empty parent paragraph with the given node', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(doc(p('one'), p('<cursor>'), p('three')));
+        const node = schema.nodes.blockquote.createChecked(
+          {},
+          schema.nodes.paragraph.createChecked({}, schema.text('two'))
+        );
+        const newTr = safeInsert(Fragment.from(node))(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(p('one'), blockquote(p('two')), p('three'))
+        );
+        expect(newTr.selection.$from.parent.textContent).toEqual('two');
+      });
+      it("should replace an empty paragraph inside other node if it's allowed by schema", () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(doc(table(row(td(p('<cursor>'))))));
+        const node = schema.nodes.blockquote.createChecked(
+          {},
+          schema.nodes.paragraph.createChecked({}, schema.text('two'))
+        );
+        const newTr = safeInsert(node)(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(table(row(td(blockquote(p('two'))))))
+        );
+        expect(newTr.selection.$from.parent.textContent).toEqual('two');
+      });
     });
 
-    it('should insert a Fragment at the current cursor position into a non-empty paragraph', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(p('one<cursor>')));
-      const node = schema.nodes.atomInline.createChecked();
-      const newTr = safeInsert(Fragment.from(node))(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(doc(p('one', atomInline())));
+    describe('inserting at given position', () => {
+      it('should insert a node at position 0 (start of the doc) and move cursor inside of the new paragraph', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(doc(p('one'), p('two<cursor>')));
+        const node = schema.nodes.paragraph.createChecked(
+          {},
+          schema.text('new')
+        );
+        const newTr = safeInsert(node, 0)(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(doc(p('new'), p('one'), p('two')));
+        expect(newTr.selection.$from.parent.textContent).toEqual('new');
+      });
+      it('should insert a Fragment at position 0 (start of the doc) and move cursor inside of the new paragraph', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(doc(p('one'), p('two<cursor>')));
+        const node = schema.nodes.paragraph.createChecked(
+          {},
+          schema.text('new')
+        );
+        const newTr = safeInsert(Fragment.from(node), 0)(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(doc(p('new'), p('one'), p('two')));
+        expect(newTr.selection.$from.parent.textContent).toEqual('new');
+      });
+      it('should insert a node at position 1 and move cursor inside of the new paragraph', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(doc(p('one'), p('two<cursor>')));
+        const node = schema.nodes.paragraph.createChecked(
+          {},
+          schema.text('new')
+        );
+        const newTr = safeInsert(node, 1)(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
+        expect(newTr.selection.$from.parent.textContent).toEqual('new');
+      });
+      it('should insert a node at position in between two nodes and move cursor inside of the new paragraph', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(doc(p('one'), p('two<cursor>')));
+        const node = schema.nodes.paragraph.createChecked(
+          {},
+          schema.text('new')
+        );
+        const newTr = safeInsert(node, 5)(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
+        expect(newTr.selection.$from.parent.textContent).toEqual('new');
+      });
     });
 
-    it('should insert a Fragment at the current cursor position into an empty paragraph', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(p('<cursor>')));
-      const node = schema.nodes.atomInline.createChecked();
-      const newTr = safeInsert(Fragment.from(node))(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(doc(p(atomInline())));
-    });
-
-    it('should insert a paragraph after the parent node if its not allowed at the cursor position and move cursor inside of the new paragraph', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(p(strong('zero'), 'o<cursor>ne'), p('three')));
-      const node = schema.nodes.paragraph.createChecked({}, schema.text('two'));
-      const newTr = safeInsert(node)(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(
-        doc(p(strong('zero'), 'one'), p('two'), p('three'))
-      );
-      expect(newTr.selection.$from.parent.textContent).toEqual('two');
-    });
-
-    it('should insert a Fragment after the parent node if its not allowed at the cursor position and move cursor inside of the new paragraph', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(p(strong('zero'), 'o<cursor>ne'), p('three')));
-      const node = schema.nodes.paragraph.createChecked({}, schema.text('two'));
-      const newTr = safeInsert(Fragment.from(node))(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(
-        doc(p(strong('zero'), 'one'), p('two'), p('three'))
-      );
-      expect(newTr.selection.$from.parent.textContent).toEqual('two');
-    });
-
-    it('should replace an empty parent paragraph with the given node', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(p('one'), p('<cursor>'), p('three')));
-      const node = schema.nodes.blockquote.createChecked(
-        {},
-        schema.nodes.paragraph.createChecked({}, schema.text('two'))
-      );
-      const newTr = safeInsert(Fragment.from(node))(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(
-        doc(p('one'), blockquote(p('two')), p('three'))
-      );
-      expect(newTr.selection.$from.parent.textContent).toEqual('two');
-    });
-
-    it("should replace an empty paragraph inside other node if it's allowed by schema", () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(table(row(td(p('<cursor>'))))));
-      const node = schema.nodes.blockquote.createChecked(
-        {},
-        schema.nodes.paragraph.createChecked({}, schema.text('two'))
-      );
-      const newTr = safeInsert(node)(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(
-        doc(table(row(td(blockquote(p('two'))))))
-      );
-      expect(newTr.selection.$from.parent.textContent).toEqual('two');
-    });
-
-    it('should insert a node at position 0 (start of the doc) and move cursor inside of the new paragraph', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(p('one'), p('two<cursor>')));
-      const node = schema.nodes.paragraph.createChecked({}, schema.text('new'));
-      const newTr = safeInsert(node, 0)(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(doc(p('new'), p('one'), p('two')));
-      expect(newTr.selection.$from.parent.textContent).toEqual('new');
-    });
-    it('should insert a Fragment at position 0 (start of the doc) and move cursor inside of the new paragraph', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(p('one'), p('two<cursor>')));
-      const node = schema.nodes.paragraph.createChecked({}, schema.text('new'));
-      const newTr = safeInsert(Fragment.from(node), 0)(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(doc(p('new'), p('one'), p('two')));
-      expect(newTr.selection.$from.parent.textContent).toEqual('new');
-    });
-    it('should insert a node at position 1 and move cursor inside of the new paragraph', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(p('one'), p('two<cursor>')));
-      const node = schema.nodes.paragraph.createChecked({}, schema.text('new'));
-      const newTr = safeInsert(node, 1)(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
-      expect(newTr.selection.$from.parent.textContent).toEqual('new');
-    });
-    it('should insert a node at position in between two nodes and move cursor inside of the new paragraph', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(p('one'), p('two<cursor>')));
-      const node = schema.nodes.paragraph.createChecked({}, schema.text('new'));
-      const newTr = safeInsert(node, 5)(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
-      expect(newTr.selection.$from.parent.textContent).toEqual('new');
-    });
-
-    it("should not split a node when it's impossible to replace it, should append instead", () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(containerWithRestrictedContent(p('<cursor>'))));
-      const node = schema.nodes.containerWithRestrictedContent.createChecked(
-        {},
-        schema.nodes.paragraph.createChecked({}, schema.text('new'))
-      );
-      const newTr = safeInsert(node)(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(
-        doc(
-          containerWithRestrictedContent(p('')),
-          containerWithRestrictedContent(p('new'))
-        )
-      );
-      expect(newTr.selection.$from.parent.textContent).toEqual('new');
-    });
-    it('should set the selection after the inserted content (text)', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(p('<cursor>')));
-      const newTr = safeInsert(Fragment.from(schema.text('new')))(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(doc(p('new')));
-      expect(newTr.selection.head).toEqual(4);
-    });
-    it('should set the selection after the inserted content (block)', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(p('old<cursor>')));
-      const node = schema.nodes.paragraph.createChecked({}, schema.text('new'));
-      const newTr = safeInsert(node)(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(doc(p('old'), p('new')));
-      expect(newTr.selection.head).toEqual(9);
+    describe('setting selection after insertion', () => {
+      it('should set the selection after the inserted content (text)', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(doc(p('<cursor>')));
+        const newTr = safeInsert(Fragment.from(schema.text('new')))(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(doc(p('new')));
+        expect(newTr.selection.head).toEqual(4);
+      });
+      it('should set the selection after the inserted content (block)', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(doc(p('old<cursor>')));
+        const node = schema.nodes.paragraph.createChecked(
+          {},
+          schema.text('new')
+        );
+        const newTr = safeInsert(node)(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(doc(p('old'), p('new')));
+        expect(newTr.selection.head).toEqual(9);
+      });
     });
   });
 
