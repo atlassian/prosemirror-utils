@@ -39,7 +39,8 @@ export const replaceNodeAtPos = (position, content) => tr => {
   const $pos = tr.doc.resolve(before);
   if (canReplace($pos, content)) {
     tr = tr.replaceWith(before, before + node.nodeSize, content);
-    return cloneTr(setTextSelection(tr.selection.$from.pos - 1, -1)(tr));
+    const start = tr.selection.$from.pos - 1;
+    return cloneTr(setTextSelection(Math.max(start, 0), -1)(tr));
   }
   return tr;
 };
