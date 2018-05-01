@@ -50,80 +50,92 @@ describe('transforms', () => {
   });
 
   describe('replaceParentNodeOfType', () => {
-    it('should return an original transaction if there is no parent node of a given NodeType', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(p('<cursor>')));
-      const node = schema.nodes.paragraph.createChecked({}, schema.text('new'));
-      const newTr = replaceParentNodeOfType(schema.nodes.table, node)(tr);
-      expect(tr).toBe(newTr);
-    });
-    it('should return an original transaction if replacing is not possible', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(p('one'), table(row(tdCursor)), p('two')));
-      const node = schema.text('new');
-      const newTr = replaceParentNodeOfType(schema.nodes.table, node)(tr);
-      expect(tr).toBe(newTr);
-    });
-    describe('when there is a p("one") before the table node and p("two") after', () => {
-      it('should replace table with p("new"), preserve p("one") and p("two"), and put cursor inside of the new node', () => {
+    describe('returning an original tr', () => {
+      it('should return an original transaction if there is no parent node of a given NodeType', () => {
         const {
           state: { schema, tr }
-        } = createEditor(doc(p('one'), table(row(tdCursor)), p('two')));
+        } = createEditor(doc(p('<cursor>')));
         const node = schema.nodes.paragraph.createChecked(
           {},
           schema.text('new')
         );
         const newTr = replaceParentNodeOfType(schema.nodes.table, node)(tr);
-        expect(newTr).not.toBe(tr);
-        expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
-        expect(newTr.selection.$from.pos).toEqual(9);
+        expect(tr).toBe(newTr);
       });
-    });
-    describe('when there are tree paragraphs', () => {
-      it('should replace the middle paragraph with p("new"), preserve p("one") and p("two"), and put cursor inside of the new node', () => {
+      it('should return an original transaction if replacing is not possible', () => {
         const {
           state: { schema, tr }
-        } = createEditor(doc(p('one'), p('hello<cursor>there'), p('two')));
-        const node = schema.nodes.paragraph.createChecked(
-          {},
-          schema.text('new')
-        );
-        const newTr = replaceParentNodeOfType(schema.nodes.paragraph, node)(tr);
-        expect(newTr).not.toBe(tr);
-        expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
-        expect(newTr.selection.$from.pos).toEqual(9);
+        } = createEditor(doc(p('one'), table(row(tdCursor)), p('two')));
+        const node = schema.text('new');
+        const newTr = replaceParentNodeOfType(schema.nodes.table, node)(tr);
+        expect(tr).toBe(newTr);
       });
     });
-    it('should be composable with other transforms', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(
-        doc(p('one'), table(row(td(p('hello<cursor>there')))), p('two'))
-      );
-      const { paragraph, table: tableNode } = schema.nodes;
-      const node = paragraph.createChecked({}, schema.text('new'));
+    describe('replacing a parent node', () => {
+      it('should replace parent if array of nodeTypes is given', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(
+          doc(p('one'), blockquote(p('two<cursor>')), p('three'))
+        );
+        const { paragraph, blockquote: quote } = schema.nodes;
+        const node = paragraph.createChecked({}, schema.text('new'));
 
-      const newTr = replaceParentNodeOfType(tableNode, node)(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
-
-      const newTr2 = removeParentNodeOfType(paragraph)(newTr);
-      expect(newTr2).not.toBe(newTr);
-      expect(newTr2.doc).toEqualDocument(doc(p('one'), p('two')));
+        const newTr = replaceParentNodeOfType([quote, paragraph], node)(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('three')));
+      });
+      describe('when there is a p("one") before the table node and p("two") after', () => {
+        it('should replace table with p("new"), preserve p("one") and p("two"), and put cursor inside of the new node', () => {
+          const {
+            state: { schema, tr }
+          } = createEditor(doc(p('one'), table(row(tdCursor)), p('two')));
+          const node = schema.nodes.paragraph.createChecked(
+            {},
+            schema.text('new')
+          );
+          const newTr = replaceParentNodeOfType(schema.nodes.table, node)(tr);
+          expect(newTr).not.toBe(tr);
+          expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
+          expect(newTr.selection.$from.pos).toEqual(9);
+        });
+      });
+      describe('when there are tree paragraphs', () => {
+        it('should replace the middle paragraph with p("new"), preserve p("one") and p("two"), and put cursor inside of the new node', () => {
+          const {
+            state: { schema, tr }
+          } = createEditor(doc(p('one'), p('hello<cursor>there'), p('two')));
+          const node = schema.nodes.paragraph.createChecked(
+            {},
+            schema.text('new')
+          );
+          const newTr = replaceParentNodeOfType(schema.nodes.paragraph, node)(
+            tr
+          );
+          expect(newTr).not.toBe(tr);
+          expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
+          expect(newTr.selection.$from.pos).toEqual(9);
+        });
+      });
     });
+    describe('composing with other tr', () => {
+      it('should be composable with other transforms', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(
+          doc(p('one'), table(row(td(p('hello<cursor>there')))), p('two'))
+        );
+        const { paragraph, table: tableNode } = schema.nodes;
+        const node = paragraph.createChecked({}, schema.text('new'));
 
-    it('should replace parent if array of nodeTypes is given', () => {
-      const {
-        state: { schema, tr }
-      } = createEditor(doc(p('one'), blockquote(p('two<cursor>')), p('three')));
-      const { paragraph, blockquote: quote } = schema.nodes;
-      const node = paragraph.createChecked({}, schema.text('new'));
+        const newTr = replaceParentNodeOfType(tableNode, node)(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
 
-      const newTr = replaceParentNodeOfType([quote, paragraph], node)(tr);
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('three')));
+        const newTr2 = removeParentNodeOfType(paragraph)(newTr);
+        expect(newTr2).not.toBe(newTr);
+        expect(newTr2.doc).toEqualDocument(doc(p('one'), p('two')));
+      });
     });
   });
 
@@ -291,6 +303,18 @@ describe('transforms', () => {
           doc(table(row(td(blockquote(p('two'))))))
         );
         expect(newTr.selection.$from.parent.textContent).toEqual('two');
+      });
+      describe('when inserting a selectable atom node', () => {
+        it('should replace a parent if its the only node in the doc and retain the node selection', () => {
+          const {
+            state: { schema, tr }
+          } = createEditor(doc(p('<cursor>')));
+          const node = schema.nodes.atomBlock.createChecked({});
+          const newTr = safeInsert(node)(tr);
+          expect(newTr).not.toBe(tr);
+          expect(newTr.doc).toEqualDocument(doc(atomBlock()));
+          expect(newTr.selection.$from.pos).toEqual(0);
+        });
       });
     });
 
