@@ -82,6 +82,8 @@ export function removeSelectedColumns(tr: Transaction): Transaction;
 
 export function removeSelectedRows(tr: Transaction): Transaction;
 
+export function removeTable(tr: Transaction): Transaction;
+
 // Transforms
 export function removeParentNodeOfType(nodeType: NodeType | NodeType[]): (tr: Transaction) => Transaction;
 
