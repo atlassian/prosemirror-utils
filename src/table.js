@@ -392,7 +392,7 @@ export const removeSelectedColumns = tr => {
   if (isTableSelected(selection)) {
     return removeTable(tr);
   }
-  if (isCellSelection(selection) && selection.isColSelection()) {
+  if (isCellSelection(selection)) {
     const table = findTable(selection);
     if (table) {
       const map = TableMap.get(table.node);
@@ -422,7 +422,7 @@ export const removeSelectedRows = tr => {
   if (isTableSelected(selection)) {
     return removeTable(tr);
   }
-  if (isCellSelection(selection) && selection.isRowSelection()) {
+  if (isCellSelection(selection)) {
     const table = findTable(selection);
     if (table) {
       const map = TableMap.get(table.node);
