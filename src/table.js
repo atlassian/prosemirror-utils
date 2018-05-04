@@ -8,7 +8,12 @@ import {
 } from 'prosemirror-tables';
 import { Slice } from 'prosemirror-model';
 import { findParentNode } from './selection';
-import { cloneTr, tableNodeTypes } from './helpers';
+import {
+  cloneTr,
+  tableNodeTypes,
+  findCellRectClosestToPos,
+  findCellClosestToPos
+} from './helpers';
 
 // :: (selection: Selection) → ?{pos: number, node: ProseMirrorNode}
 // Iterates over parent nodes, returning the closest table node.
@@ -219,6 +224,30 @@ export const selectTable = tr => {
   return tr;
 };
 
+// :: ($pos: ResolvedPos, schema: Schema) → (tr: Transaction) → Transaction
+// Returns a new transaction that clears the content of a cell closest to a given `$pos`.
+//
+// ```javascript
+// dispatch(
+//   emptyCellClosestToPos(state.doc.resolve(10), state.schema)(state.tr)
+// );
+// ```
+export const emptyCellClosestToPos = ($pos, schema) => tr => {
+  const cell = findCellClosestToPos($pos);
+  if (cell) {
+    const emptyCell = tableNodeTypes(schema).cell.createAndFill().content;
+    if (!cell.node.content.eq(emptyCell)) {
+      tr.replaceWith(
+        $pos.pos,
+        $pos.pos + cell.node.nodeSize - 1,
+        new Slice(emptyCell, 0, 0)
+      );
+      return cloneTr(tr);
+    }
+  }
+  return tr;
+};
+
 // :: (schema: Schema) → (tr: Transaction) → Transaction
 // Returns a new transaction that clears the content of selected cells.
 //
@@ -232,11 +261,8 @@ export const emptySelectedCells = schema => tr => {
     const emptyCell = tableNodeTypes(schema).cell.createAndFill().content;
     tr.selection.forEachCell((cell, pos) => {
       if (!cell.content.eq(emptyCell)) {
-        tr.replaceWith(
-          tr.mapping.map(pos + 1),
-          tr.mapping.map(pos + cell.nodeSize - 1),
-          new Slice(emptyCell, 0, 0)
-        );
+        const $pos = tr.doc.resolve(tr.mapping.map(pos + 1));
+        tr = emptyCellClosestToPos($pos, schema)(tr);
       }
     });
     if (tr.docChanged) {
@@ -435,6 +461,38 @@ export const removeSelectedRows = tr => {
       }
       return tr;
     }
+  }
+  return tr;
+};
+
+// :: ($pos: ResolvedPos) → (tr: Transaction) → Transaction
+// Returns a new transaction that removes a column closest to a given `$pos`.
+//
+// ```javascript
+// dispatch(
+//   removeColumnClosestToPos(state.doc.resolve(3))(state.tr)
+// );
+// ```
+export const removeColumnClosestToPos = $pos => tr => {
+  const rect = findCellRectClosestToPos($pos);
+  if (rect) {
+    return removeColumnAt(rect.left)(tr);
+  }
+  return tr;
+};
+
+// :: ($pos: ResolvedPos) → (tr: Transaction) → Transaction
+// Returns a new transaction that removes a row closest to a given `$pos`.
+//
+// ```javascript
+// dispatch(
+//   removeRowClosestToPos(state.doc.resolve(3))(state.tr)
+// );
+// ```
+export const removeRowClosestToPos = $pos => tr => {
+  const rect = findCellRectClosestToPos($pos);
+  if (rect) {
+    return removeRowAt(rect.top)(tr);
   }
   return tr;
 };

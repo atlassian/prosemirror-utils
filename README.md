@@ -29,6 +29,15 @@ npm install prosemirror-utils
    ```
 
 
+ * **`findParentNodeClosestToPos`**`($pos: ResolvedPos, predicate: fn(node: ProseMirrorNode) → boolean) → ?{pos: number, node: ProseMirrorNode}`\
+   Iterates over parent nodes starting from the given `$pos`, returning the closest node and its start position `predicate` returns truthy for.
+
+   ```javascript
+   const predicate = node => node.type === schema.nodes.blockquote;
+   const parent = findParentNodeAtPos(state.doc.resolve(5), predicate);
+   ```
+
+
  * **`findParentDomRef`**`(predicate: fn(node: ProseMirrorNode) → boolean, domAtPos: fn(pos: number) → {node: dom.Node, offset: number}) → fn(selection: Selection) → ?dom.Node`\
    Iterates over parent nodes, returning DOM reference of the closest node `predicate` returns truthy for.
 
@@ -54,6 +63,14 @@ npm install prosemirror-utils
 
    ```javascript
    const parent = findParentNodeOfType(schema.nodes.paragraph)(selection);
+   ```
+
+
+ * **`findParentNodeOfTypeClosestToPos`**`($pos: ResolvedPos, nodeType: NodeType | [NodeType]) → fn(state: EditorState) → ?{node: ProseMirrorNode, pos: number}`\
+   Iterates over parent nodes starting from the given `$pos`, returning closest node of a given `nodeType`.
+
+   ```javascript
+   const parent = findParentNodeOfTypeAtPos(state.doc.resolve(10), schema.nodes.paragraph);
    ```
 
 
@@ -301,6 +318,16 @@ npm install prosemirror-utils
    ```
 
 
+ * **`emptyCellClosestToPos`**`($pos: ResolvedPos, schema: Schema) → fn(tr: Transaction) → Transaction`\
+   Returns a new transaction that clears the content of a cell closest to a given `$pos`.
+
+   ```javascript
+   dispatch(
+     emptyCellClosestToPos(state.doc.resolve(10), state.schema)(state.tr)
+   );
+   ```
+
+
  * **`addColumnAt`**`(columnIndex: number) → fn(tr: Transaction) → Transaction`\
    Returns a new transaction that adds a new column at index `columnIndex`.
 
@@ -367,6 +394,26 @@ npm install prosemirror-utils
    ```javascript
    dispatch(
      removeSelectedRows(state.tr)
+   );
+   ```
+
+
+ * **`removeColumnClosestToPos`**`($pos: ResolvedPos) → fn(tr: Transaction) → Transaction`\
+   Returns a new transaction that removes a column closest to a given `$pos`.
+
+   ```javascript
+   dispatch(
+     removeColumnClosestToPos(state.doc.resolve(3))(state.tr)
+   );
+   ```
+
+
+ * **`removeRowClosestToPos`**`($pos: ResolvedPos) → fn(tr: Transaction) → Transaction`\
+   Returns a new transaction that removes a row closest to a given `$pos`.
+
+   ```javascript
+   dispatch(
+     removeRowClosestToPos(state.doc.resolve(3))(state.tr)
    );
    ```
 
@@ -448,7 +495,7 @@ npm install prosemirror-utils
    ```javascript
    const node = schema.nodes.extension.createChecked({});
    dispatch(
-     safeInsert(node)(tr)
+     setParentNodeMarkup(schema.nodes.panel, null, { panelType })(tr);
    );
    ```
 

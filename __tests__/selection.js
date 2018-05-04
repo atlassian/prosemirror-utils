@@ -23,7 +23,9 @@ import {
   findParentDomRefOfType,
   findSelectedNodeOfType,
   findPositionOfNodeBefore,
-  findDomRefAtPos
+  findDomRefAtPos,
+  findParentNodeClosestToPos,
+  findParentNodeOfTypeClosestToPos
 } from '../src';
 
 describe('selection', () => {
@@ -53,6 +55,36 @@ describe('selection', () => {
       const result = findParentNode(
         node => node.type === schema.nodes.table_header
       )(selection);
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('findParentNodeClosestToPos', () => {
+    it('should find parent node if a given `$pos` is directly inside it', () => {
+      const { state } = createEditor(doc(p('hello')));
+      const { paragraph } = state.schema.nodes;
+      const { node } = findParentNodeClosestToPos(
+        state.doc.resolve(2),
+        node => node.type === paragraph
+      );
+      expect(node.type.name).toEqual('paragraph');
+    });
+    it('should find parent node if a given `$pos` is inside nested child', () => {
+      const { state } = createEditor(doc(table(tr(tdEmpty))));
+      const { nodes } = state.schema;
+      const { node } = findParentNodeClosestToPos(
+        state.doc.resolve(4),
+        node => node.type === nodes.table
+      );
+      expect(node.type.name).toEqual('table');
+    });
+    it('should return `undefined` if a parent node has not been found', () => {
+      const { state } = createEditor(doc(table(tr(tdEmpty))));
+      const { table_header } = state.schema.nodes;
+      const result = findParentNodeClosestToPos(
+        state.doc.resolve(4),
+        node => node.type === table_header
+      );
       expect(result).toBeUndefined();
     });
   });
@@ -144,6 +176,37 @@ describe('selection', () => {
       const { node } = findParentNodeOfType([table, blockquote, paragraph])(
         selection
       );
+      expect(node.type.name).toEqual('paragraph');
+    });
+  });
+
+  describe('findParentNodeOfTypeClosestToPos', () => {
+    it('should find parent node of a given `nodeType` if a given `$pos` is directly inside it', () => {
+      const { state } = createEditor(doc(p('hello')));
+      const { paragraph } = state.schema.nodes;
+      const { node } = findParentNodeOfTypeClosestToPos(
+        state.doc.resolve(2),
+        paragraph
+      );
+      expect(node.type.name).toEqual('paragraph');
+    });
+    it('should return `undefined` if parent node of a given `nodeType` has not been found at a given `$pos`', () => {
+      const { state } = createEditor(doc(p('hello')));
+      const { table } = state.schema;
+      const result = findParentNodeOfTypeClosestToPos(
+        state.doc.resolve(2),
+        table
+      );
+      expect(result).toBeUndefined();
+    });
+    it('should find parent node of a given `nodeType` at a given `$pos`, if `nodeType` is an array', () => {
+      const { state } = createEditor(doc(p('hello')));
+      const { table, blockquote, paragraph } = state.schema.nodes;
+      const { node } = findParentNodeOfTypeClosestToPos(state.doc.resolve(2), [
+        table,
+        blockquote,
+        paragraph
+      ]);
       expect(node.type.name).toEqual('paragraph');
     });
   });
