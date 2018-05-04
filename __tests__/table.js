@@ -28,7 +28,10 @@ import {
   removeRowAt,
   removeSelectedColumns,
   removeSelectedRows,
-  removeTable
+  removeTable,
+  removeColumnClosestToPos,
+  removeRowClosestToPos,
+  emptyCellClosestToPos
 } from '../src';
 
 describe('table', () => {
@@ -295,21 +298,52 @@ describe('table', () => {
   });
 
   describe('emptySelectedCells', () => {
-    it('should return a new transaction that selects the entire table', () => {
+    it('should return a new transaction that empties selected cells', () => {
       const {
         state: { schema, tr }
       } = createEditor(
         doc(
           table(
-            row(td(p('1<cursor>')), td(p('2'))),
-            row(td(p('3')), td(p('4')))
+            row(td(p('one one')), td(p('two two'))),
+            row(td(p('three three')), td(p('four four')))
           )
         )
       );
-      const newTr = emptySelectedCells(schema)(selectColumn(0)(tr));
+      const newTr = emptySelectedCells(schema)(selectColumn(1)(tr));
       expect(newTr).not.toBe(tr);
       expect(newTr.doc).toEqualDocument(
-        doc(table(row(td(p('')), td(p('2'))), row(td(p('')), td(p('4')))))
+        doc(
+          table(
+            row(td(p('one one')), tdEmpty),
+            row(td(p('three three')), tdEmpty)
+          )
+        )
+      );
+    });
+  });
+
+  describe('emptyCellClosestToPos', () => {
+    it('should return a new transaction that empties a cell closest to a given `$pos`', () => {
+      const { state } = createEditor(
+        doc(
+          table(
+            row(td(p('one one')), td(p('two two'))),
+            row(td(p('three three')), td(p('four four')))
+          )
+        )
+      );
+      const { tr } = state;
+      const newTr = emptyCellClosestToPos(state.doc.resolve(15), state.schema)(
+        tr
+      );
+      expect(newTr).not.toBe(tr);
+      expect(newTr.doc).toEqualDocument(
+        doc(
+          table(
+            row(td(p('one one')), tdEmpty),
+            row(td(p('three three')), td(p('four four')))
+          )
+        )
       );
     });
   });
@@ -534,6 +568,135 @@ describe('table', () => {
       expect(newTr.doc).toEqualDocument(
         doc(table(row(td(p('1'))), row(td(p('3')))))
       );
+    });
+  });
+
+  describe('removeColumnClosestToPos', () => {
+    it('should return an original transaction if a given `$pos` is not inside of a table node', () => {
+      const { state } = createEditor(doc(p('1')));
+      const { tr } = state;
+      const newTr = removeColumnClosestToPos(state.doc.resolve(1))(tr);
+      expect(tr).toBe(newTr);
+    });
+    describe('first col', () => {
+      it('should remove a column closest to a given `$pos`', () => {
+        const { state } = createEditor(
+          doc(
+            table(
+              row(td(p('1')), td(p('2')), td(p('3'))),
+              row(td(p('4')), td(p('5')), td(p('6')))
+            )
+          )
+        );
+        const { tr } = state;
+        const newTr = removeColumnClosestToPos(state.doc.resolve(4))(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(table(row(td(p('2')), td(p('3'))), row(td(p('5')), td(p('6')))))
+        );
+      });
+    });
+    describe('middle col', () => {
+      it('should remove a column closest to a given `$pos`', () => {
+        const { state } = createEditor(
+          doc(
+            table(
+              row(td(p('1')), td(p('2')), td(p('3'))),
+              row(td(p('4')), td(p('5')), td(p('6')))
+            )
+          )
+        );
+        const { tr } = state;
+        const newTr = removeColumnClosestToPos(state.doc.resolve(9))(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(table(row(td(p('1')), td(p('3'))), row(td(p('4')), td(p('6')))))
+        );
+      });
+    });
+    describe('last col', () => {
+      it('should remove a column closest to a given `$pos`', () => {
+        const { state } = createEditor(
+          doc(
+            table(
+              row(td(p('1')), td(p('2')), td(p('3'))),
+              row(td(p('4')), td(p('5')), td(p('6')))
+            )
+          )
+        );
+        const { tr } = state;
+        const newTr = removeColumnClosestToPos(state.doc.resolve(14))(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(table(row(td(p('1')), td(p('2'))), row(td(p('4')), td(p('5')))))
+        );
+      });
+    });
+  });
+
+  describe('removeRowClosestToPos', () => {
+    it('should return an original transaction if a given `$pos` is not inside of a table node', () => {
+      const { state } = createEditor(doc(p('1')));
+      const { tr } = state;
+      const newTr = removeRowClosestToPos(state.doc.resolve(1))(tr);
+      expect(tr).toBe(newTr);
+    });
+    describe('first row', () => {
+      it('should remove a row closest to a given `$pos`', () => {
+        const { state } = createEditor(
+          doc(
+            table(
+              row(td(p('1')), td(p('2'))),
+              row(td(p('3')), td(p('4'))),
+              row(td(p('5')), td(p('6')))
+            )
+          )
+        );
+        const { tr } = state;
+        const newTr = removeRowClosestToPos(state.doc.resolve(4))(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(table(row(td(p('3')), td(p('4'))), row(td(p('5')), td(p('6')))))
+        );
+      });
+    });
+    describe('middle row', () => {
+      it('should remove a row closest to a given `$pos`', () => {
+        const { state } = createEditor(
+          doc(
+            table(
+              row(td(p('1')), td(p('2'))),
+              row(td(p('3')), td(p('4<cursor>'))),
+              row(td(p('5')), td(p('6')))
+            )
+          )
+        );
+        const { tr } = state;
+        const newTr = removeRowClosestToPos(state.doc.resolve(16))(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(table(row(td(p('1')), td(p('2'))), row(td(p('5')), td(p('6')))))
+        );
+      });
+    });
+    describe('last row', () => {
+      it('should remove a row closest to a given `$pos`', () => {
+        const { state } = createEditor(
+          doc(
+            table(
+              row(td(p('1')), td(p('2'))),
+              row(td(p('3')), td(p('4'))),
+              row(td(p('5<cursor>')), td(p('6')))
+            )
+          )
+        );
+        const { tr } = state;
+        const newTr = removeRowClosestToPos(state.doc.resolve(28))(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(table(row(td(p('1')), td(p('2'))), row(td(p('3')), td(p('4')))))
+        );
+      });
     });
   });
 

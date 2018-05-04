@@ -8,11 +8,15 @@ export type DomAtPos = (pos: number) => {node: Node, offset: number};
 // Selection
 export function findParentNode(predicate: Predicate): (selection: Selection) => {pos: number, node: ProsemirrorNode} | undefined;
 
+export function findParentNodeClosestToPos($pos: ResolvedPos, predicate: Predicate): {pos: number, node: ProsemirrorNode} | undefined;
+
 export function findParentDomRef(predicate: Predicate, domAtPos: DomAtPos): (selection: Selection) => Node | undefined;
 
 export function hasParentNode(predicate: Predicate): (selection: Selection) => boolean;
 
 export function findParentNodeOfType(nodeType: NodeType | NodeType[]): (selection: Selection) => {pos: number, node: ProsemirrorNode} | undefined;
+
+export function findParentNodeOfTypeClosestToPos($pos: ResolvedPos, nodeType: NodeType | NodeType[]): {pos: number, node: ProsemirrorNode} | undefined;
 
 export function hasParentNodeOfType(nodeType: NodeType | NodeType[]): (selection: Selection) => boolean;
 
@@ -70,6 +74,8 @@ export function selectTable(tr: Transaction): Transaction;
 
 export function emptySelectedCells(schema: Schema): (tr: Transaction) => Transaction;
 
+export function emptyCellClosestToPos($pos: ResolvedPos, schema: Schema): (tr: Transaction) => Transaction;
+
 export function addColumnAt(columnIndex: number): (tr: Transaction) => Transaction;
 
 export function addRowAt(rowIndex: number): (tr: Transaction) => Transaction;
@@ -83,6 +89,10 @@ export function removeSelectedColumns(tr: Transaction): Transaction;
 export function removeSelectedRows(tr: Transaction): Transaction;
 
 export function removeTable(tr: Transaction): Transaction;
+
+export function removeColumnClosestToPos($pos: ResolvedPos): (tr: Transaction) => Transaction;
+
+export function removeRowClosestToPos($pos: ResolvedPos): (tr: Transaction) => Transaction;
 
 // Transforms
 export function removeParentNodeOfType(nodeType: NodeType | NodeType[]): (tr: Transaction) => Transaction;

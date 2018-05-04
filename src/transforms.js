@@ -166,7 +166,7 @@ export const safeInsert = (content, position) => tr => {
 // ```javascript
 // const node = schema.nodes.extension.createChecked({});
 // dispatch(
-//   safeInsert(node)(tr)
+//   setParentNodeMarkup(schema.nodes.panel, null, { panelType })(tr);
 // );
 // ```
 export const setParentNodeMarkup = (nodeType, type, attrs, marks) => tr => {

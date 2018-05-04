@@ -22,11 +22,15 @@ npm install prosemirror-utils
 
 @findParentNode
 
+@findParentNodeClosestToPos
+
 @findParentDomRef
 
 @hasParentNode
 
 @findParentNodeOfType
+
+@findParentNodeOfTypeClosestToPos
 
 @hasParentNodeOfType
 
@@ -86,6 +90,8 @@ npm install prosemirror-utils
 
 @emptySelectedCells
 
+@emptyCellClosestToPos
+
 @addColumnAt
 
 @addRowAt
@@ -99,6 +105,10 @@ npm install prosemirror-utils
 @removeSelectedColumns
 
 @removeSelectedRows
+
+@removeColumnClosestToPos
+
+@removeRowClosestToPos
 
 ### Utils for document transformation
 
