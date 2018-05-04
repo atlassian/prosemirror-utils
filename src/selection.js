@@ -26,7 +26,7 @@ export const findParentNode = predicate => selection => {
 //
 // ```javascript
 // const predicate = node => node.type === schema.nodes.blockquote;
-// const parent = findParentNodeAtPos(state.doc.resolve(5), predicate);
+// const parent = findParentNodeClosestToPos(state.doc.resolve(5), predicate);
 // ```
 export const findParentNodeClosestToPos = ($pos, predicate) => {
   for (let i = $pos.depth; i > 0; i--) {
@@ -77,11 +77,11 @@ export const findParentNodeOfType = nodeType => selection => {
   return findParentNode(node => equalNodeType(nodeType, node))(selection);
 };
 
-// :: ($pos: ResolvedPos, nodeType: union<NodeType, [NodeType]>) → (state: EditorState) → ?{node: ProseMirrorNode, pos: number}
+// :: ($pos: ResolvedPos, nodeType: union<NodeType, [NodeType]>) → ?{node: ProseMirrorNode, pos: number}
 // Iterates over parent nodes starting from the given `$pos`, returning closest node of a given `nodeType`.
 //
 // ```javascript
-// const parent = findParentNodeOfTypeAtPos(state.doc.resolve(10), schema.nodes.paragraph);
+// const parent = findParentNodeOfTypeClosestToPos(state.doc.resolve(10), schema.nodes.paragraph);
 // ```
 export const findParentNodeOfTypeClosestToPos = ($pos, nodeType) => {
   return findParentNodeClosestToPos($pos, node =>

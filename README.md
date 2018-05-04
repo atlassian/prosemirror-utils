@@ -34,7 +34,7 @@ npm install prosemirror-utils
 
    ```javascript
    const predicate = node => node.type === schema.nodes.blockquote;
-   const parent = findParentNodeAtPos(state.doc.resolve(5), predicate);
+   const parent = findParentNodeClosestToPos(state.doc.resolve(5), predicate);
    ```
 
 
@@ -66,11 +66,11 @@ npm install prosemirror-utils
    ```
 
 
- * **`findParentNodeOfTypeClosestToPos`**`($pos: ResolvedPos, nodeType: NodeType | [NodeType]) → fn(state: EditorState) → ?{node: ProseMirrorNode, pos: number}`\
+ * **`findParentNodeOfTypeClosestToPos`**`($pos: ResolvedPos, nodeType: NodeType | [NodeType]) → ?{node: ProseMirrorNode, pos: number}`\
    Iterates over parent nodes starting from the given `$pos`, returning closest node of a given `nodeType`.
 
    ```javascript
-   const parent = findParentNodeOfTypeAtPos(state.doc.resolve(10), schema.nodes.paragraph);
+   const parent = findParentNodeOfTypeClosestToPos(state.doc.resolve(10), schema.nodes.paragraph);
    ```
 
 
