@@ -116,7 +116,7 @@ export const getCellsInColumn = columnIndex => selection => {
       });
       return cells.map(pos => {
         const node = table.node.nodeAt(pos);
-        return { pos: pos + table.pos, node };
+        return { pos: pos + table.pos + 1, node };
       });
     }
   }
@@ -141,7 +141,7 @@ export const getCellsInRow = rowIndex => selection => {
       });
       return cells.map(pos => {
         const node = table.node.nodeAt(pos);
-        return { pos: pos + table.pos, node };
+        return { pos: pos + table.pos + 1, node };
       });
     }
   }
@@ -165,7 +165,7 @@ export const getCellsInTable = selection => {
     });
     return cells.map(pos => {
       const node = table.node.nodeAt(pos);
-      return { pos: pos + table.pos, node };
+      return { pos: pos + table.pos + 1, node };
     });
   }
 };
@@ -181,8 +181,8 @@ export const getCellsInTable = selection => {
 export const selectColumn = columnIndex => tr => {
   const cells = getCellsInColumn(columnIndex)(tr.selection);
   if (cells) {
-    const $anchor = tr.doc.resolve(cells[0].pos);
-    const $head = tr.doc.resolve(cells[cells.length - 1].pos);
+    const $anchor = tr.doc.resolve(cells[0].pos - 1);
+    const $head = tr.doc.resolve(cells[cells.length - 1].pos - 1);
     return cloneTr(tr.setSelection(new CellSelection($anchor, $head)));
   }
   return tr;
@@ -199,8 +199,8 @@ export const selectColumn = columnIndex => tr => {
 export const selectRow = rowIndex => tr => {
   const cells = getCellsInRow(rowIndex)(tr.selection);
   if (cells) {
-    const $anchor = tr.doc.resolve(cells[0].pos);
-    const $head = tr.doc.resolve(cells[cells.length - 1].pos);
+    const $anchor = tr.doc.resolve(cells[0].pos - 1);
+    const $head = tr.doc.resolve(cells[cells.length - 1].pos - 1);
     return cloneTr(tr.setSelection(new CellSelection($anchor, $head)));
   }
   return tr;
@@ -217,8 +217,8 @@ export const selectRow = rowIndex => tr => {
 export const selectTable = tr => {
   const cells = getCellsInTable(tr.selection);
   if (cells) {
-    const $anchor = tr.doc.resolve(cells[0].pos);
-    const $head = tr.doc.resolve(cells[cells.length - 1].pos);
+    const $anchor = tr.doc.resolve(cells[0].pos - 1);
+    const $head = tr.doc.resolve(cells[cells.length - 1].pos - 1);
     return cloneTr(tr.setSelection(new CellSelection($anchor, $head)));
   }
   return tr;

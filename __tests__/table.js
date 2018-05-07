@@ -158,8 +158,8 @@ describe('table', () => {
         expect(cell.node.textContent).toEqual(`${i + 1}`);
         expect(typeof cell.pos).toEqual('number');
       });
-      expect(cells[0].pos).toEqual(2);
-      expect(cells[1].pos).toEqual(17);
+      expect(cells[0].pos).toEqual(3);
+      expect(cells[1].pos).toEqual(18);
     });
   });
 
@@ -187,9 +187,9 @@ describe('table', () => {
         expect(cell.node.textContent).toEqual(`${i + 1}`);
         expect(typeof cell.pos).toEqual('number');
       });
-      expect(cells[0].pos).toEqual(2);
-      expect(cells[1].pos).toEqual(7);
-      expect(cells[2].pos).toEqual(12);
+      expect(cells[0].pos).toEqual(3);
+      expect(cells[1].pos).toEqual(8);
+      expect(cells[2].pos).toEqual(13);
     });
   });
 
@@ -217,12 +217,12 @@ describe('table', () => {
         expect(cell.node.textContent).toEqual(`${i + 1}`);
         expect(typeof cell.pos).toEqual('number');
       });
-      expect(cells[0].pos).toEqual(2);
-      expect(cells[1].pos).toEqual(7);
-      expect(cells[2].pos).toEqual(12);
-      expect(cells[3].pos).toEqual(19);
-      expect(cells[4].pos).toEqual(24);
-      expect(cells[5].pos).toEqual(29);
+      expect(cells[0].pos).toEqual(3);
+      expect(cells[1].pos).toEqual(8);
+      expect(cells[2].pos).toEqual(13);
+      expect(cells[3].pos).toEqual(20);
+      expect(cells[4].pos).toEqual(25);
+      expect(cells[5].pos).toEqual(30);
     });
   });
 
