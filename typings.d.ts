@@ -5,6 +5,9 @@ export type Predicate = (node: ProsemirrorNode) => boolean;
 
 export type DomAtPos = (pos: number) => {node: Node, offset: number};
 
+export type CellTransform = (cell: {pos: number, node: ProsemirrorNode}) => (tr: Transaction) => Transaction;
+
+
 // Selection
 export function findParentNode(predicate: Predicate): (selection: Selection) => {pos: number, node: ProsemirrorNode} | undefined;
 
@@ -72,9 +75,7 @@ export function selectRow(rowIndex: number): (tr: Transaction) => Transaction;
 
 export function selectTable(tr: Transaction): Transaction;
 
-export function emptySelectedCells(schema: Schema): (tr: Transaction) => Transaction;
-
-export function emptyCellClosestToPos($pos: ResolvedPos, schema: Schema): (tr: Transaction) => Transaction;
+export function emptyCell(cell: {pos: number, node: ProsemirrorNode}, schema: Schema): (tr: Transaction) => Transaction;
 
 export function addColumnAt(columnIndex: number): (tr: Transaction) => Transaction;
 
@@ -93,6 +94,12 @@ export function removeTable(tr: Transaction): Transaction;
 export function removeColumnClosestToPos($pos: ResolvedPos): (tr: Transaction) => Transaction;
 
 export function removeRowClosestToPos($pos: ResolvedPos): (tr: Transaction) => Transaction;
+
+export function forEachCellInColumn(columnIndex: number, cellTransform: CellTransform, moveCursorToLastCell?: boolean): (tr: Transaction) => Transaction;
+
+export function forEachCellInRow(rowIndex: number, cellTransform: CellTransform, moveCursorToLastCell?: boolean): (tr: Transaction) => Transaction;
+
+export function setCellAttrs(cell: {pos: number, node: ProsemirrorNode}, attrs: Object): (tr: Transaction) => Transaction;
 
 // Transforms
 export function removeParentNodeOfType(nodeType: NodeType | NodeType[]): (tr: Transaction) => Transaction;

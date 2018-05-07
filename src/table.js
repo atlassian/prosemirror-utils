@@ -6,6 +6,7 @@ import {
   removeColumn,
   removeRow
 } from 'prosemirror-tables';
+import { Selection } from 'prosemirror-state';
 import { Slice } from 'prosemirror-model';
 import { findParentNode } from './selection';
 import {
@@ -224,48 +225,24 @@ export const selectTable = tr => {
   return tr;
 };
 
-// :: ($pos: ResolvedPos, schema: Schema) → (tr: Transaction) → Transaction
-// Returns a new transaction that clears the content of a cell closest to a given `$pos`.
+// :: (cell: {pos: number, node: ProseMirrorNode}, schema: Schema) → (tr: Transaction) → Transaction
+// Returns a new transaction that clears the content of a given `cell`.
 //
 // ```javascript
+// const $pos = state.doc.resolve(13);
 // dispatch(
-//   emptyCellClosestToPos(state.doc.resolve(10), state.schema)(state.tr)
+//   emptyCell(findCellClosestToPos($pos), state.schema)(state.tr)
 // );
 // ```
-export const emptyCellClosestToPos = ($pos, schema) => tr => {
-  const cell = findCellClosestToPos($pos);
+export const emptyCell = (cell, schema) => tr => {
   if (cell) {
-    const emptyCell = tableNodeTypes(schema).cell.createAndFill().content;
-    if (!cell.node.content.eq(emptyCell)) {
+    const content = tableNodeTypes(schema).cell.createAndFill().content;
+    if (!cell.node.content.eq(content)) {
       tr.replaceWith(
-        $pos.pos,
-        $pos.pos + cell.node.nodeSize - 1,
-        new Slice(emptyCell, 0, 0)
+        tr.mapping.map(cell.pos - 1),
+        tr.mapping.map(cell.pos + cell.node.nodeSize - 2),
+        new Slice(content, 0, 0)
       );
-      return cloneTr(tr);
-    }
-  }
-  return tr;
-};
-
-// :: (schema: Schema) → (tr: Transaction) → Transaction
-// Returns a new transaction that clears the content of selected cells.
-//
-// ```javascript
-// dispatch(
-//   emptySelectedCells(state.schema)(state.tr)
-// );
-// ```
-export const emptySelectedCells = schema => tr => {
-  if (isCellSelection(tr.selection)) {
-    const emptyCell = tableNodeTypes(schema).cell.createAndFill().content;
-    tr.selection.forEachCell((cell, pos) => {
-      if (!cell.content.eq(emptyCell)) {
-        const $pos = tr.doc.resolve(tr.mapping.map(pos + 1));
-        tr = emptyCellClosestToPos($pos, schema)(tr);
-      }
-    });
-    if (tr.docChanged) {
       return cloneTr(tr);
     }
   }
@@ -493,6 +470,85 @@ export const removeRowClosestToPos = $pos => tr => {
   const rect = findCellRectClosestToPos($pos);
   if (rect) {
     return removeRowAt(rect.top)(tr);
+  }
+  return tr;
+};
+
+// :: (columnIndex: number, cellTransform: (cell: { pos: number, node: ProseMirrorNode }) → (tr: Transaction)), setCursorToLastCell: ?boolean) → (tr: Transaction) → Transaction
+// Returns a new transaction that maps a given `cellTransform` function to each cell in a column at a given `columnIndex`.
+// It will set the selection into the last cell of the column if `setCursorToLastCell` param is set to `true`.
+//
+// ```javascript
+// dispatch(
+//   forEachCellInColumn(0, cell => emptyCell(cell, state.schema))(state.tr)
+// );
+// ```
+export const forEachCellInColumn = (
+  columnIndex,
+  cellTransform,
+  setCursorToLastCell
+) => tr => {
+  const cells = getCellsInColumn(columnIndex)(tr.selection);
+  if (cells) {
+    cells.forEach(cell => {
+      tr = cellTransform(cell)(tr);
+    });
+    if (setCursorToLastCell) {
+      const $pos = tr.doc.resolve(
+        tr.mapping.map(cells[cells.length - 1].pos - 1)
+      );
+      tr.setSelection(Selection.near($pos));
+    }
+    return cloneTr(tr);
+  }
+  return tr;
+};
+
+// :: (rowIndex: number, cellTransform: (cell: { pos: number, node: ProseMirrorNode }) → (tr: Transaction)), setCursorToLastCell: ?boolean) → (tr: Transaction) → Transaction
+// Returns a new transaction that maps a given `cellTransform` function to each cell in a row at a given `rowIndex`.
+// It will set the selection into the last cell of the row if `setCursorToLastCell` param is set to `true`.
+//
+// ```javascript
+// dispatch(
+//   forEachCellInRow(0, cell => setCellAttrs(cell, { background: 'red' }))(state.tr)
+// );
+// ```
+export const forEachCellInRow = (
+  rowIndex,
+  cellTransform,
+  setCursorToLastCell
+) => tr => {
+  const cells = getCellsInRow(rowIndex)(tr.selection);
+  if (cells) {
+    cells.forEach(cell => {
+      tr = cellTransform(cell)(tr);
+    });
+    if (setCursorToLastCell) {
+      const $pos = tr.doc.resolve(
+        tr.mapping.map(cells[cells.length - 1].pos - 1)
+      );
+      tr.setSelection(Selection.near($pos));
+    }
+  }
+  return tr;
+};
+
+// :: (cell: { pos: number, node: ProseMirrorNode }, attrs: Object) → (tr: Transaction) → Transaction
+// Returns a new transaction that sets given `attrs` to a given `cell`.
+//
+// ```javascript
+// dispatch(
+//   setCellAttrs(findCellClosestToPos($pos), { background: 'blue' })(tr);
+// );
+// ```
+export const setCellAttrs = (cell, attrs) => tr => {
+  if (cell) {
+    tr.setNodeMarkup(
+      tr.mapping.map(cell.pos - 1),
+      null,
+      Object.assign({}, cell.node.attrs, attrs)
+    );
+    return cloneTr(tr);
   }
   return tr;
 };

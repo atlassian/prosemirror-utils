@@ -126,7 +126,7 @@ const findTableClosestToPos = $pos => {
   return findParentNodeClosestToPos($pos, predicate);
 };
 
-// ($pos: ResolvedPos) → ?{pos: number, node: ProseMirrorNode}
+// :: ($pos: ResolvedPos) → ?{pos: number, node: ProseMirrorNode}
 // Iterates over parent nodes, returning a table cell or a table header node closest to a given `$pos`.
 //
 // ```javascript
