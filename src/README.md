@@ -88,9 +88,7 @@ npm install prosemirror-utils
 
 @selectTable
 
-@emptySelectedCells
-
-@emptyCellClosestToPos
+@emptyCell
 
 @addColumnAt
 
@@ -109,6 +107,14 @@ npm install prosemirror-utils
 @removeColumnClosestToPos
 
 @removeRowClosestToPos
+
+@findCellClosestToPos
+
+@forEachCellInColumn
+
+@forEachCellInRow
+
+@setCellAttrs
 
 ### Utils for document transformation
 

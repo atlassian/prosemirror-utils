@@ -21,7 +21,7 @@ import {
   selectColumn,
   selectRow,
   selectTable,
-  emptySelectedCells,
+  emptyCell,
   addColumnAt,
   addRowAt,
   removeColumnAt,
@@ -31,7 +31,12 @@ import {
   removeTable,
   removeColumnClosestToPos,
   removeRowClosestToPos,
-  emptyCellClosestToPos
+  setCellAttrsClosestToPos,
+  setSelectedCellsAttrs,
+  forEachCellInColumn,
+  forEachCellInRow,
+  findCellClosestToPos,
+  setCellAttrs
 } from '../src';
 
 describe('table', () => {
@@ -297,54 +302,33 @@ describe('table', () => {
     });
   });
 
-  describe('emptySelectedCells', () => {
-    it('should return a new transaction that empties selected cells', () => {
+  describe('emptyCell', () => {
+    it('should return an original transaction if a given cell is undefined', () => {
+      const {
+        state: { schema, tr }
+      } = createEditor(doc(p('one one')));
+      const $pos = tr.doc.resolve(2);
+      const newTr = emptyCell(findCellClosestToPos($pos), schema)(tr);
+      expect(tr).toBe(newTr);
+    });
+    it('should return a new transaction that empties the content of a given cell', () => {
       const {
         state: { schema, tr }
       } = createEditor(
         doc(
-          table(
-            row(td(p('one one')), td(p('two two'))),
-            row(td(p('three three')), td(p('four four')))
-          )
+          table(row(td(p('one one')), tdEmpty), row(td(p('two two')), tdEmpty))
         )
       );
-      const newTr = emptySelectedCells(schema)(selectColumn(1)(tr));
+      let newTr;
+      const cells = getCellsInColumn(0)(tr.selection);
+      cells.forEach(cell => {
+        newTr = emptyCell(cell, schema)(tr);
+      });
       expect(newTr).not.toBe(tr);
       expect(newTr.doc).toEqualDocument(
-        doc(
-          table(
-            row(td(p('one one')), tdEmpty),
-            row(td(p('three three')), tdEmpty)
-          )
-        )
+        doc(table(row(tdEmpty, tdEmpty), row(tdEmpty, tdEmpty)))
       );
-    });
-  });
-
-  describe('emptyCellClosestToPos', () => {
-    it('should return a new transaction that empties a cell closest to a given `$pos`', () => {
-      const { state } = createEditor(
-        doc(
-          table(
-            row(td(p('one one')), td(p('two two'))),
-            row(td(p('three three')), td(p('four four')))
-          )
-        )
-      );
-      const { tr } = state;
-      const newTr = emptyCellClosestToPos(state.doc.resolve(15), state.schema)(
-        tr
-      );
-      expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(
-        doc(
-          table(
-            row(td(p('one one')), tdEmpty),
-            row(td(p('three three')), td(p('four four')))
-          )
-        )
-      );
+      expect(newTr.selection.$from.pos).toEqual(8);
     });
   });
 
@@ -915,6 +899,241 @@ describe('table', () => {
       const newTr = removeTable(tr);
       expect(newTr).not.toBe(tr);
       expect(newTr.doc).toEqualDocument(doc(p('')));
+    });
+  });
+
+  describe('forEachCellInColumn', () => {
+    describe('cells with colspan = 1, rowspan = 1', () => {
+      it('should map `emptyCell` to each cell in a column at a given `columnIndex`', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(
+          doc(
+            table(
+              row(td(p('one one')), tdEmpty),
+              row(td(p('two two')), tdEmpty)
+            )
+          )
+        );
+        const newTr = forEachCellInColumn(
+          0,
+          cell => emptyCell(cell, schema),
+          true
+        )(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(table(row(tdEmpty, tdEmpty), row(tdEmpty, tdEmpty)))
+        );
+        expect(newTr.selection.$from.pos).toEqual(14);
+      });
+      it('should map `setCellAttrs` to each cell in a column at a given `columnIndex`', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(
+          doc(
+            table(
+              row(td(p('one one')), tdEmpty),
+              row(td(p('two two')), tdEmpty)
+            )
+          )
+        );
+        const newTr = forEachCellInColumn(
+          0,
+          cell => setCellAttrs(cell, { ugly: true }),
+          true
+        )(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(
+            table(
+              row(td({ ugly: true }, p('one one')), tdEmpty),
+              row(td({ ugly: true }, p('two two')), tdEmpty)
+            )
+          )
+        );
+      });
+    });
+
+    describe('merged cells with colspan = 2, rowspan = 1', () => {
+      it('should map `emptyCell` to each cell in a column at a given `columnIndex`', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(
+          doc(
+            table(
+              row(td({ colspan: 2 }, p('one one'))),
+              row(td(p('two two')), tdEmpty)
+            )
+          )
+        );
+        const newTr = forEachCellInColumn(
+          0,
+          cell => emptyCell(cell, schema),
+          true
+        )(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(table(row(td({ colspan: 2 }, p(''))), row(tdEmpty, tdEmpty)))
+        );
+        expect(newTr.selection.$from.pos).toEqual(10);
+      });
+    });
+    describe('merged cells with colspan = 1, rowspan = 2', () => {
+      it('should map `emptyCell` to each cell in a column at a given `columnIndex`', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(
+          doc(
+            table(
+              row(td({ rowspan: 2 }, p('one one')), td(p('two two'))),
+              row(tdEmpty)
+            )
+          )
+        );
+        const newTr = forEachCellInColumn(
+          0,
+          cell => emptyCell(cell, schema),
+          true
+        )(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(
+            table(
+              row(td({ rowspan: 2 }, p('')), td(p('two two'))),
+              row(tdEmpty)
+            )
+          )
+        );
+        expect(newTr.selection.$from.pos).toEqual(4);
+      });
+    });
+  });
+
+  describe('forEachCellInRow', () => {
+    describe('cells with colspan = 1, rowspan = 1', () => {
+      it('should map `emptyCell` to each cell in a row at a given `rowIndex`', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(
+          doc(
+            table(
+              row(td(p('one one')), td(p('two two'))),
+              row(tdEmpty, tdEmpty)
+            )
+          )
+        );
+        const newTr = forEachCellInRow(
+          0,
+          cell => emptyCell(cell, schema),
+          true
+        )(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(table(row(tdEmpty, tdEmpty), row(tdEmpty, tdEmpty)))
+        );
+        expect(newTr.selection.$from.pos).toEqual(8);
+      });
+      it('should map `setCellAttrs` to each cell in a row at a given `rowIndex`', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(
+          doc(table(row(tdEmpty, tdEmpty), row(tdEmpty, tdEmpty)))
+        );
+        const newTr = forEachCellInRow(
+          0,
+          cell => setCellAttrs(cell, { ugly: true }),
+          true
+        )(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(
+            table(
+              row(td({ ugly: true }, p('')), td({ ugly: true }, p(''))),
+              row(tdEmpty, tdEmpty)
+            )
+          )
+        );
+      });
+    });
+
+    describe('merged cells with colspan = 2, rowspan = 1', () => {
+      it('should map `emptyCell` to each cell in a row at a given `rowIndex`', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(
+          doc(
+            table(
+              row(td({ colspan: 2 }, p('one one')), td(p('two two'))),
+              row(tdEmpty, tdEmpty, tdEmpty)
+            )
+          )
+        );
+        const newTr = forEachCellInRow(
+          0,
+          cell => emptyCell(cell, schema),
+          true
+        )(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(
+            table(
+              row(td({ colspan: 2 }, p('')), tdEmpty),
+              row(tdEmpty, tdEmpty, tdEmpty)
+            )
+          )
+        );
+        expect(newTr.selection.$from.pos).toEqual(8);
+      });
+    });
+    describe('merged cells with colspan = 1, rowspan = 2', () => {
+      it('should map `emptyCell` to each cell in a row at a given `rowIndex`', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(
+          doc(
+            table(
+              row(td({ rowspan: 2 }, p('one one')), td(p('two two'))),
+              row(tdEmpty)
+            )
+          )
+        );
+        const newTr = forEachCellInRow(
+          0,
+          cell => emptyCell(cell, schema),
+          true
+        )(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(table(row(td({ rowspan: 2 }, p('')), tdEmpty), row(tdEmpty)))
+        );
+        expect(newTr.selection.$from.pos).toEqual(8);
+      });
+    });
+  });
+
+  describe('setCellAttrs', () => {
+    it('should return an original transaction if a given cell is undefined', () => {
+      const {
+        state: { tr }
+      } = createEditor(doc(p('one one')));
+      const $pos = tr.doc.resolve(2);
+      const newTr = setCellAttrs(findCellClosestToPos($pos), { ugly: true })(
+        tr
+      );
+      expect(tr).toBe(newTr);
+    });
+    it('should return a new transaction that sets given `attrs` to a given cell', () => {
+      const {
+        state: { tr }
+      } = createEditor(doc(table(row(td(p('one')), tdEmpty))));
+      const $pos = tr.doc.resolve(5);
+      const newTr = setCellAttrs(findCellClosestToPos($pos), { ugly: true })(
+        tr
+      );
+      expect(newTr).not.toBe(tr);
+      expect(newTr.doc).toEqualDocument(
+        doc(table(row(td({ ugly: true }, p('one')), tdEmpty)))
+      );
     });
   });
 });

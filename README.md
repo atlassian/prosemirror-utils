@@ -308,22 +308,13 @@ npm install prosemirror-utils
    ```
 
 
- * **`emptySelectedCells`**`(schema: Schema) → fn(tr: Transaction) → Transaction`\
-   Returns a new transaction that clears the content of selected cells.
+ * **`emptyCell`**`(cell: {pos: number, node: ProseMirrorNode}, schema: Schema) → fn(tr: Transaction) → Transaction`\
+   Returns a new transaction that clears the content of a given `cell`.
 
    ```javascript
+   const $pos = state.doc.resolve(13);
    dispatch(
-     emptySelectedCells(state.schema)(state.tr)
-   );
-   ```
-
-
- * **`emptyCellClosestToPos`**`($pos: ResolvedPos, schema: Schema) → fn(tr: Transaction) → Transaction`\
-   Returns a new transaction that clears the content of a cell closest to a given `$pos`.
-
-   ```javascript
-   dispatch(
-     emptyCellClosestToPos(state.doc.resolve(10), state.schema)(state.tr)
+     emptyCell(findCellClosestToPos($pos), state.schema)(state.tr)
    );
    ```
 
@@ -414,6 +405,48 @@ npm install prosemirror-utils
    ```javascript
    dispatch(
      removeRowClosestToPos(state.doc.resolve(3))(state.tr)
+   );
+   ```
+
+
+ * **`findCellClosestToPos`**`($pos: ResolvedPos) → ?{pos: number, node: ProseMirrorNode}`\
+   Iterates over parent nodes, returning a table cell or a table header node closest to a given `$pos`.
+
+   ```javascript
+   const cell = findCellClosestToPos(state.doc.resolve(10));
+   ```
+
+
+ * **`forEachCellInColumn`**`(columnIndex: number, cellTransform: fn(cell: {pos: number, node: ProseMirrorNode}) → fn(tr: Transaction))`\
+   , setCursorToLastCell: ?boolean) → (tr: Transaction) → Transaction
+   Returns a new transaction that maps a given `cellTransform` function to each cell in a column at a given `columnIndex`.
+   It will set the selection into the last cell of the column if `setCursorToLastCell` param is set to `true`.
+
+   ```javascript
+   dispatch(
+     forEachCellInColumn(0, cell => emptyCell(cell, state.schema))(state.tr)
+   );
+   ```
+
+
+ * **`forEachCellInRow`**`(rowIndex: number, cellTransform: fn(cell: {pos: number, node: ProseMirrorNode}) → fn(tr: Transaction))`\
+   , setCursorToLastCell: ?boolean) → (tr: Transaction) → Transaction
+   Returns a new transaction that maps a given `cellTransform` function to each cell in a row at a given `rowIndex`.
+   It will set the selection into the last cell of the row if `setCursorToLastCell` param is set to `true`.
+
+   ```javascript
+   dispatch(
+     forEachCellInRow(0, cell => setCellAttrs(cell, { background: 'red' }))(state.tr)
+   );
+   ```
+
+
+ * **`setCellAttrs`**`(cell: {pos: number, node: ProseMirrorNode}, attrs: Object) → fn(tr: Transaction) → Transaction`\
+   Returns a new transaction that sets given `attrs` to a given `cell`.
+
+   ```javascript
+   dispatch(
+     setCellAttrs(findCellClosestToPos($pos), { background: 'blue' })(tr);
    );
    ```
 
