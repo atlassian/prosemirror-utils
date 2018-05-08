@@ -101,6 +101,8 @@ export function forEachCellInRow(rowIndex: number, cellTransform: CellTransform,
 
 export function setCellAttrs(cell: {pos: number, node: ProsemirrorNode}, attrs: Object): (tr: Transaction) => Transaction;
 
+export function findCellClosestToPos($pos: ResolvedPos): {pos: number, node: ProsemirrorNode} | undefined;
+
 // Transforms
 export function removeParentNodeOfType(nodeType: NodeType | NodeType[]): (tr: Transaction) => Transaction;
 
