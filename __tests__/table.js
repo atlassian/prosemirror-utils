@@ -553,6 +553,16 @@ describe('table', () => {
         doc(table(row(td(p('1'))), row(td(p('3')))))
       );
     });
+    it('should remove the whole table if there is only one column', () => {
+      const {
+        state: { schema, tr }
+      } = createEditor(
+        doc(p('1'), table(row(td(p('text<cursor>'))), row(tdEmpty)), p('2'))
+      );
+      const newTr = removeColumnAt(0)(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.doc).toEqualDocument(doc(p('1'), p('2')));
+    });
   });
 
   describe('removeColumnClosestToPos', () => {
@@ -750,6 +760,16 @@ describe('table', () => {
       expect(newTr.doc).toEqualDocument(
         doc(table(row(td(p('1')), td(p('2')))))
       );
+    });
+    it('should remove the whole table if there is only one row', () => {
+      const {
+        state: { schema, tr }
+      } = createEditor(
+        doc(p('1'), table(row(td(p('text<cursor>')), tdEmpty)), p('2'))
+      );
+      const newTr = removeRowAt(0)(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.doc).toEqualDocument(doc(p('1'), p('2')));
     });
   });
 

@@ -308,7 +308,7 @@ export const addRowAt = rowIndex => tr => {
 };
 
 // :: (columnIndex: number) → (tr: Transaction) → Transaction
-// Returns a new transaction that removes a column at index `columnIndex`.
+// Returns a new transaction that removes a column at index `columnIndex`. If there is only one column left, it will remove the entire table.
 //
 // ```javascript
 // dispatch(
@@ -319,7 +319,9 @@ export const removeColumnAt = columnIndex => tr => {
   const table = findTable(tr.selection);
   if (table) {
     const map = TableMap.get(table.node);
-    if (columnIndex >= 0 && columnIndex <= map.width) {
+    if (columnIndex === 0 && map.width === 1) {
+      return removeTable(tr);
+    } else if (columnIndex >= 0 && columnIndex <= map.width) {
       removeColumn(
         tr,
         {
@@ -336,7 +338,7 @@ export const removeColumnAt = columnIndex => tr => {
 };
 
 // :: (rowIndex: number) → (tr: Transaction) → Transaction
-// Returns a new transaction that removes a row at index `rowIndex`.
+// Returns a new transaction that removes a row at index `rowIndex`. If there is only one row left, it will remove the entire table.
 //
 // ```javascript
 // dispatch(
@@ -347,7 +349,9 @@ export const removeRowAt = rowIndex => tr => {
   const table = findTable(tr.selection);
   if (table) {
     const map = TableMap.get(table.node);
-    if (rowIndex >= 0 && rowIndex <= map.height) {
+    if (rowIndex === 0 && map.height === 1) {
+      return removeTable(tr);
+    } else if (rowIndex >= 0 && rowIndex <= map.height) {
       removeRow(
         tr,
         {

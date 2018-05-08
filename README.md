@@ -340,7 +340,7 @@ npm install prosemirror-utils
 
 
  * **`removeColumnAt`**`(columnIndex: number) → fn(tr: Transaction) → Transaction`\
-   Returns a new transaction that removes a column at index `columnIndex`.
+   Returns a new transaction that removes a column at index `columnIndex`. If there is only one column left, it will remove the entire table.
 
    ```javascript
    dispatch(
@@ -350,7 +350,7 @@ npm install prosemirror-utils
 
 
  * **`removeRowAt`**`(rowIndex: number) → fn(tr: Transaction) → Transaction`\
-   Returns a new transaction that removes a row at index `rowIndex`.
+   Returns a new transaction that removes a row at index `rowIndex`. If there is only one row left, it will remove the entire table.
 
    ```javascript
    dispatch(
