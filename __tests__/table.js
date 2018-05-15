@@ -319,11 +319,9 @@ describe('table', () => {
           table(row(td(p('one one')), tdEmpty), row(td(p('two two')), tdEmpty))
         )
       );
-      let newTr;
-      const cells = getCellsInColumn(0)(tr.selection);
-      cells.forEach(cell => {
-        newTr = emptyCell(cell, schema)(tr);
-      });
+      const newTr = forEachCellInColumn(0, (cell, tr) =>
+        emptyCell(cell, schema)(tr)
+      )(tr);
       expect(newTr).not.toBe(tr);
       expect(newTr.doc).toEqualDocument(
         doc(table(row(tdEmpty, tdEmpty), row(tdEmpty, tdEmpty)))
@@ -937,7 +935,7 @@ describe('table', () => {
         );
         const newTr = forEachCellInColumn(
           0,
-          cell => emptyCell(cell, schema),
+          (cell, tr) => emptyCell(cell, schema)(tr),
           true
         )(tr);
         expect(newTr).not.toBe(tr);
@@ -959,7 +957,7 @@ describe('table', () => {
         );
         const newTr = forEachCellInColumn(
           0,
-          cell => setCellAttrs(cell, { ugly: true }),
+          (cell, tr) => setCellAttrs(cell, { ugly: true })(tr),
           true
         )(tr);
         expect(newTr).not.toBe(tr);
@@ -988,7 +986,7 @@ describe('table', () => {
         );
         const newTr = forEachCellInColumn(
           0,
-          cell => emptyCell(cell, schema),
+          (cell, tr) => emptyCell(cell, schema)(tr),
           true
         )(tr);
         expect(newTr).not.toBe(tr);
@@ -1012,7 +1010,7 @@ describe('table', () => {
         );
         const newTr = forEachCellInColumn(
           0,
-          cell => emptyCell(cell, schema),
+          (cell, tr) => emptyCell(cell, schema)(tr),
           true
         )(tr);
         expect(newTr).not.toBe(tr);
@@ -1044,7 +1042,7 @@ describe('table', () => {
         );
         const newTr = forEachCellInRow(
           0,
-          cell => emptyCell(cell, schema),
+          (cell, tr) => emptyCell(cell, schema)(tr),
           true
         )(tr);
         expect(newTr).not.toBe(tr);
@@ -1061,7 +1059,7 @@ describe('table', () => {
         );
         const newTr = forEachCellInRow(
           0,
-          cell => setCellAttrs(cell, { ugly: true }),
+          (cell, tr) => setCellAttrs(cell, { ugly: true })(tr),
           true
         )(tr);
         expect(newTr).not.toBe(tr);
@@ -1090,7 +1088,7 @@ describe('table', () => {
         );
         const newTr = forEachCellInRow(
           0,
-          cell => emptyCell(cell, schema),
+          (cell, tr) => emptyCell(cell, schema)(tr),
           true
         )(tr);
         expect(newTr).not.toBe(tr);
@@ -1119,7 +1117,7 @@ describe('table', () => {
         );
         const newTr = forEachCellInRow(
           0,
-          cell => emptyCell(cell, schema),
+          (cell, tr) => emptyCell(cell, schema)(tr),
           true
         )(tr);
         expect(newTr).not.toBe(tr);

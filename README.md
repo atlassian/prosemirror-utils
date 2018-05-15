@@ -424,7 +424,7 @@ npm install prosemirror-utils
 
    ```javascript
    dispatch(
-     forEachCellInColumn(0, cell => emptyCell(cell, state.schema))(state.tr)
+     forEachCellInColumn(0, (cell, tr) => emptyCell(cell, state.schema)(tr))(state.tr)
    );
    ```
 
@@ -436,7 +436,7 @@ npm install prosemirror-utils
 
    ```javascript
    dispatch(
-     forEachCellInRow(0, cell => setCellAttrs(cell, { background: 'red' }))(state.tr)
+     forEachCellInRow(0, (cell, tr) => setCellAttrs(cell, { background: 'red' })(tr))(state.tr)
    );
    ```
 
