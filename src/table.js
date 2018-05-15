@@ -239,8 +239,8 @@ export const emptyCell = (cell, schema) => tr => {
     const content = tableNodeTypes(schema).cell.createAndFill().content;
     if (!cell.node.content.eq(content)) {
       tr.replaceWith(
-        tr.mapping.map(cell.pos - 1),
-        tr.mapping.map(cell.pos + cell.node.nodeSize - 2),
+        cell.pos - 1,
+        cell.pos + cell.node.nodeSize - 2,
         new Slice(content, 0, 0)
       );
       return cloneTr(tr);
@@ -484,7 +484,7 @@ export const removeRowClosestToPos = $pos => tr => {
 //
 // ```javascript
 // dispatch(
-//   forEachCellInColumn(0, cell => emptyCell(cell, state.schema))(state.tr)
+//   forEachCellInColumn(0, (cell, tr) => emptyCell(cell, state.schema)(tr))(state.tr)
 // );
 // ```
 export const forEachCellInColumn = (
@@ -494,9 +494,9 @@ export const forEachCellInColumn = (
 ) => tr => {
   const cells = getCellsInColumn(columnIndex)(tr.selection);
   if (cells) {
-    cells.forEach(cell => {
-      tr = cellTransform(cell)(tr);
-    });
+    for (let i = cells.length - 1; i >= 0; i--) {
+      tr = cellTransform(cells[i], tr);
+    }
     if (setCursorToLastCell) {
       const $pos = tr.doc.resolve(
         tr.mapping.map(cells[cells.length - 1].pos - 1)
@@ -514,7 +514,7 @@ export const forEachCellInColumn = (
 //
 // ```javascript
 // dispatch(
-//   forEachCellInRow(0, cell => setCellAttrs(cell, { background: 'red' }))(state.tr)
+//   forEachCellInRow(0, (cell, tr) => setCellAttrs(cell, { background: 'red' })(tr))(state.tr)
 // );
 // ```
 export const forEachCellInRow = (
@@ -524,9 +524,9 @@ export const forEachCellInRow = (
 ) => tr => {
   const cells = getCellsInRow(rowIndex)(tr.selection);
   if (cells) {
-    cells.forEach(cell => {
-      tr = cellTransform(cell)(tr);
-    });
+    for (let i = cells.length - 1; i >= 0; i--) {
+      tr = cellTransform(cells[i], tr);
+    }
     if (setCursorToLastCell) {
       const $pos = tr.doc.resolve(
         tr.mapping.map(cells[cells.length - 1].pos - 1)
@@ -548,7 +548,7 @@ export const forEachCellInRow = (
 export const setCellAttrs = (cell, attrs) => tr => {
   if (cell) {
     tr.setNodeMarkup(
-      tr.mapping.map(cell.pos - 1),
+      cell.pos - 1,
       null,
       Object.assign({}, cell.node.attrs, attrs)
     );
