@@ -34,19 +34,21 @@ describe('selection', () => {
       const {
         state: { schema, selection }
       } = createEditor(doc(p('hello <cursor>')));
-      const { node } = findParentNode(
+      const { node, pos } = findParentNode(
         node => node.type === schema.nodes.paragraph
       )(selection);
       expect(node.type.name).toEqual('paragraph');
+      expect(pos).toBe(0);
     });
     it('should find parent node if cursor is inside nested child', () => {
       const {
         state: { schema, selection }
       } = createEditor(doc(table(tr(tdCursor))));
-      const { node } = findParentNode(node => node.type === schema.nodes.table)(
-        selection
-      );
+      const { node, pos } = findParentNode(
+        node => node.type === schema.nodes.table
+      )(selection);
       expect(node.type.name).toEqual('table');
+      expect(pos).toBe(0);
     });
     it('should return `undefined` if parent node has not been found', () => {
       const {
@@ -68,15 +70,17 @@ describe('selection', () => {
         node => node.type === paragraph
       );
       expect(node.type.name).toEqual('paragraph');
+      expect(pos).toBe(0);
     });
     it('should find parent node if a given `$pos` is inside nested child', () => {
       const { state } = createEditor(doc(table(tr(tdEmpty))));
       const { nodes } = state.schema;
-      const { node } = findParentNodeClosestToPos(
+      const { node, pos } = findParentNodeClosestToPos(
         state.doc.resolve(4),
         node => node.type === nodes.table
       );
       expect(node.type.name).toEqual('table');
+      expect(pos).toBe(0);
     });
     it('should return `undefined` if a parent node has not been found', () => {
       const { state } = createEditor(doc(table(tr(tdEmpty))));

@@ -14,7 +14,7 @@ export const findParentNode = predicate => selection => {
     const node = $from.node(i);
     if (predicate(node)) {
       return {
-        pos: $from.start(i),
+        pos: $from.before(i),
         node
       };
     }
@@ -33,7 +33,7 @@ export const findParentNodeClosestToPos = ($pos, predicate) => {
     const node = $pos.node(i);
     if (predicate(node)) {
       return {
-        pos: $pos.start(i),
+        pos: $pos.before(i),
         node
       };
     }
