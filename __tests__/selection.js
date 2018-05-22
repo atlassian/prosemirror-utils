@@ -109,10 +109,10 @@ describe('selection', () => {
       } = createEditor(doc(table(tr(tdCursor))));
       const domAtPos = view.domAtPos.bind(view);
       const ref = findParentDomRef(
-        node => node.type === schema.nodes.table,
+        node => node.type === schema.nodes.table_cell,
         domAtPos
       )(selection);
-      expect(ref instanceof HTMLTableSectionElement).toBe(true);
+      expect(ref instanceof HTMLTableCellElement).toBe(true);
     });
     it('should return `undefined` if parent node has not been found', () => {
       const {
@@ -332,22 +332,34 @@ describe('selection', () => {
   describe('findDomRefAtPos', () => {
     it('should return DOM reference of a top level block leaf node', () => {
       const { view } = createEditor(doc(p('text'), atomBlock()));
-      const ref = findDomRefAtPos(7, view.domAtPos.bind(view));
+      const ref = findDomRefAtPos(6, view.domAtPos.bind(view));
       expect(ref instanceof HTMLDivElement).toBe(true);
       expect(ref.getAttribute('data-node-type')).toEqual('atomBlock');
     });
 
     it('should return DOM reference of a nested inline leaf node', () => {
       const { view } = createEditor(doc(p('one', atomInline(), 'two')));
-      const ref = findDomRefAtPos(5, view.domAtPos.bind(view));
+      const ref = findDomRefAtPos(4, view.domAtPos.bind(view));
       expect(ref instanceof HTMLSpanElement).toBe(true);
       expect(ref.getAttribute('data-node-type')).toEqual('atomInline');
     });
 
     it('should return DOM reference of a content block node', () => {
       const { view } = createEditor(doc(p('one'), blockquote(p('two'))));
-      const ref = findDomRefAtPos(6, view.domAtPos.bind(view));
+      const ref = findDomRefAtPos(5, view.domAtPos.bind(view));
       expect(ref instanceof HTMLQuoteElement).toBe(true);
+    });
+
+    it('should return DOM reference of a text node when offset=0', () => {
+      const { view } = createEditor(doc(p('text')));
+      const ref = findDomRefAtPos(1, view.domAtPos.bind(view));
+      expect(ref instanceof Text).toBe(true);
+    });
+
+    it('should return DOM reference of a text node when offset>0', () => {
+      const { view } = createEditor(doc(p(atomInline(), 'text')));
+      const ref = findDomRefAtPos(3, view.domAtPos.bind(view));
+      expect(ref instanceof Text).toBe(true);
     });
   });
 });
