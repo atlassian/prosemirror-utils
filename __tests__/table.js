@@ -36,7 +36,8 @@ import {
   forEachCellInColumn,
   forEachCellInRow,
   findCellClosestToPos,
-  setCellAttrs
+  setCellAttrs,
+  createTable
 } from '../src';
 
 describe('table', () => {
@@ -1152,6 +1153,43 @@ describe('table', () => {
       expect(newTr.doc).toEqualDocument(
         doc(table(row(td({ ugly: true }, p('one')), tdEmpty)))
       );
+    });
+  });
+
+  describe('createTable', () => {
+    it('should create a table node of size 3x3 by default', () => {
+      const {
+        state: { schema }
+      } = createEditor(doc(p('')));
+      const table = createTable(schema);
+      expect(table.content.childCount).toEqual(3);
+      expect(table.content.child(0).childCount).toEqual(3);
+      expect(table.content.child(0).child(0).type).toEqual(
+        schema.nodes.table_header
+      );
+    });
+
+    describe('when rowsCount = 4 and colsCount = 5', () => {
+      it('should create a table node of size 4x5', () => {
+        const {
+          state: { schema }
+        } = createEditor(doc(p('')));
+        const table = createTable(schema, 4, 5);
+        expect(table.content.childCount).toEqual(4);
+        expect(table.content.child(0).childCount).toEqual(5);
+      });
+    });
+
+    describe('when withHeaderRow = false', () => {
+      it('should create a table node without header rows', () => {
+        const {
+          state: { schema }
+        } = createEditor(doc(p('')));
+        const table = createTable(schema, 3, 3, false);
+        expect(table.content.child(0).child(0).type).toEqual(
+          schema.nodes.table_cell
+        );
+      });
     });
   });
 });

@@ -116,6 +116,8 @@ npm install prosemirror-utils
 
 @setCellAttrs
 
+@createTable
+
 ### Utils for document transformation
 
 @removeParentNodeOfType

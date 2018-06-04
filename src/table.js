@@ -7,7 +7,7 @@ import {
   removeRow
 } from 'prosemirror-tables';
 import { Selection } from 'prosemirror-state';
-import { Slice } from 'prosemirror-model';
+import { Slice, Fragment } from 'prosemirror-model';
 import { findParentNode } from './selection';
 import {
   cloneTr,
@@ -555,4 +555,52 @@ export const setCellAttrs = (cell, attrs) => tr => {
     return cloneTr(tr);
   }
   return tr;
+};
+
+// :: (schema: Schema, rowsCount: ?number, colsCount: ?number, withHeaderRow: ?boolean) → Node
+// Returns a table node of a given size.
+// `withHeaderRow` defines whether the first row of the table will be a header row.
+//
+// ```javascript
+// const table = createTable(state.schema); // 3x3 table node
+// dispatch(
+//   tr.replaceSelectionWith(table).scrollIntoView()
+// );
+// ```
+export const createTable = (
+  schema,
+  rowsCount = 3,
+  colsCount = 3,
+  withHeaderRow = true
+) => {
+  const {
+    cell: tableCell,
+    header_cell: tableHeader,
+    row: tableRow,
+    table
+  } = tableNodeTypes(schema);
+
+  const cells = [];
+  for (let i = 0; i < colsCount; i++) {
+    cells.push(tableCell.createAndFill(null));
+  }
+
+  const headerCells = [];
+  if (withHeaderRow) {
+    for (let i = 0; i < colsCount; i++) {
+      headerCells.push(tableHeader.createAndFill(null));
+    }
+  }
+
+  const rows = [];
+  for (let i = 0; i < rowsCount; i++) {
+    rows.push(
+      tableRow.createChecked(
+        null,
+        withHeaderRow && i === 0 ? headerCells : cells
+      )
+    );
+  }
+
+  return table.createChecked(null, rows);
 };
