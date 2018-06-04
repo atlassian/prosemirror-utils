@@ -103,6 +103,8 @@ export function setCellAttrs(cell: {pos: number, node: ProsemirrorNode}, attrs: 
 
 export function findCellClosestToPos($pos: ResolvedPos): {pos: number, node: ProsemirrorNode} | undefined;
 
+export function createTable(schema: Schema, rowsCount?: number, colsCount?: number, withHeaderRow?: boolean): ProsemirrorNode;
+
 // Transforms
 export function removeParentNodeOfType(nodeType: NodeType | NodeType[]): (tr: Transaction) => Transaction;
 
