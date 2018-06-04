@@ -51,7 +51,7 @@ export const findParentNodeClosestToPos = ($pos, predicate) => {
 export const findParentDomRef = (predicate, domAtPos) => selection => {
   const parent = findParentNode(predicate)(selection);
   if (parent) {
-    return findDomRefAtPos(parent.pos, domAtPos);
+    return findDomRefAtPos(parent.pos - 1, domAtPos);
   }
 };
 
@@ -163,8 +163,6 @@ export const findPositionOfNodeBefore = selection => {
 // ```
 export const findDomRefAtPos = (position, domAtPos) => {
   const dom = domAtPos(position);
-  if (dom.offset > 0) {
-    return dom.node.childNodes[dom.offset - 1];
-  }
-  return dom.node;
+  const node = dom.node.childNodes[dom.offset];
+  return node ? node : dom.node;
 };
