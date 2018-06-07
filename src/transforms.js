@@ -174,7 +174,7 @@ export const setParentNodeMarkup = (nodeType, type, attrs, marks) => tr => {
   if (parent) {
     return cloneTr(
       tr.setNodeMarkup(
-        parent.pos - 1,
+        parent.pos,
         type,
         Object.assign({}, parent.node.attrs, attrs),
         marks
@@ -196,9 +196,7 @@ export const selectParentNodeOfType = nodeType => tr => {
   if (!isNodeSelection(tr.selection)) {
     const parent = findParentNodeOfType(nodeType)(tr.selection);
     if (parent) {
-      return cloneTr(
-        tr.setSelection(NodeSelection.create(tr.doc, parent.pos - 1))
-      );
+      return cloneTr(tr.setSelection(NodeSelection.create(tr.doc, parent.pos)));
     }
   }
   return tr;

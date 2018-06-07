@@ -295,14 +295,14 @@ describe('selection', () => {
         doc(p('text'), table(tr(tdEmpty), tr(tdEmpty)), '<cursor>')
       );
       const position = findPositionOfNodeBefore(selection);
-      expect(position).toEqual(7);
+      expect(position).toEqual(6);
     });
     it('should return position of nodeBefore if its a blockquote', () => {
       const {
         state: { selection }
       } = createEditor(doc(p('text'), blockquote(p('')), '<cursor>'));
       const position = findPositionOfNodeBefore(selection);
-      expect(position).toEqual(7);
+      expect(position).toEqual(6);
     });
     it('should return position of nodeBefore if its a nested leaf node', () => {
       const {
@@ -311,21 +311,21 @@ describe('selection', () => {
         doc(p('text'), table(tr(td(p('1'), atomBlock(), '<cursor>'))))
       );
       const position = findPositionOfNodeBefore(selection);
-      expect(position).toEqual(13);
+      expect(position).toEqual(12);
     });
     it('should return position of nodeBefore if its a leaf node', () => {
       const {
         state: { selection }
       } = createEditor(doc(p('text'), atomBlock(), '<cursor>'));
       const position = findPositionOfNodeBefore(selection);
-      expect(position).toEqual(7);
+      expect(position).toEqual(6);
     });
     it('should return position of nodeBefore if its a leaf node with nested inline atom node', () => {
       const {
         state: { selection }
       } = createEditor(doc(p('text'), atomContainer(atomBlock()), '<cursor>'));
       const position = findPositionOfNodeBefore(selection);
-      expect(position).toEqual(7);
+      expect(position).toEqual(6);
     });
   });
 

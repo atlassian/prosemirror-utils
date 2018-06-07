@@ -9,6 +9,7 @@ import {
 import { Selection } from 'prosemirror-state';
 import { Slice, Fragment } from 'prosemirror-model';
 import { findParentNode } from './selection';
+import { setTextSelection } from './transforms';
 import {
   cloneTr,
   tableNodeTypes,
@@ -182,8 +183,8 @@ export const getCellsInTable = selection => {
 export const selectColumn = columnIndex => tr => {
   const cells = getCellsInColumn(columnIndex)(tr.selection);
   if (cells) {
-    const $anchor = tr.doc.resolve(cells[0].pos - 1);
-    const $head = tr.doc.resolve(cells[cells.length - 1].pos - 1);
+    const $anchor = tr.doc.resolve(cells[0].pos);
+    const $head = tr.doc.resolve(cells[cells.length - 1].pos);
     return cloneTr(tr.setSelection(new CellSelection($anchor, $head)));
   }
   return tr;
@@ -200,8 +201,8 @@ export const selectColumn = columnIndex => tr => {
 export const selectRow = rowIndex => tr => {
   const cells = getCellsInRow(rowIndex)(tr.selection);
   if (cells) {
-    const $anchor = tr.doc.resolve(cells[0].pos - 1);
-    const $head = tr.doc.resolve(cells[cells.length - 1].pos - 1);
+    const $anchor = tr.doc.resolve(cells[0].pos);
+    const $head = tr.doc.resolve(cells[cells.length - 1].pos);
     return cloneTr(tr.setSelection(new CellSelection($anchor, $head)));
   }
   return tr;
@@ -218,8 +219,8 @@ export const selectRow = rowIndex => tr => {
 export const selectTable = tr => {
   const cells = getCellsInTable(tr.selection);
   if (cells) {
-    const $anchor = tr.doc.resolve(cells[0].pos - 1);
-    const $head = tr.doc.resolve(cells[cells.length - 1].pos - 1);
+    const $anchor = tr.doc.resolve(cells[0].pos);
+    const $head = tr.doc.resolve(cells[cells.length - 1].pos);
     return cloneTr(tr.setSelection(new CellSelection($anchor, $head)));
   }
   return tr;
@@ -239,8 +240,8 @@ export const emptyCell = (cell, schema) => tr => {
     const content = tableNodeTypes(schema).cell.createAndFill().content;
     if (!cell.node.content.eq(content)) {
       tr.replaceWith(
-        cell.pos - 1,
-        cell.pos + cell.node.nodeSize - 2,
+        cell.pos,
+        cell.pos + cell.node.nodeSize - 1,
         new Slice(content, 0, 0)
       );
       return cloneTr(tr);
@@ -267,7 +268,7 @@ export const addColumnAt = columnIndex => tr => {
           tr,
           {
             map,
-            tableStart: table.pos,
+            tableStart: table.start,
             table: table.node
           },
           columnIndex
@@ -296,7 +297,7 @@ export const addRowAt = rowIndex => tr => {
           tr,
           {
             map,
-            tableStart: table.pos,
+            tableStart: table.start,
             table: table.node
           },
           rowIndex
@@ -326,7 +327,7 @@ export const removeColumnAt = columnIndex => tr => {
         tr,
         {
           map,
-          tableStart: table.pos,
+          tableStart: table.start,
           table: table.node
         },
         columnIndex
@@ -356,7 +357,7 @@ export const removeRowAt = rowIndex => tr => {
         tr,
         {
           map,
-          tableStart: table.pos,
+          tableStart: table.start,
           table: table.node
         },
         rowIndex
@@ -404,8 +405,8 @@ export const removeSelectedColumns = tr => {
     if (table) {
       const map = TableMap.get(table.node);
       const rect = map.rectBetween(
-        selection.$anchorCell.pos - table.pos,
-        selection.$headCell.pos - table.pos
+        selection.$anchorCell.pos - table.start,
+        selection.$headCell.pos - table.start
       );
       for (let i = rect.right - 1; i >= rect.left; i--) {
         tr = removeColumnAt(i)(tr);
@@ -434,8 +435,8 @@ export const removeSelectedRows = tr => {
     if (table) {
       const map = TableMap.get(table.node);
       const rect = map.rectBetween(
-        selection.$anchorCell.pos - table.pos,
-        selection.$headCell.pos - table.pos
+        selection.$anchorCell.pos - table.start,
+        selection.$headCell.pos - table.start
       );
       for (let i = rect.bottom - 1; i >= rect.top; i--) {
         tr = removeRowAt(i)(tr);
@@ -457,7 +458,7 @@ export const removeSelectedRows = tr => {
 export const removeColumnClosestToPos = $pos => tr => {
   const rect = findCellRectClosestToPos($pos);
   if (rect) {
-    return removeColumnAt(rect.left)(tr);
+    return removeColumnAt(rect.left)(setTextSelection($pos.pos)(tr));
   }
   return tr;
 };
@@ -473,7 +474,7 @@ export const removeColumnClosestToPos = $pos => tr => {
 export const removeRowClosestToPos = $pos => tr => {
   const rect = findCellRectClosestToPos($pos);
   if (rect) {
-    return removeRowAt(rect.top)(tr);
+    return removeRowAt(rect.top)(setTextSelection($pos.pos)(tr));
   }
   return tr;
 };
@@ -498,9 +499,7 @@ export const forEachCellInColumn = (
       tr = cellTransform(cells[i], tr);
     }
     if (setCursorToLastCell) {
-      const $pos = tr.doc.resolve(
-        tr.mapping.map(cells[cells.length - 1].pos - 1)
-      );
+      const $pos = tr.doc.resolve(tr.mapping.map(cells[cells.length - 1].pos));
       tr.setSelection(Selection.near($pos));
     }
     return cloneTr(tr);
@@ -528,9 +527,7 @@ export const forEachCellInRow = (
       tr = cellTransform(cells[i], tr);
     }
     if (setCursorToLastCell) {
-      const $pos = tr.doc.resolve(
-        tr.mapping.map(cells[cells.length - 1].pos - 1)
-      );
+      const $pos = tr.doc.resolve(tr.mapping.map(cells[cells.length - 1].pos));
       tr.setSelection(Selection.near($pos));
     }
   }
@@ -547,11 +544,7 @@ export const forEachCellInRow = (
 // ```
 export const setCellAttrs = (cell, attrs) => tr => {
   if (cell) {
-    tr.setNodeMarkup(
-      cell.pos - 1,
-      null,
-      Object.assign({}, cell.node.attrs, attrs)
-    );
+    tr.setNodeMarkup(cell.pos, null, Object.assign({}, cell.node.attrs, attrs));
     return cloneTr(tr);
   }
   return tr;

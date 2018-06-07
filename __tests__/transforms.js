@@ -97,7 +97,7 @@ describe('transforms', () => {
           const newTr = replaceParentNodeOfType(schema.nodes.table, node)(tr);
           expect(newTr).not.toBe(tr);
           expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
-          expect(newTr.selection.$from.pos).toEqual(9);
+          expect(newTr.selection.$from.pos).toEqual(6);
         });
       });
       describe('when there are tree paragraphs', () => {
@@ -114,7 +114,7 @@ describe('transforms', () => {
           );
           expect(newTr).not.toBe(tr);
           expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
-          expect(newTr.selection.$from.pos).toEqual(9);
+          expect(newTr.selection.$from.pos).toEqual(6);
         });
       });
     });

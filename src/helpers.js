@@ -34,15 +34,14 @@ export const cloneTr = tr => {
 // (position: number, content: union<ProseMirrorNode, Fragment>) → (tr: Transaction) → Transaction
 // Returns a `replace` transaction that replaces a node at a given position with the given `content`.
 // It will return the original transaction if replacing is not possible.
-// `position` should point at the start of a node in the document.
+// `position` should point at the position immediately before the node.
 export const replaceNodeAtPos = (position, content) => tr => {
-  const before = position - 1;
-  const node = tr.doc.nodeAt(before);
-  const $pos = tr.doc.resolve(before);
+  const node = tr.doc.nodeAt(position);
+  const $pos = tr.doc.resolve(position);
   if (canReplace($pos, content)) {
-    tr = tr.replaceWith(before, before + node.nodeSize, content);
-    const start = tr.selection.$from.pos - 1;
-    return cloneTr(setTextSelection(Math.max(start, 0), -1)(tr));
+    tr = tr.replaceWith(position, position + node.nodeSize, content);
+    const cursor = tr.mapping.map(tr.selection.from, -1);
+    return cloneTr(setTextSelection(cursor)(tr));
   }
   return tr;
 };
@@ -63,11 +62,10 @@ export const canReplace = ($pos, content) => {
 
 // (position: number) → (tr: Transaction) → Transaction
 // Returns a `delete` transaction that removes a node at a given position with the given `node`.
-// `position` should point at the start of a node in the document.
+// `position` should point at the position immediately before the node.
 export const removeNodeAtPos = position => tr => {
-  const before = position - 1;
-  const node = tr.doc.nodeAt(before);
-  return cloneTr(tr.delete(before, before + node.nodeSize));
+  const node = tr.doc.nodeAt(position);
+  return cloneTr(tr.delete(position, position + node.nodeSize));
 };
 
 // (schema: Schema) → {[key: string]: NodeType}
@@ -114,7 +112,7 @@ export const isEmptyParagraph = node => {
   return !node || (node.type.name === 'paragraph' && node.nodeSize === 2);
 };
 
-// ($pos: ResolvedPos) → ?{pos: number, node: ProseMirrorNode}
+// ($pos: ResolvedPos) → ?{pos: number, start: number, node: ProseMirrorNode}
 // Iterates over parent nodes, returning a table node closest to a given `$pos`.
 //
 // ```javascript
@@ -126,7 +124,7 @@ const findTableClosestToPos = $pos => {
   return findParentNodeClosestToPos($pos, predicate);
 };
 
-// :: ($pos: ResolvedPos) → ?{pos: number, node: ProseMirrorNode}
+// :: ($pos: ResolvedPos) → ?{pos: number, start: number, node: ProseMirrorNode}
 // Iterates over parent nodes, returning a table cell or a table header node closest to a given `$pos`.
 //
 // ```javascript
@@ -151,7 +149,7 @@ export const findCellRectClosestToPos = $pos => {
   if (cell) {
     const table = findTableClosestToPos($pos);
     const map = TableMap.get(table.node);
-    const cellPos = cell.pos - table.pos - 1;
+    const cellPos = cell.pos - table.start;
     return map.rectBetween(cellPos, cellPos);
   }
 };

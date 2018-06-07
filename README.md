@@ -20,8 +20,8 @@ npm install prosemirror-utils
 
 ### Utils for working with `selection`
 
- * **`findParentNode`**`(predicate: fn(node: ProseMirrorNode) → boolean) → fn(selection: Selection) → ?{pos: number, node: ProseMirrorNode}`\
-   Iterates over parent nodes, returning the closest node and its start position `predicate` returns truthy for.
+ * **`findParentNode`**`(predicate: fn(node: ProseMirrorNode) → boolean) → fn(selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}`\
+   Iterates over parent nodes, returning the closest node and its start position `predicate` returns truthy for. `start` points to the start position of the node, `pos` points directly before the node.
 
    ```javascript
    const predicate = node => node.type === schema.nodes.blockquote;
@@ -29,8 +29,8 @@ npm install prosemirror-utils
    ```
 
 
- * **`findParentNodeClosestToPos`**`($pos: ResolvedPos, predicate: fn(node: ProseMirrorNode) → boolean) → ?{pos: number, node: ProseMirrorNode}`\
-   Iterates over parent nodes starting from the given `$pos`, returning the closest node and its start position `predicate` returns truthy for.
+ * **`findParentNodeClosestToPos`**`($pos: ResolvedPos, predicate: fn(node: ProseMirrorNode) → boolean) → ?{pos: number, start: number, node: ProseMirrorNode}`\
+   Iterates over parent nodes starting from the given `$pos`, returning the closest node and its start position `predicate` returns truthy for. `start` points to the start position of the node, `pos` points directly before the node.
 
    ```javascript
    const predicate = node => node.type === schema.nodes.blockquote;
@@ -58,16 +58,16 @@ npm install prosemirror-utils
    ```
 
 
- * **`findParentNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(selection: Selection) → ?{node: ProseMirrorNode, pos: number}`\
-   Iterates over parent nodes, returning closest node of a given `nodeType`.
+ * **`findParentNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}`\
+   Iterates over parent nodes, returning closest node of a given `nodeType`. `start` points to the start position of the node, `pos` points directly before the node.
 
    ```javascript
    const parent = findParentNodeOfType(schema.nodes.paragraph)(selection);
    ```
 
 
- * **`findParentNodeOfTypeClosestToPos`**`($pos: ResolvedPos, nodeType: NodeType | [NodeType]) → ?{node: ProseMirrorNode, pos: number}`\
-   Iterates over parent nodes starting from the given `$pos`, returning closest node of a given `nodeType`.
+ * **`findParentNodeOfTypeClosestToPos`**`($pos: ResolvedPos, nodeType: NodeType | [NodeType]) → ?{pos: number, start: number, node: ProseMirrorNode}`\
+   Iterates over parent nodes starting from the given `$pos`, returning closest node of a given `nodeType`. `start` points to the start position of the node, `pos` points directly before the node.
 
    ```javascript
    const parent = findParentNodeOfTypeClosestToPos(state.doc.resolve(10), schema.nodes.paragraph);
@@ -93,8 +93,8 @@ npm install prosemirror-utils
    ```
 
 
- * **`findSelectedNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(selection: Selection) → ?{node: ProseMirrorNode, pos: number}`\
-   Returns a node of a given `nodeType` if it is selected.
+ * **`findSelectedNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}`\
+   Returns a node of a given `nodeType` if it is selected. `start` points to the start position of the node, `pos` points directly before the node.
 
    ```javascript
    const { extension, inlineExtension, bodiedExtension } = schema.nodes;
@@ -126,7 +126,6 @@ npm install prosemirror-utils
 
  * **`findDomRefAtPos`**`(position: number, domAtPos: fn(pos: number) → {node: dom.Node, offset: number}) → dom.Node`\
    Returns DOM reference of a node at a given `position`.
-   @see https://github.com/atlassian/prosemirror-utils/issues/8 for more context.
 
    ```javascript
    const domAtPos = view.domAtPos.bind(view);
@@ -409,7 +408,7 @@ npm install prosemirror-utils
    ```
 
 
- * **`findCellClosestToPos`**`($pos: ResolvedPos) → ?{pos: number, node: ProseMirrorNode}`\
+ * **`findCellClosestToPos`**`($pos: ResolvedPos) → ?{pos: number, start: number, node: ProseMirrorNode}`\
    Iterates over parent nodes, returning a table cell or a table header node closest to a given `$pos`.
 
    ```javascript

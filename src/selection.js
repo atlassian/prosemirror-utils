@@ -1,8 +1,8 @@
 import { Selection } from 'prosemirror-state';
 import { equalNodeType, isNodeSelection } from './helpers';
 
-// :: (predicate: (node: ProseMirrorNode) → boolean) → (selection: Selection) → ?{pos: number, node: ProseMirrorNode}
-// Iterates over parent nodes, returning the closest node and its start position `predicate` returns truthy for.
+// :: (predicate: (node: ProseMirrorNode) → boolean) → (selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}
+// Iterates over parent nodes, returning the closest node and its start position `predicate` returns truthy for. `start` points to the start position of the node, `pos` points directly before the node.
 //
 // ```javascript
 // const predicate = node => node.type === schema.nodes.blockquote;
@@ -14,15 +14,16 @@ export const findParentNode = predicate => selection => {
     const node = $from.node(i);
     if (predicate(node)) {
       return {
-        pos: $from.start(i),
+        pos: i > 0 ? $from.before(i) : 0,
+        start: $from.start(i),
         node
       };
     }
   }
 };
 
-// :: ($pos: ResolvedPos, predicate: (node: ProseMirrorNode) → boolean) → ?{pos: number, node: ProseMirrorNode}
-// Iterates over parent nodes starting from the given `$pos`, returning the closest node and its start position `predicate` returns truthy for.
+// :: ($pos: ResolvedPos, predicate: (node: ProseMirrorNode) → boolean) → ?{pos: number, start: number, node: ProseMirrorNode}
+// Iterates over parent nodes starting from the given `$pos`, returning the closest node and its start position `predicate` returns truthy for. `start` points to the start position of the node, `pos` points directly before the node.
 //
 // ```javascript
 // const predicate = node => node.type === schema.nodes.blockquote;
@@ -33,7 +34,8 @@ export const findParentNodeClosestToPos = ($pos, predicate) => {
     const node = $pos.node(i);
     if (predicate(node)) {
       return {
-        pos: $pos.start(i),
+        pos: i > 0 ? $pos.before(i) : 0,
+        start: $pos.start(i),
         node
       };
     }
@@ -51,7 +53,7 @@ export const findParentNodeClosestToPos = ($pos, predicate) => {
 export const findParentDomRef = (predicate, domAtPos) => selection => {
   const parent = findParentNode(predicate)(selection);
   if (parent) {
-    return findDomRefAtPos(parent.pos - 1, domAtPos);
+    return findDomRefAtPos(parent.pos, domAtPos);
   }
 };
 
@@ -67,8 +69,8 @@ export const hasParentNode = predicate => selection => {
   return !!findParentNode(predicate)(selection);
 };
 
-// :: (nodeType: union<NodeType, [NodeType]>) → (selection: Selection) → ?{node: ProseMirrorNode, pos: number}
-// Iterates over parent nodes, returning closest node of a given `nodeType`.
+// :: (nodeType: union<NodeType, [NodeType]>) → (selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}
+// Iterates over parent nodes, returning closest node of a given `nodeType`. `start` points to the start position of the node, `pos` points directly before the node.
 //
 // ```javascript
 // const parent = findParentNodeOfType(schema.nodes.paragraph)(selection);
@@ -77,8 +79,8 @@ export const findParentNodeOfType = nodeType => selection => {
   return findParentNode(node => equalNodeType(nodeType, node))(selection);
 };
 
-// :: ($pos: ResolvedPos, nodeType: union<NodeType, [NodeType]>) → ?{node: ProseMirrorNode, pos: number}
-// Iterates over parent nodes starting from the given `$pos`, returning closest node of a given `nodeType`.
+// :: ($pos: ResolvedPos, nodeType: union<NodeType, [NodeType]>) → ?{pos: number, start: number, node: ProseMirrorNode}
+// Iterates over parent nodes starting from the given `$pos`, returning closest node of a given `nodeType`. `start` points to the start position of the node, `pos` points directly before the node.
 //
 // ```javascript
 // const parent = findParentNodeOfTypeClosestToPos(state.doc.resolve(10), schema.nodes.paragraph);
@@ -114,8 +116,8 @@ export const findParentDomRefOfType = (nodeType, domAtPos) => selection => {
   );
 };
 
-// :: (nodeType: union<NodeType, [NodeType]>) → (selection: Selection) → ?{node: ProseMirrorNode, pos: number}
-// Returns a node of a given `nodeType` if it is selected.
+// :: (nodeType: union<NodeType, [NodeType]>) → (selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}
+// Returns a node of a given `nodeType` if it is selected. `start` points to the start position of the node, `pos` points directly before the node.
 //
 // ```javascript
 // const { extension, inlineExtension, bodiedExtension } = schema.nodes;
@@ -149,13 +151,12 @@ export const findPositionOfNodeBefore = selection => {
     if (parent) {
       return parent.pos;
     }
-    return maybeSelection.$from.pos + 1;
+    return maybeSelection.$from.pos;
   }
 };
 
 // :: (position: number, domAtPos: (pos: number) → {node: dom.Node, offset: number}) → dom.Node
 // Returns DOM reference of a node at a given `position`.
-// @see https://github.com/atlassian/prosemirror-utils/issues/8 for more context.
 //
 // ```javascript
 // const domAtPos = view.domAtPos.bind(view);
