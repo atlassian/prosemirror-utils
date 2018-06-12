@@ -211,7 +211,7 @@ npm install prosemirror-utils
 
 ### Utils for working with `table`
 
- * **`findTable`**`(selection: Selection) → ?{pos: number, node: ProseMirrorNode}`\
+ * **`findTable`**`(selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}`\
    Iterates over parent nodes, returning the closest table node.
 
    ```javascript
@@ -253,7 +253,7 @@ npm install prosemirror-utils
    ```
 
 
- * **`getCellsInColumn`**`(columnIndex: number) → fn(selection: Selection) → ?[{pos: number, node: ProseMirrorNode}]`\
+ * **`getCellsInColumn`**`(columnIndex: number) → fn(selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]`\
    Returns an array of cells in a column at index `columnIndex`.
 
    ```javascript
@@ -261,7 +261,7 @@ npm install prosemirror-utils
    ```
 
 
- * **`getCellsInRow`**`(rowIndex: number) → fn(selection: Selection) → ?[{pos: number, node: ProseMirrorNode}]`\
+ * **`getCellsInRow`**`(rowIndex: number) → fn(selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]`\
    Returns an array of cells in a row at index `rowIndex`.
 
    ```javascript
@@ -269,7 +269,7 @@ npm install prosemirror-utils
    ```
 
 
- * **`getCellsInTable`**`(selection: Selection) → ?[{pos: number, node: ProseMirrorNode}]`\
+ * **`getCellsInTable`**`(selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]`\
    Returns an array of all cells in a table.
 
    ```javascript
@@ -416,7 +416,7 @@ npm install prosemirror-utils
    ```
 
 
- * **`forEachCellInColumn`**`(columnIndex: number, cellTransform: fn(cell: {pos: number, node: ProseMirrorNode}) → fn(tr: Transaction))`\
+ * **`forEachCellInColumn`**`(columnIndex: number, cellTransform: fn(cell: {pos: number, start: number, node: ProseMirrorNode}) → fn(tr: Transaction))`\
    , setCursorToLastCell: ?boolean) → (tr: Transaction) → Transaction
    Returns a new transaction that maps a given `cellTransform` function to each cell in a column at a given `columnIndex`.
    It will set the selection into the last cell of the column if `setCursorToLastCell` param is set to `true`.
@@ -428,7 +428,7 @@ npm install prosemirror-utils
    ```
 
 
- * **`forEachCellInRow`**`(rowIndex: number, cellTransform: fn(cell: {pos: number, node: ProseMirrorNode}) → fn(tr: Transaction))`\
+ * **`forEachCellInRow`**`(rowIndex: number, cellTransform: fn(cell: {pos: number, start: number, node: ProseMirrorNode}) → fn(tr: Transaction))`\
    , setCursorToLastCell: ?boolean) → (tr: Transaction) → Transaction
    Returns a new transaction that maps a given `cellTransform` function to each cell in a row at a given `rowIndex`.
    It will set the selection into the last cell of the row if `setCursorToLastCell` param is set to `true`.
@@ -440,7 +440,7 @@ npm install prosemirror-utils
    ```
 
 
- * **`setCellAttrs`**`(cell: {pos: number, node: ProseMirrorNode}, attrs: Object) → fn(tr: Transaction) → Transaction`\
+ * **`setCellAttrs`**`(cell: {pos: number, start: number, node: ProseMirrorNode}, attrs: Object) → fn(tr: Transaction) → Transaction`\
    Returns a new transaction that sets given `attrs` to a given `cell`.
 
    ```javascript

@@ -17,7 +17,7 @@ import {
   findCellClosestToPos
 } from './helpers';
 
-// :: (selection: Selection) → ?{pos: number, node: ProseMirrorNode}
+// :: (selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}
 // Iterates over parent nodes, returning the closest table node.
 //
 // ```javascript
@@ -99,7 +99,7 @@ export const isTableSelected = selection => {
   return false;
 };
 
-// :: (columnIndex: number) → (selection: Selection) → ?[{ pos: number, node: ProseMirrorNode }]
+// :: (columnIndex: number) → (selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]
 // Returns an array of cells in a column at index `columnIndex`.
 //
 // ```javascript
@@ -116,15 +116,16 @@ export const getCellsInColumn = columnIndex => selection => {
         top: 0,
         bottom: map.height
       });
-      return cells.map(pos => {
-        const node = table.node.nodeAt(pos);
-        return { pos: pos + table.pos + 1, node };
+      return cells.map(nodePos => {
+        const node = table.node.nodeAt(nodePos);
+        const pos = nodePos + table.start;
+        return { pos, start: pos + 1, node };
       });
     }
   }
 };
 
-// :: (rowIndex: number) → (selection: Selection) → ?[{ pos: number, node: ProseMirrorNode }]
+// :: (rowIndex: number) → (selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]
 // Returns an array of cells in a row at index `rowIndex`.
 //
 // ```javascript
@@ -141,15 +142,16 @@ export const getCellsInRow = rowIndex => selection => {
         top: rowIndex,
         bottom: rowIndex + 1
       });
-      return cells.map(pos => {
-        const node = table.node.nodeAt(pos);
-        return { pos: pos + table.pos + 1, node };
+      return cells.map(nodePos => {
+        const node = table.node.nodeAt(nodePos);
+        const pos = nodePos + table.start;
+        return { pos, start: pos + 1, node };
       });
     }
   }
 };
 
-// :: (selection: Selection) → ?[{ pos: number, node: ProseMirrorNode }]
+// :: (selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]
 // Returns an array of all cells in a table.
 //
 // ```javascript
@@ -165,9 +167,10 @@ export const getCellsInTable = selection => {
       top: 0,
       bottom: map.height
     });
-    return cells.map(pos => {
-      const node = table.node.nodeAt(pos);
-      return { pos: pos + table.pos + 1, node };
+    return cells.map(nodePos => {
+      const node = table.node.nodeAt(nodePos);
+      const pos = nodePos + table.start;
+      return { pos, start: pos + 1, node };
     });
   }
 };
@@ -479,7 +482,7 @@ export const removeRowClosestToPos = $pos => tr => {
   return tr;
 };
 
-// :: (columnIndex: number, cellTransform: (cell: { pos: number, node: ProseMirrorNode }) → (tr: Transaction)), setCursorToLastCell: ?boolean) → (tr: Transaction) → Transaction
+// :: (columnIndex: number, cellTransform: (cell: {pos: number, start: number, node: ProseMirrorNode}) → (tr: Transaction)), setCursorToLastCell: ?boolean) → (tr: Transaction) → Transaction
 // Returns a new transaction that maps a given `cellTransform` function to each cell in a column at a given `columnIndex`.
 // It will set the selection into the last cell of the column if `setCursorToLastCell` param is set to `true`.
 //
@@ -507,7 +510,7 @@ export const forEachCellInColumn = (
   return tr;
 };
 
-// :: (rowIndex: number, cellTransform: (cell: { pos: number, node: ProseMirrorNode }) → (tr: Transaction)), setCursorToLastCell: ?boolean) → (tr: Transaction) → Transaction
+// :: (rowIndex: number, cellTransform: (cell: {pos: number, start: number, node: ProseMirrorNode}) → (tr: Transaction)), setCursorToLastCell: ?boolean) → (tr: Transaction) → Transaction
 // Returns a new transaction that maps a given `cellTransform` function to each cell in a row at a given `rowIndex`.
 // It will set the selection into the last cell of the row if `setCursorToLastCell` param is set to `true`.
 //
@@ -534,7 +537,7 @@ export const forEachCellInRow = (
   return tr;
 };
 
-// :: (cell: { pos: number, node: ProseMirrorNode }, attrs: Object) → (tr: Transaction) → Transaction
+// :: (cell: {pos: number, start: number, node: ProseMirrorNode}, attrs: Object) → (tr: Transaction) → Transaction
 // Returns a new transaction that sets given `attrs` to a given `cell`.
 //
 // ```javascript
