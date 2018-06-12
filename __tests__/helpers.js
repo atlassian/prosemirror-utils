@@ -70,7 +70,7 @@ describe('helpers', () => {
       const {
         state: { tr }
       } = createEditor(doc(p('x'), p('one')));
-      const newTr = removeNodeAtPos(4)(tr);
+      const newTr = removeNodeAtPos(3)(tr);
       expect(newTr).not.toBe(tr);
       expect(newTr.doc).toEqualDocument(doc(p('x')));
     });
@@ -79,7 +79,7 @@ describe('helpers', () => {
       const {
         state: { tr }
       } = createEditor(doc(p('one', atomInline())));
-      const newTr = removeNodeAtPos(5)(tr);
+      const newTr = removeNodeAtPos(4)(tr);
       expect(newTr).not.toBe(tr);
       expect(newTr.doc).toEqualDocument(doc(p('one')));
     });
@@ -96,7 +96,7 @@ describe('helpers', () => {
       );
       const cell = findCellClosestToPos(tr.doc.resolve(4));
       expect(cell.node.type.name).toEqual('table_cell');
-      expect(cell.pos).toEqual(3);
+      expect(cell.pos).toEqual(2);
     });
 
     it('should return `undefined` if there is no cell close to a given `$pos`', () => {

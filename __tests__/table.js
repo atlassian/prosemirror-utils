@@ -164,8 +164,8 @@ describe('table', () => {
         expect(cell.node.textContent).toEqual(`${i + 1}`);
         expect(typeof cell.pos).toEqual('number');
       });
-      expect(cells[0].pos).toEqual(3);
-      expect(cells[1].pos).toEqual(18);
+      expect(cells[0].pos).toEqual(2);
+      expect(cells[1].pos).toEqual(17);
     });
   });
 
@@ -193,9 +193,9 @@ describe('table', () => {
         expect(cell.node.textContent).toEqual(`${i + 1}`);
         expect(typeof cell.pos).toEqual('number');
       });
-      expect(cells[0].pos).toEqual(3);
-      expect(cells[1].pos).toEqual(8);
-      expect(cells[2].pos).toEqual(13);
+      expect(cells[0].pos).toEqual(2);
+      expect(cells[1].pos).toEqual(7);
+      expect(cells[2].pos).toEqual(12);
     });
   });
 
@@ -223,12 +223,12 @@ describe('table', () => {
         expect(cell.node.textContent).toEqual(`${i + 1}`);
         expect(typeof cell.pos).toEqual('number');
       });
-      expect(cells[0].pos).toEqual(3);
-      expect(cells[1].pos).toEqual(8);
-      expect(cells[2].pos).toEqual(13);
-      expect(cells[3].pos).toEqual(20);
-      expect(cells[4].pos).toEqual(25);
-      expect(cells[5].pos).toEqual(30);
+      expect(cells[0].pos).toEqual(2);
+      expect(cells[1].pos).toEqual(7);
+      expect(cells[2].pos).toEqual(12);
+      expect(cells[3].pos).toEqual(19);
+      expect(cells[4].pos).toEqual(24);
+      expect(cells[5].pos).toEqual(29);
     });
   });
 
@@ -575,6 +575,7 @@ describe('table', () => {
       it('should remove a column closest to a given `$pos`', () => {
         const { state } = createEditor(
           doc(
+            p('text'),
             table(
               row(td(p('1')), td(p('2')), td(p('3'))),
               row(td(p('4')), td(p('5')), td(p('6')))
@@ -582,10 +583,13 @@ describe('table', () => {
           )
         );
         const { tr } = state;
-        const newTr = removeColumnClosestToPos(state.doc.resolve(4))(tr);
+        const newTr = removeColumnClosestToPos(state.doc.resolve(10))(tr);
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(
-          doc(table(row(td(p('2')), td(p('3'))), row(td(p('5')), td(p('6')))))
+          doc(
+            p('text'),
+            table(row(td(p('2')), td(p('3'))), row(td(p('5')), td(p('6'))))
+          )
         );
       });
     });
@@ -593,6 +597,7 @@ describe('table', () => {
       it('should remove a column closest to a given `$pos`', () => {
         const { state } = createEditor(
           doc(
+            p('text'),
             table(
               row(td(p('1')), td(p('2')), td(p('3'))),
               row(td(p('4')), td(p('5')), td(p('6')))
@@ -600,10 +605,13 @@ describe('table', () => {
           )
         );
         const { tr } = state;
-        const newTr = removeColumnClosestToPos(state.doc.resolve(9))(tr);
+        const newTr = removeColumnClosestToPos(state.doc.resolve(15))(tr);
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(
-          doc(table(row(td(p('1')), td(p('3'))), row(td(p('4')), td(p('6')))))
+          doc(
+            p('text'),
+            table(row(td(p('1')), td(p('3'))), row(td(p('4')), td(p('6'))))
+          )
         );
       });
     });
@@ -611,6 +619,7 @@ describe('table', () => {
       it('should remove a column closest to a given `$pos`', () => {
         const { state } = createEditor(
           doc(
+            p('text'),
             table(
               row(td(p('1')), td(p('2')), td(p('3'))),
               row(td(p('4')), td(p('5')), td(p('6')))
@@ -618,10 +627,13 @@ describe('table', () => {
           )
         );
         const { tr } = state;
-        const newTr = removeColumnClosestToPos(state.doc.resolve(14))(tr);
+        const newTr = removeColumnClosestToPos(state.doc.resolve(20))(tr);
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(
-          doc(table(row(td(p('1')), td(p('2'))), row(td(p('4')), td(p('5')))))
+          doc(
+            p('text'),
+            table(row(td(p('1')), td(p('2'))), row(td(p('4')), td(p('5'))))
+          )
         );
       });
     });
@@ -638,6 +650,7 @@ describe('table', () => {
       it('should remove a row closest to a given `$pos`', () => {
         const { state } = createEditor(
           doc(
+            p('text'),
             table(
               row(td(p('1')), td(p('2'))),
               row(td(p('3')), td(p('4'))),
@@ -646,10 +659,13 @@ describe('table', () => {
           )
         );
         const { tr } = state;
-        const newTr = removeRowClosestToPos(state.doc.resolve(4))(tr);
+        const newTr = removeRowClosestToPos(state.doc.resolve(10))(tr);
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(
-          doc(table(row(td(p('3')), td(p('4'))), row(td(p('5')), td(p('6')))))
+          doc(
+            p('text'),
+            table(row(td(p('3')), td(p('4'))), row(td(p('5')), td(p('6'))))
+          )
         );
       });
     });
@@ -657,6 +673,7 @@ describe('table', () => {
       it('should remove a row closest to a given `$pos`', () => {
         const { state } = createEditor(
           doc(
+            p('text'),
             table(
               row(td(p('1')), td(p('2'))),
               row(td(p('3')), td(p('4<cursor>'))),
@@ -665,10 +682,13 @@ describe('table', () => {
           )
         );
         const { tr } = state;
-        const newTr = removeRowClosestToPos(state.doc.resolve(16))(tr);
+        const newTr = removeRowClosestToPos(state.doc.resolve(22))(tr);
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(
-          doc(table(row(td(p('1')), td(p('2'))), row(td(p('5')), td(p('6')))))
+          doc(
+            p('text'),
+            table(row(td(p('1')), td(p('2'))), row(td(p('5')), td(p('6'))))
+          )
         );
       });
     });
@@ -676,6 +696,7 @@ describe('table', () => {
       it('should remove a row closest to a given `$pos`', () => {
         const { state } = createEditor(
           doc(
+            p('text'),
             table(
               row(td(p('1')), td(p('2'))),
               row(td(p('3')), td(p('4'))),
@@ -684,10 +705,13 @@ describe('table', () => {
           )
         );
         const { tr } = state;
-        const newTr = removeRowClosestToPos(state.doc.resolve(28))(tr);
+        const newTr = removeRowClosestToPos(state.doc.resolve(34))(tr);
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(
-          doc(table(row(td(p('1')), td(p('2'))), row(td(p('3')), td(p('4')))))
+          doc(
+            p('text'),
+            table(row(td(p('1')), td(p('2'))), row(td(p('3')), td(p('4'))))
+          )
         );
       });
     });
