@@ -49,8 +49,6 @@ export const replaceNodeAtPos = (position, content) => tr => {
 // ($pos: ResolvedPos, doc: ProseMirrorNode, content: union<ProseMirrorNode, Fragment>, ) → boolean
 // Checks if replacing a node at a given `$pos` inside of the `doc` node with the given `content` is possible.
 export const canReplace = ($pos, content) => {
-  const index = $pos.index($pos.depth);
-  const indexAfter = $pos.indexAfter($pos.depth);
   const node = $pos.node($pos.depth);
   return (
     node &&
