@@ -127,4 +127,4 @@ export function selectParentNodeOfType(nodeType: NodeType | NodeType[]): (tr: Tr
 
 export function removeNodeBefore(tr: Transaction): Transaction;
 
-export function setTextSelection(position: number): (tr: Transaction) => Transaction;
+export function setTextSelection(position: number, dir?: number): (tr: Transaction) => Transaction;
