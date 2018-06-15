@@ -1,4 +1,4 @@
-import { NodeSelection } from 'prosemirror-state';
+import { NodeSelection, Selection } from 'prosemirror-state';
 import { Fragment, Node as PMNode } from 'prosemirror-model';
 import { setTextSelection } from './transforms';
 import { findParentNodeClosestToPos } from './selection';
@@ -40,8 +40,12 @@ export const replaceNodeAtPos = (position, content) => tr => {
   const $pos = tr.doc.resolve(position);
   if (canReplace($pos, content)) {
     tr = tr.replaceWith(position, position + node.nodeSize, content);
-    const cursor = tr.mapping.map(tr.selection.from, -1);
-    return cloneTr(setTextSelection(cursor)(tr));
+    const start = tr.selection.$from.pos - 1;
+    // put cursor inside of the inserted node
+    tr = setTextSelection(Math.max(start, 0), -1)(tr);
+    // move cursor to the start of the node
+    tr = setTextSelection(tr.selection.$from.start())(tr);
+    return cloneTr(tr);
   }
   return tr;
 };
