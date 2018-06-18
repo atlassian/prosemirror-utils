@@ -25,7 +25,8 @@ import {
   replaceSelectedNode,
   setParentNodeMarkup,
   selectParentNodeOfType,
-  removeNodeBefore
+  removeNodeBefore,
+  createTable
 } from '../src';
 
 describe('transforms', () => {
@@ -383,10 +384,10 @@ describe('transforms', () => {
         expect(newTr.doc).toEqualDocument(doc(p('new')));
         expect(newTr.selection.head).toEqual(4);
       });
-      it('should set the selection after the inserted content (block)', () => {
+      it('should move cursor to the inserted paragraph', () => {
         const {
           state: { schema, tr }
-        } = createEditor(doc(p('old<cursor>')));
+        } = createEditor(doc(p('ol<cursor>d')));
         const node = schema.nodes.paragraph.createChecked(
           {},
           schema.text('new')
@@ -394,7 +395,26 @@ describe('transforms', () => {
         const newTr = safeInsert(node)(tr);
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(doc(p('old'), p('new')));
-        expect(newTr.selection.head).toEqual(9);
+        expect(newTr.selection.head).toEqual(6);
+      });
+      it('should move cursor to the first cell of the inserted table', () => {
+        const {
+          state: { schema, tr }
+        } = createEditor(doc(p('tex<cursor>t')));
+        const node = createTable(schema);
+        const newTr = safeInsert(node)(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(
+            p('text'),
+            table(
+              row(th(p('')), th(p('')), th(p(''))),
+              row(td(p('')), td(p('')), td(p(''))),
+              row(td(p('')), td(p('')), td(p('')))
+            )
+          )
+        );
+        expect(newTr.selection.head).toEqual(10);
       });
     });
   });

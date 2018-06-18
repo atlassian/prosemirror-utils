@@ -154,7 +154,7 @@ export const safeInsert = (content, position) => tr => {
     const $pos = tr.doc.resolve(pos);
     if (canInsert($pos, content)) {
       tr.insert(pos, content);
-      return cloneTr(setTextSelection(tr.mapping.map(pos), -1)(tr));
+      return cloneTr(setTextSelection(pos)(tr));
     }
   }
   return tr;
