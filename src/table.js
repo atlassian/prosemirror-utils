@@ -8,14 +8,9 @@ import {
 } from 'prosemirror-tables';
 import { Selection } from 'prosemirror-state';
 import { Slice, Fragment } from 'prosemirror-model';
-import { findParentNode } from './selection';
+import { findParentNode, findParentNodeClosestToPos } from './selection';
 import { setTextSelection } from './transforms';
-import {
-  cloneTr,
-  tableNodeTypes,
-  findCellRectClosestToPos,
-  findCellClosestToPos
-} from './helpers';
+import { cloneTr, tableNodeTypes, findTableClosestToPos } from './helpers';
 
 // :: (selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}
 // Iterates over parent nodes, returning the closest table node.
@@ -599,4 +594,34 @@ export const createTable = (
   }
 
   return table.createChecked(null, rows);
+};
+
+// :: ($pos: ResolvedPos) → ?{pos: number, start: number, node: ProseMirrorNode}
+// Iterates over parent nodes, returning a table cell or a table header node closest to a given `$pos`.
+//
+// ```javascript
+// const cell = findCellClosestToPos(state.selection.$from);
+// ```
+export const findCellClosestToPos = $pos => {
+  const predicate = node =>
+    node.type.spec.tableRole && /cell/i.test(node.type.spec.tableRole);
+  return findParentNodeClosestToPos($pos, predicate);
+};
+
+// :: ($pos: ResolvedPos) → ?{left: number, top: number, right: number, bottom: number}
+// Returns the rectangle spanning a cell closest to a given `$pos`.
+//
+// ```javascript
+// dispatch(
+//   findCellRectClosestToPos(state.selection.$from)
+// );
+// ```
+export const findCellRectClosestToPos = $pos => {
+  const cell = findCellClosestToPos($pos);
+  if (cell) {
+    const table = findTableClosestToPos($pos);
+    const map = TableMap.get(table.node);
+    const cellPos = cell.pos - table.start;
+    return map.rectBetween(cellPos, cellPos);
+  }
 };
