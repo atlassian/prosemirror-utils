@@ -9,7 +9,7 @@ export type ContentNodeWithPos = {pos: number, start: number, node: ProsemirrorN
 
 export type NodeWithPos = {pos: number, node: ProsemirrorNode};
 
-export type CellTransform = (cell: NodeWithPos, tr: Transaction) => Transaction;
+export type CellTransform = (cell: ContentNodeWithPos, tr: Transaction) => Transaction;
 
 // Selection
 export function findParentNode(predicate: Predicate): (selection: Selection) => ContentNodeWithPos | undefined;
