@@ -482,7 +482,7 @@ export const removeRowClosestToPos = $pos => tr => {
   return tr;
 };
 
-// :: (columnIndex: number, cellTransform: (cell: {pos: number, start: number, node: ProseMirrorNode}) → (tr: Transaction)), setCursorToLastCell: ?boolean) → (tr: Transaction) → Transaction
+// :: (columnIndex: number, cellTransform: (cell: {pos: number, start: number, node: ProseMirrorNode}, tr: Transaction) → Transaction, setCursorToLastCell: ?boolean) → (tr: Transaction) → Transaction
 // Returns a new transaction that maps a given `cellTransform` function to each cell in a column at a given `columnIndex`.
 // It will set the selection into the last cell of the column if `setCursorToLastCell` param is set to `true`.
 //
@@ -510,7 +510,7 @@ export const forEachCellInColumn = (
   return tr;
 };
 
-// :: (rowIndex: number, cellTransform: (cell: {pos: number, start: number, node: ProseMirrorNode}) → (tr: Transaction)), setCursorToLastCell: ?boolean) → (tr: Transaction) → Transaction
+// :: (rowIndex: number, cellTransform: (cell: {pos: number, start: number, node: ProseMirrorNode}, tr: Transaction) → Transaction, setCursorToLastCell: ?boolean) → (tr: Transaction) → Transaction
 // Returns a new transaction that maps a given `cellTransform` function to each cell in a row at a given `rowIndex`.
 // It will set the selection into the last cell of the row if `setCursorToLastCell` param is set to `true`.
 //
