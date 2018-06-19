@@ -412,7 +412,17 @@ npm install prosemirror-utils
    Iterates over parent nodes, returning a table cell or a table header node closest to a given `$pos`.
 
    ```javascript
-   const cell = findCellClosestToPos(state.doc.resolve(10));
+   const cell = findCellClosestToPos(state.selection.$from);
+   ```
+
+
+ * **`findCellRectClosestToPos`**`($pos: ResolvedPos) → ?{left: number, top: number, right: number, bottom: number}`\
+   Returns the rectangle spanning a cell closest to a given `$pos`.
+
+   ```javascript
+   dispatch(
+     findCellRectClosestToPos(state.selection.$from)
+   );
    ```
 
 

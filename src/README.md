@@ -110,6 +110,8 @@ npm install prosemirror-utils
 
 @findCellClosestToPos
 
+@findCellRectClosestToPos
+
 @forEachCellInColumn
 
 @forEachCellInRow

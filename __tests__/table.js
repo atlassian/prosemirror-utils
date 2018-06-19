@@ -5,7 +5,6 @@ import {
   table,
   tr as row,
   td,
-  th,
   tdCursor,
   tdEmpty
 } from '../test-helpers';
@@ -31,11 +30,10 @@ import {
   removeTable,
   removeColumnClosestToPos,
   removeRowClosestToPos,
-  setCellAttrsClosestToPos,
-  setSelectedCellsAttrs,
   forEachCellInColumn,
   forEachCellInRow,
   findCellClosestToPos,
+  findCellRectClosestToPos,
   setCellAttrs,
   createTable
 } from '../src';
@@ -1214,6 +1212,58 @@ describe('table', () => {
           schema.nodes.table_cell
         );
       });
+    });
+  });
+
+  describe('findCellClosestToPos', () => {
+    it('should return a cell object closest to a given `$pos`', () => {
+      const {
+        state: { tr }
+      } = createEditor(
+        doc(
+          table(row(td(p('one one')), tdEmpty), row(td(p('two two')), tdEmpty))
+        )
+      );
+      const cell = findCellClosestToPos(tr.doc.resolve(4));
+      expect(cell.node.type.name).toEqual('table_cell');
+      expect(cell.pos).toEqual(2);
+    });
+
+    it('should return `undefined` if there is no cell close to a given `$pos`', () => {
+      const {
+        state: { tr }
+      } = createEditor(doc(p('one')));
+      const cell = findCellClosestToPos(tr.doc.resolve(4));
+      expect(cell).toBeUndefined();
+    });
+  });
+
+  describe('findCellRectClosestToPos', () => {
+    it('should return `undefined` if there is no cell close to a given `$pos`', () => {
+      const {
+        state: { tr }
+      } = createEditor(doc(p('one')));
+      const rect = findCellRectClosestToPos(tr.doc.resolve(4));
+      expect(rect).toBeUndefined();
+    });
+
+    it('should return a cell object closest to a given `$pos`', () => {
+      const {
+        state: { tr }
+      } = createEditor(
+        doc(
+          table(
+            row(tdEmpty, tdEmpty, tdEmpty),
+            row(tdEmpty, tdEmpty, tdCursor),
+            row(tdEmpty, tdEmpty, tdEmpty)
+          )
+        )
+      );
+      const rect = findCellRectClosestToPos(tr.selection.$from);
+      expect(rect.top).toEqual(1);
+      expect(rect.bottom).toEqual(2);
+      expect(rect.left).toEqual(2);
+      expect(rect.right).toEqual(3);
     });
   });
 });

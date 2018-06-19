@@ -106,6 +106,8 @@ export function setCellAttrs(cell: ContentNodeWithPos, attrs: Object): (tr: Tran
 
 export function findCellClosestToPos($pos: ResolvedPos): ContentNodeWithPos | undefined;
 
+export function findCellRectClosestToPos($pos: ResolvedPos): {top: number, bottom: number, left: number, right: number}
+
 export function createTable(schema: Schema, rowsCount?: number, colsCount?: number, withHeaderRow?: boolean): ProsemirrorNode;
 
 // Transforms
