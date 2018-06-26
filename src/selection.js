@@ -164,20 +164,6 @@ export const findPositionOfNodeBefore = selection => {
 // ```
 export const findDomRefAtPos = (position, domAtPos) => {
   const dom = domAtPos(position);
-  let { offset } = dom;
-  for (let i = 0, count = dom.node.childNodes.length; i < count; i++) {
-    const child = dom.node.childNodes[i];
-    // ignore decoration DOM nodes as ProseMirror ignores it while calculating the offset
-    if (
-      child.nodeType === Node.ELEMENT_NODE &&
-      (child.getAttribute('class') || '').indexOf('ProseMirror-widget') > -1
-    ) {
-      offset++;
-    }
-    if (i > dom.offset) {
-      break;
-    }
-  }
-  const node = dom.node.childNodes[offset];
+  const node = dom.node.childNodes[dom.offset];
   return node ? node : dom.node;
 };
