@@ -5,7 +5,6 @@ import {
   p,
   table,
   tr,
-  th,
   td,
   tdCursor,
   tdEmpty,
@@ -360,39 +359,6 @@ describe('selection', () => {
       const { view } = createEditor(doc(p(atomInline(), 'text')));
       const ref = findDomRefAtPos(3, view.domAtPos.bind(view));
       expect(ref instanceof Text).toBe(true);
-    });
-
-    it('should return DOM reference of a block node that follows a widget decoration', () => {
-      const { view } = createEditor(doc(blockquote(p('text')), p('text')));
-      // prepend a fake decoration node
-      const deco = document.createElement('div');
-      deco.className = 'fake-decoration ProseMirror-widget';
-      view.dom.insertBefore(deco, view.dom.firstChild);
-
-      const ref = findDomRefAtPos(0, view.domAtPos.bind(view));
-      expect(ref instanceof HTMLQuoteElement).toBe(true);
-    });
-    it('should return DOM reference of a block node when there is a widget decoration before and after', () => {
-      const { view } = createEditor(
-        doc(p('text'), blockquote(p('text text')), atomBlock(), p('text text'))
-      );
-      // insert fake decoration before the first paragraph
-      const deco1 = document.createElement('div');
-      deco1.className = 'fake-decoration1 ProseMirror-widget';
-      view.dom.insertBefore(deco1, view.dom.firstChild);
-
-      // insert fake decoration before blockquote
-      const deco2 = document.createElement('div');
-      deco2.className = 'fake-decoration2 ProseMirror-widget';
-      view.dom.insertBefore(deco2, view.dom.childNodes[1]);
-
-      // append another fake decoration at the end of the content area
-      const deco3 = document.createElement('div');
-      deco3.className = 'fake-decoration3 ProseMirror-widget';
-      view.dom.appendChild(deco3);
-
-      const ref = findDomRefAtPos(6, view.domAtPos.bind(view));
-      expect(ref instanceof HTMLQuoteElement).toBe(true);
     });
   });
 });
