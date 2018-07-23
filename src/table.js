@@ -344,7 +344,12 @@ export const cloneRowAt = rowIndex => tr => {
       // Re-create the same nodes with same attrs, dropping the node content.
       let cells = [];
       cloneRow.forEach(cell => {
-        cells.push(tableNodes.cell.createAndFill(cell.attrs, cell.marks));
+        cells.push(
+          tableNodes[cell.type.spec.tableRole].createAndFill(
+            cell.attrs,
+            cell.marks
+          )
+        );
       });
 
       return safeInsert(tableNodes.row.create(cloneRow.attrs, cells), rowPos)(
