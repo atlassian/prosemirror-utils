@@ -7,9 +7,9 @@ import {
   removeRow
 } from 'prosemirror-tables';
 import { Selection } from 'prosemirror-state';
-import { Slice, Fragment } from 'prosemirror-model';
+import { Slice } from 'prosemirror-model';
 import { findParentNode, findParentNodeClosestToPos } from './selection';
-import { setTextSelection } from './transforms';
+import { setTextSelection, safeInsert } from './transforms';
 import { cloneTr, tableNodeTypes, findTableClosestToPos } from './helpers';
 
 // :: (selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}
@@ -277,18 +277,30 @@ export const addColumnAt = columnIndex => tr => {
   return tr;
 };
 
-// :: (rowIndex: number) → (tr: Transaction) → Transaction
-// Returns a new transaction that adds a new row at index `rowIndex`.
+// :: (rowIndex: number, clonePreviousRow?: boolean) → (tr: Transaction) → Transaction
+// Returns a new transaction that adds a new row at index `rowIndex`. Optionally clone the previous row.
 //
 // ```javascript
 // dispatch(
 //   addRowAt(i)(state.tr)
 // );
 // ```
-export const addRowAt = rowIndex => tr => {
+//
+// ```javascript
+// dispatch(
+//   addRowAt(i, true)(state.tr)
+// );
+// ```
+export const addRowAt = (rowIndex, clonePreviousRow) => tr => {
   const table = findTable(tr.selection);
   if (table) {
     const map = TableMap.get(table.node);
+    const cloneRowIndex = rowIndex - 1;
+
+    if (clonePreviousRow && cloneRowIndex >= 1 && cloneRowIndex <= map.height) {
+      return cloneTr(cloneRowAt(cloneRowIndex)(tr));
+    }
+
     if (rowIndex >= 0 && rowIndex <= map.height) {
       return cloneTr(
         addRow(
@@ -300,6 +312,43 @@ export const addRowAt = rowIndex => tr => {
           },
           rowIndex
         )
+      );
+    }
+  }
+  return tr;
+};
+
+// :: (cloneRowIndex: number) → (tr: Transaction) → Transaction
+// Returns a new transaction that adds a new row after `cloneRowIndex`, cloning the row attributes at `cloneRowIndex`.
+//
+// ```javascript
+// dispatch(
+//   cloneRowAt(i)(state.tr)
+// );
+// ```
+export const cloneRowAt = rowIndex => tr => {
+  const table = findTable(tr.selection);
+  if (table) {
+    const map = TableMap.get(table.node);
+
+    if (rowIndex >= 1 && rowIndex <= map.height) {
+      const tableNode = table.node;
+      const tableNodes = tableNodeTypes(tableNode.type.schema);
+
+      let rowPos = table.start;
+      for (let i = 0; i < rowIndex + 1; i++) {
+        rowPos += tableNode.child(i).nodeSize;
+      }
+
+      const cloneRow = tableNode.child(rowIndex);
+      // Re-create the same nodes with same attrs, dropping the node content.
+      let cells = [];
+      cloneRow.forEach(cell => {
+        cells.push(tableNodes.cell.createAndFill(cell.attrs, cell.marks));
+      });
+
+      return safeInsert(tableNodes.row.create(cloneRow.attrs, cells), rowPos)(
+        tr
       );
     }
   }

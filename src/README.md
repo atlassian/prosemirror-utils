@@ -94,6 +94,8 @@ npm install prosemirror-utils
 
 @addRowAt
 
+@cloneRowAt
+
 @removeColumnAt
 
 @removeRowAt
