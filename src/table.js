@@ -330,13 +330,12 @@ export const cloneRowAt = rowIndex => tr => {
   const table = findTable(tr.selection);
   if (table) {
     const map = TableMap.get(table.node);
-    const tableNode = table.node;
-    const schema = tableNode.type.schema;
-    const tableNodes = tableNodeTypes(schema);
 
     if (rowIndex >= 1 && rowIndex <= map.height) {
-      let rowPos = table.start;
+      const tableNode = table.node;
+      const tableNodes = tableNodeTypes(tableNode.type.schema);
 
+      let rowPos = table.start;
       for (let i = 0; i < rowIndex + 1; i++) {
         rowPos += tableNode.child(i).nodeSize;
       }
@@ -345,10 +344,12 @@ export const cloneRowAt = rowIndex => tr => {
       // Re-create the same nodes with same attrs, dropping the node content.
       let cells = [];
       cloneRow.forEach(cell => {
-        cells.push(schema.nodes[cell.type.name].createAndFill(cell.attrs));
+        cells.push(tableNodes.cell.createAndFill(cell.attrs, cell.marks));
       });
 
-      return safeInsert(tableNodes.row.create(null, cells), rowPos)(tr);
+      return safeInsert(tableNodes.row.create(cloneRow.attrs, cells), rowPos)(
+        tr
+      );
     }
   }
   return tr;
