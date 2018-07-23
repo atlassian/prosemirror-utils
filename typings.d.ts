@@ -82,7 +82,9 @@ export function emptyCell(cell: ContentNodeWithPos, schema: Schema): (tr: Transa
 
 export function addColumnAt(columnIndex: number): (tr: Transaction) => Transaction;
 
-export function addRowAt(rowIndex: number): (tr: Transaction) => Transaction;
+export function addRowAt(rowIndex: number, clonePreviousRow?: boolean): (tr: Transaction) => Transaction;
+
+export function cloneRowAt(cloneRowIndex: number): (tr: Transaction) => Transaction;
 
 export function removeColumnAt(columnIndex: number): (tr: Transaction) => Transaction;
 

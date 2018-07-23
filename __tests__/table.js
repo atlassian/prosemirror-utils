@@ -35,7 +35,8 @@ import {
   findCellClosestToPos,
   findCellRectClosestToPos,
   setCellAttrs,
-  createTable
+  createTable,
+  cloneRowAt
 } from '../src';
 
 describe('table', () => {
@@ -487,6 +488,98 @@ describe('table', () => {
             row(tdEmpty, tdEmpty)
           )
         )
+      );
+    });
+
+    it('should return a new transaction that clones the previous row at the last index', () => {
+      const {
+        state: { tr }
+      } = createEditor(
+        doc(
+          table(
+            row(td(p('1<cursor>')), td(p('2'))),
+            row(td({ colspan: 2 }, p('3')))
+          )
+        )
+      );
+      const newTr = addRowAt(2, true)(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.doc).toEqualDocument(
+        doc(
+          table(
+            row(td(p('1')), td(p('2'))),
+            row(td({ colspan: 2 }, p('3'))),
+            row(td({ colspan: 2 }, p()))
+          )
+        )
+      );
+    });
+
+    it('should return a new transaction that adds a new row at index 0 but shouldnt clone any rows', () => {
+      const {
+        state: { tr }
+      } = createEditor(
+        doc(
+          table(
+            row(td(p('1<cursor>')), td(p('2'))),
+            row(td(p('3')), td(p('4')))
+          )
+        )
+      );
+      const newTr = addRowAt(0, true)(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.doc).toEqualDocument(
+        doc(
+          table(
+            row(tdEmpty, tdEmpty),
+            row(td(p('1')), td(p('2'))),
+            row(td(p('3')), td(p('4')))
+          )
+        )
+      );
+    });
+  });
+
+  describe('cloneRowAt', () => {
+    it('should return a new transaction that clones the previous row at the given index', () => {
+      const {
+        state: { tr }
+      } = createEditor(
+        doc(
+          table(
+            row(td(p('1<cursor>')), td(p('2'))),
+            row(td({ colspan: 2, pretty: true }, p('3')))
+          )
+        )
+      );
+      const newTr = cloneRowAt(1)(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.doc).toEqualDocument(
+        doc(
+          table(
+            row(td(p('1')), td(p('2'))),
+            row(td({ colspan: 2, pretty: true }, p('3'))),
+            row(td({ colspan: 2, pretty: true }, p()))
+          )
+        )
+      );
+    });
+
+    it("shouldn't do anything given an index of 0", () => {
+      const {
+        state: { tr }
+      } = createEditor(
+        doc(
+          table(
+            row(td(p('1<cursor>')), td(p('2'))),
+            row(td(p('3')), td(p('4')))
+          )
+        )
+      );
+      const newTr = cloneRowAt(0)(tr);
+      expect(newTr).toBe(tr);
+      expect(newTr.doc).toEqualDocument(
+        doc(table(row(td(p('1')), td(p('2'))), row(td(p('3')), td(p('4')))))
       );
     });
   });

@@ -328,12 +328,28 @@ npm install prosemirror-utils
    ```
 
 
- * **`addRowAt`**`(rowIndex: number) → fn(tr: Transaction) → Transaction`\
-   Returns a new transaction that adds a new row at index `rowIndex`.
+ * **`addRowAt`**`(rowIndex: number, clonePreviousRow: ?boolean) → fn(tr: Transaction) → Transaction`\
+   Returns a new transaction that adds a new row at index `rowIndex`. Optionally clone the previous row.
 
    ```javascript
    dispatch(
      addRowAt(i)(state.tr)
+   );
+   ```
+
+   ```javascript
+   dispatch(
+     addRowAt(i, true)(state.tr)
+   );
+   ```
+
+
+ * **`cloneRowAt`**`(cloneRowIndex: number) → fn(tr: Transaction) → Transaction`\
+   Returns a new transaction that adds a new row after `cloneRowIndex`, cloning the row attributes at `cloneRowIndex`.
+
+   ```javascript
+   dispatch(
+     cloneRowAt(i)(state.tr)
    );
    ```
 
