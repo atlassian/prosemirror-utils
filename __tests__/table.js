@@ -5,6 +5,7 @@ import {
   table,
   tr as row,
   td,
+  th,
   tdCursor,
   tdEmpty
 } from '../test-helpers';
@@ -548,7 +549,7 @@ describe('table', () => {
         doc(
           table(
             row(td(p('1<cursor>')), td(p('2'))),
-            row(td({ colspan: 2, pretty: true }, p('3')))
+            row(th({ colspan: 2, pretty: true }, p('3')))
           )
         )
       );
@@ -558,8 +559,8 @@ describe('table', () => {
         doc(
           table(
             row(td(p('1')), td(p('2'))),
-            row(td({ colspan: 2, pretty: true }, p('3'))),
-            row(td({ colspan: 2, pretty: true }, p()))
+            row(th({ colspan: 2, pretty: true }, p('3'))),
+            row(th({ colspan: 2, pretty: true }, p()))
           )
         )
       );
