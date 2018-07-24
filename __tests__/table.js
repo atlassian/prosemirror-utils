@@ -566,21 +566,63 @@ describe('table', () => {
       );
     });
 
-    it("shouldn't do anything given an index of 0", () => {
+    it('should increment a rowspan if cloning a row in that span', () => {
       const {
         state: { tr }
       } = createEditor(
         doc(
           table(
-            row(td(p('1<cursor>')), td(p('2'))),
-            row(td(p('3')), td(p('4')))
+            row(td({ colspan: 2 }, p('1<cursor>')), td({ rowspan: 3 }, p('2'))),
+            row(td(p('3')), td(p(''))),
+            row(td(p('4')), td(p('')))
           )
         )
       );
+
       const newTr = cloneRowAt(0)(tr);
-      expect(newTr).toBe(tr);
+      expect(newTr).not.toBe(tr);
       expect(newTr.doc).toEqualDocument(
-        doc(table(row(td(p('1')), td(p('2'))), row(td(p('3')), td(p('4')))))
+        doc(
+          table(
+            row(td({ colspan: 2 }, p('1')), td({ rowspan: 4 }, p('2'))),
+            row(td({ colspan: 2 }, p())),
+            row(td(p('3')), td(p(''))),
+            row(td(p('4')), td(p('')))
+          )
+        )
+      );
+    });
+
+    it('should increment all rowspans that cover the row', () => {
+      const {
+        state: { tr }
+      } = createEditor(
+        doc(
+          table(
+            row(td(p('0')), td(p()), td(p())),
+            row(td(p('1<cursor>')), td(p()), td({ rowspan: 3 }, p('2'))),
+            row(td(p('3')), td(p())),
+            row(td(p('4')), td({ rowspan: 2 }, p())),
+            row(td(p('5')), td(p())),
+            row(td(p('6')), td(p()), td(p()))
+          )
+        )
+      );
+
+      const newTr = cloneRowAt(3)(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.doc).toEqualDocument(
+        doc(
+          table(
+            row(td(p('0')), td(p()), td(p())),
+            row(td(p('1')), td(p()), td({ rowspan: 4 }, p('2'))),
+            row(td(p('3')), td(p())),
+            row(td(p('4')), td({ rowspan: 3 }, p())),
+            row(td(p())),
+            row(td(p('5')), td(p())),
+            row(td(p('6')), td(p()), td(p()))
+          )
+        )
       );
     });
   });

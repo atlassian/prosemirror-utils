@@ -297,7 +297,7 @@ export const addRowAt = (rowIndex, clonePreviousRow) => tr => {
     const map = TableMap.get(table.node);
     const cloneRowIndex = rowIndex - 1;
 
-    if (clonePreviousRow && cloneRowIndex >= 1 && cloneRowIndex <= map.height) {
+    if (clonePreviousRow && cloneRowIndex >= 0) {
       return cloneTr(cloneRowAt(cloneRowIndex)(tr));
     }
 
@@ -331,7 +331,7 @@ export const cloneRowAt = rowIndex => tr => {
   if (table) {
     const map = TableMap.get(table.node);
 
-    if (rowIndex >= 1 && rowIndex <= map.height) {
+    if (rowIndex >= 0 && rowIndex <= map.height) {
       const tableNode = table.node;
       const tableNodes = tableNodeTypes(tableNode.type.schema);
 
@@ -343,14 +343,41 @@ export const cloneRowAt = rowIndex => tr => {
       const cloneRow = tableNode.child(rowIndex);
       // Re-create the same nodes with same attrs, dropping the node content.
       let cells = [];
+      let rowWidth = 0;
       cloneRow.forEach(cell => {
-        cells.push(
-          tableNodes[cell.type.spec.tableRole].createAndFill(
-            cell.attrs,
-            cell.marks
-          )
-        );
+        // If we're copying a row with rowspan somewhere, we dont want to copy that cell
+        // We'll increment its span below.
+        if (cell.attrs.rowspan === 1) {
+          rowWidth += cell.attrs.colspan;
+          cells.push(
+            tableNodes[cell.type.spec.tableRole].createAndFill(
+              cell.attrs,
+              cell.marks
+            )
+          );
+        }
       });
+
+      // If a higher row spans past our clone row, bump the higher row to cover this new row too.
+      if (rowWidth < map.width) {
+        let rowSpanCells = [];
+        for (let i = rowIndex; i >= 0; i--) {
+          let foundCells = filterCellsInRow(i, (cell, tr) => {
+            const rowspan = cell.node.attrs.rowspan;
+            const spanRange = i + rowspan;
+            return rowspan > 1 && spanRange > rowIndex;
+          })(tr);
+          rowSpanCells.push(...foundCells);
+        }
+
+        if (rowSpanCells.length) {
+          rowSpanCells.forEach(cell => {
+            tr = setCellAttrs(cell, {
+              rowspan: cell.node.attrs.rowspan + 1
+            })(tr);
+          });
+        }
+      }
 
       return safeInsert(tableNodes.row.create(cloneRow.attrs, cells), rowPos)(
         tr
@@ -678,4 +705,18 @@ export const findCellRectClosestToPos = $pos => {
     const cellPos = cell.pos - table.start;
     return map.rectBetween(cellPos, cellPos);
   }
+};
+
+const filterCellsInRow = (rowIndex, predicate) => tr => {
+  let foundCells = [];
+  const cells = getCellsInRow(rowIndex)(tr.selection);
+  if (cells) {
+    for (let j = cells.length - 1; j >= 0; j--) {
+      if (predicate(cells[j], tr)) {
+        foundCells.push(cells[j]);
+      }
+    }
+  }
+
+  return foundCells;
 };
