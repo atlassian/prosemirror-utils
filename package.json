@@ -28,7 +28,8 @@
     "transform": {
       "^.+\\.js$": "babel-jest"
     },
-    "setupTestFrameworkScriptFile": "./jestFrameworkSetup.js"
+    "setupTestFrameworkScriptFile": "./jestFrameworkSetup.js",
+    "testURL": "http://localhost/"
   },
   "typings": "typings.d.ts",
   "files": [
