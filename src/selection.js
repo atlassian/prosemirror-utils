@@ -156,7 +156,7 @@ export const findPositionOfNodeBefore = selection => {
 };
 
 // :: (position: number, domAtPos: (pos: number) → {node: dom.Node, offset: number}) → dom.Node
-// Returns DOM reference of a node at a given `position`.
+// Returns DOM reference of a node at a given `position`. If the node type is of type `TEXT_NODE` it will return the reference of the parent node.
 //
 // ```javascript
 // const domAtPos = view.domAtPos.bind(view);
@@ -165,5 +165,5 @@ export const findPositionOfNodeBefore = selection => {
 export const findDomRefAtPos = (position, domAtPos) => {
   const dom = domAtPos(position);
   const node = dom.node.childNodes[dom.offset];
-  return node ? node : dom.node;
+  return node && node.nodeType !== Node.TEXT_NODE ? node : dom.node;
 };

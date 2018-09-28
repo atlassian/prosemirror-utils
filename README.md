@@ -125,7 +125,7 @@ npm install prosemirror-utils
 
 
  * **`findDomRefAtPos`**`(position: number, domAtPos: fn(pos: number) → {node: dom.Node, offset: number}) → dom.Node`\
-   Returns DOM reference of a node at a given `position`.
+   Returns DOM reference of a node at a given `position`. If the node type is of type `TEXT_NODE` it will return the reference of the parent node.
 
    ```javascript
    const domAtPos = view.domAtPos.bind(view);

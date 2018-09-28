@@ -352,7 +352,7 @@ describe('selection', () => {
     it('should return DOM reference of a text node when offset=0', () => {
       const { view } = createEditor(doc(p('text')));
       const ref = findDomRefAtPos(1, view.domAtPos.bind(view));
-      expect(ref instanceof Text).toBe(true);
+      expect(ref instanceof HTMLParagraphElement).toBe(true);
     });
 
     it('should return DOM reference of a text node when offset>0', () => {
