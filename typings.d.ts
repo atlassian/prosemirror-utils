@@ -5,7 +5,7 @@ export type Predicate = (node: ProsemirrorNode) => boolean;
 
 export type DomAtPos = (pos: number) => {node: Node, offset: number};
 
-export type ContentNodeWithPos = {pos: number, start: number, node: ProsemirrorNode};
+export type ContentNodeWithPos = {pos: number, start: number, depth: number, node: ProsemirrorNode};
 
 export type NodeWithPos = {pos: number, node: ProsemirrorNode};
 
