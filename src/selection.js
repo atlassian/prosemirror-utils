@@ -1,7 +1,7 @@
 import { Selection } from 'prosemirror-state';
 import { equalNodeType, isNodeSelection } from './helpers';
 
-// :: (predicate: (node: ProseMirrorNode) → boolean) → (selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}
+// :: (predicate: (node: ProseMirrorNode) → boolean) → (selection: Selection) → ?{pos: number, start: number, depth: number, node: ProseMirrorNode}
 // Iterates over parent nodes, returning the closest node and its start position `predicate` returns truthy for. `start` points to the start position of the node, `pos` points directly before the node.
 //
 // ```javascript
@@ -16,13 +16,14 @@ export const findParentNode = predicate => selection => {
       return {
         pos: i > 0 ? $from.before(i) : 0,
         start: $from.start(i),
+        depth: i,
         node
       };
     }
   }
 };
 
-// :: ($pos: ResolvedPos, predicate: (node: ProseMirrorNode) → boolean) → ?{pos: number, start: number, node: ProseMirrorNode}
+// :: ($pos: ResolvedPos, predicate: (node: ProseMirrorNode) → boolean) → ?{pos: number, start: number, depth: number, node: ProseMirrorNode}
 // Iterates over parent nodes starting from the given `$pos`, returning the closest node and its start position `predicate` returns truthy for. `start` points to the start position of the node, `pos` points directly before the node.
 //
 // ```javascript
@@ -36,6 +37,7 @@ export const findParentNodeClosestToPos = ($pos, predicate) => {
       return {
         pos: i > 0 ? $pos.before(i) : 0,
         start: $pos.start(i),
+        depth: i,
         node
       };
     }
@@ -69,7 +71,7 @@ export const hasParentNode = predicate => selection => {
   return !!findParentNode(predicate)(selection);
 };
 
-// :: (nodeType: union<NodeType, [NodeType]>) → (selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}
+// :: (nodeType: union<NodeType, [NodeType]>) → (selection: Selection) → ?{pos: number, start: number, depth: number, node: ProseMirrorNode}
 // Iterates over parent nodes, returning closest node of a given `nodeType`. `start` points to the start position of the node, `pos` points directly before the node.
 //
 // ```javascript
@@ -79,7 +81,7 @@ export const findParentNodeOfType = nodeType => selection => {
   return findParentNode(node => equalNodeType(nodeType, node))(selection);
 };
 
-// :: ($pos: ResolvedPos, nodeType: union<NodeType, [NodeType]>) → ?{pos: number, start: number, node: ProseMirrorNode}
+// :: ($pos: ResolvedPos, nodeType: union<NodeType, [NodeType]>) → ?{pos: number, start: number, depth: number, node: ProseMirrorNode}
 // Iterates over parent nodes starting from the given `$pos`, returning closest node of a given `nodeType`. `start` points to the start position of the node, `pos` points directly before the node.
 //
 // ```javascript
@@ -116,7 +118,7 @@ export const findParentDomRefOfType = (nodeType, domAtPos) => selection => {
   );
 };
 
-// :: (nodeType: union<NodeType, [NodeType]>) → (selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}
+// :: (nodeType: union<NodeType, [NodeType]>) → (selection: Selection) → ?{pos: number, start: number, depth: number, node: ProseMirrorNode}
 // Returns a node of a given `nodeType` if it is selected. `start` points to the start position of the node, `pos` points directly before the node.
 //
 // ```javascript
@@ -131,7 +133,7 @@ export const findSelectedNodeOfType = nodeType => selection => {
   if (isNodeSelection(selection)) {
     const { node, $from } = selection;
     if (equalNodeType(nodeType, node)) {
-      return { node, pos: $from.pos };
+      return { node, pos: $from.pos, depth: $from.depth };
     }
   }
 };
