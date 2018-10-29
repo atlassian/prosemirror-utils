@@ -277,9 +277,9 @@ export const addColumnAt = columnIndex => tr => {
   return tr;
 };
 
-// :: (rowIndex: number, clonePreviousRow?: boolean) → (tr: Transaction) → Transaction
-// Returns a new transaction that adds a new row at index `rowIndex`. Optionally clone the previous row.
-//
+// :: (rowIndex: number, cloneIndex?: boolean | number) → (tr: Transaction) → Transaction
+// Returns a new transaction that adds a new row at index `rowIndex`. Optionally clone the row at the given row index
+// cloneIndex = true will clone the previous row, this was done for backwards compatibility.
 // ```javascript
 // dispatch(
 //   addRowAt(i)(state.tr)
@@ -291,11 +291,15 @@ export const addColumnAt = columnIndex => tr => {
 //   addRowAt(i, true)(state.tr)
 // );
 // ```
-export const addRowAt = (rowIndex, clonePreviousRow) => tr => {
+export const addRowAt = (rowIndex, cloneIndex) => tr => {
+  if (cloneIndex === true) {
+    cloneIndex = -1;
+  } 
+  
   const table = findTable(tr.selection);
   if (table) {
     const map = TableMap.get(table.node);
-    const cloneRowIndex = rowIndex - 1;
+    const cloneRowIndex = rowIndex + cloneIndex;
 
     if (clonePreviousRow && cloneRowIndex >= 0) {
       return cloneTr(cloneRowAt(cloneRowIndex)(tr));
