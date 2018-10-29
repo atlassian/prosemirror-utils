@@ -277,7 +277,7 @@ export const addColumnAt = columnIndex => tr => {
   return tr;
 };
 
-// :: (rowIndex: number, cloneIndex?: boolean | number) → (tr: Transaction) → Transaction
+// :: (rowIndex: number, cloneIndex: ?union< boolean, number>) → (tr: Transaction) → Transaction
 // Returns a new transaction that adds a new row at index `rowIndex`. Optionally clone the row at the given row index
 // cloneIndex = true will clone the previous row, this was done for backwards compatibility.
 // ```javascript
