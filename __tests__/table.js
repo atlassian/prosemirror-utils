@@ -37,7 +37,8 @@ import {
   findCellRectClosestToPos,
   setCellAttrs,
   createTable,
-  cloneRowAt
+  cloneRowAt,
+  getSelectionRect
 } from '../src';
 
 describe('table', () => {
@@ -90,6 +91,36 @@ describe('table', () => {
       );
       expect(isColumnSelected(0)(selection)).toBe(false);
     });
+    describe('when head column is merged', () => {
+      it('should return `true` if CellSelection spans the entire column', () => {
+        const {
+          state: { selection }
+        } = createEditor(
+          doc(
+            table(
+              row(td({ colspan: 2 }, p('<head>'))),
+              row(td(p('<anchor>')), tdEmpty)
+            )
+          )
+        );
+        expect(isColumnSelected(1)(selection)).toBe(true);
+      });
+    });
+    describe('when head column is merged and selection is inverted', () => {
+      it('should return `true` if CellSelection spans the entire column', () => {
+        const {
+          state: { selection }
+        } = createEditor(
+          doc(
+            table(
+              row(td(p('<head>')), tdEmpty),
+              row(td({ colspan: 2 }, p('<anchor>')))
+            )
+          )
+        );
+        expect(isColumnSelected(1)(selection)).toBe(true);
+      });
+    });
   });
 
   describe('isRowSelected', () => {
@@ -108,6 +139,36 @@ describe('table', () => {
         doc(table(row(td(p('<anchor>')), td(p('<head>')), tdEmpty)))
       );
       expect(isRowSelected(0)(selection)).toBe(false);
+    });
+    describe('when head row is merged', () => {
+      it('should return `true` if CellSelection spans the entire row', () => {
+        const {
+          state: { selection }
+        } = createEditor(
+          doc(
+            table(
+              row(td({ rowspan: 2 }, p('<head>')), td(p('<anchor>'))),
+              row(tdEmpty)
+            )
+          )
+        );
+        expect(isRowSelected(1)(selection)).toBe(true);
+      });
+    });
+    describe('when head row is merged and selection is inverted', () => {
+      it('should return `true` if CellSelection spans the entire row', () => {
+        const {
+          state: { selection }
+        } = createEditor(
+          doc(
+            table(
+              row(td(p('<head>')), td({ rowspan: 2 }, p('<anchor>'))),
+              row(tdEmpty)
+            )
+          )
+        );
+        expect(isRowSelected(1)(selection)).toBe(true);
+      });
     });
   });
 
@@ -1400,6 +1461,35 @@ describe('table', () => {
       expect(rect.bottom).toEqual(2);
       expect(rect.left).toEqual(2);
       expect(rect.right).toEqual(3);
+    });
+  });
+
+  describe('getSelectionRect', () => {
+    it('should return `undefined` if there selection is not a CellSelection', () => {
+      const {
+        state: { selection }
+      } = createEditor(doc(p('one')));
+      const rect = getSelectionRect(selection);
+      expect(rect).toBeUndefined();
+    });
+
+    it('should return selection rect if selection is a CellSelection', () => {
+      const {
+        state: { selection }
+      } = createEditor(
+        doc(
+          table(
+            row(td(p('<anchor>')), tdEmpty, tdEmpty),
+            row(tdEmpty, tdEmpty, tdEmpty),
+            row(tdEmpty, td(p('<head>')), tdEmpty)
+          )
+        )
+      );
+      const rect = getSelectionRect(selection);
+      expect(rect.top).toEqual(0);
+      expect(rect.bottom).toEqual(3);
+      expect(rect.left).toEqual(0);
+      expect(rect.right).toEqual(2);
     });
   });
 });

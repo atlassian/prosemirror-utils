@@ -486,6 +486,14 @@ npm install prosemirror-utils
    ```
 
 
+ * **`getSelectionRect`**`(selection: Selection) → ?{left: number, right: number, top: number, bottom: number}`\
+   Get the selection rectangle. Returns `undefined` if selection is not a CellSelection.
+
+   ```javascript
+   const rect = getSelectionRect(selection);
+   ```
+
+
 ### Utils for document transformation
 
  * **`removeParentNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(tr: Transaction) → Transaction`\
