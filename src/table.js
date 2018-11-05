@@ -111,8 +111,8 @@ export const isTableSelected = selection => {
   return false;
 };
 
-// :: (columnIndex: number) → (selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]
-// Returns an array of cells in a column at index `columnIndex`.
+// :: (columnIndex: union<number, [number]>) → (selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]
+// Returns an array of cells in a column(s), where `columnIndex` could be a column index or an array of column indexes.
 //
 // ```javascript
 // const cells = getCellsInColumn(i)(selection); // [{node, pos}, {node, pos}]
@@ -121,24 +121,31 @@ export const getCellsInColumn = columnIndex => selection => {
   const table = findTable(selection);
   if (table) {
     const map = TableMap.get(table.node);
-    if (columnIndex >= 0 && columnIndex <= map.width - 1) {
-      const cells = map.cellsInRect({
-        left: columnIndex,
-        right: columnIndex + 1,
-        top: 0,
-        bottom: map.height
-      });
-      return cells.map(nodePos => {
-        const node = table.node.nodeAt(nodePos);
-        const pos = nodePos + table.start;
-        return { pos, start: pos + 1, node };
-      });
-    }
+    const indexes = Array.isArray(columnIndex)
+      ? columnIndex
+      : Array.from([columnIndex]);
+    return indexes.reduce((acc, index) => {
+      if (index >= 0 && index <= map.width - 1) {
+        const cells = map.cellsInRect({
+          left: index,
+          right: index + 1,
+          top: 0,
+          bottom: map.height
+        });
+        return acc.concat(
+          cells.map(nodePos => {
+            const node = table.node.nodeAt(nodePos);
+            const pos = nodePos + table.start;
+            return { pos, start: pos + 1, node };
+          })
+        );
+      }
+    }, []);
   }
 };
 
-// :: (rowIndex: number) → (selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]
-// Returns an array of cells in a row at index `rowIndex`.
+// :: (rowIndex: union<number, [number]>) → (selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]
+// Returns an array of cells in a row(s), where `rowIndex` could be a row index or an array of row indexes.
 //
 // ```javascript
 // const cells = getCellsInRow(i)(selection); // [{node, pos}, {node, pos}]
@@ -147,19 +154,24 @@ export const getCellsInRow = rowIndex => selection => {
   const table = findTable(selection);
   if (table) {
     const map = TableMap.get(table.node);
-    if (rowIndex >= 0 && rowIndex <= map.height - 1) {
-      const cells = map.cellsInRect({
-        left: 0,
-        right: map.width,
-        top: rowIndex,
-        bottom: rowIndex + 1
-      });
-      return cells.map(nodePos => {
-        const node = table.node.nodeAt(nodePos);
-        const pos = nodePos + table.start;
-        return { pos, start: pos + 1, node };
-      });
-    }
+    const indexes = Array.isArray(rowIndex) ? rowIndex : Array.from([rowIndex]);
+    return indexes.reduce((acc, index) => {
+      if (index >= 0 && index <= map.height - 1) {
+        const cells = map.cellsInRect({
+          left: 0,
+          right: map.width,
+          top: index,
+          bottom: index + 1
+        });
+        return acc.concat(
+          cells.map(nodePos => {
+            const node = table.node.nodeAt(nodePos);
+            const pos = nodePos + table.start;
+            return { pos, start: pos + 1, node };
+          })
+        );
+      }
+    }, []);
   }
 };
 

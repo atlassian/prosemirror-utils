@@ -66,9 +66,9 @@ export function isRowSelected(rowIndex: number): (selection: Selection) =>  bool
 
 export function isTableSelected(selection: Selection): boolean;
 
-export function getCellsInColumn(columnIndex: number): (selection: Selection) => ContentNodeWithPos[] | undefined;
+export function getCellsInColumn(columnIndex: number | number[]): (selection: Selection) => ContentNodeWithPos[] | undefined;
 
-export function getCellsInRow(rowIndex: number): (selection: Selection) => ContentNodeWithPos[] | undefined;
+export function getCellsInRow(rowIndex: number | number[]): (selection: Selection) => ContentNodeWithPos[] | undefined;
 
 export function getCellsInTable(selection: Selection): ContentNodeWithPos[] | undefined;
 
