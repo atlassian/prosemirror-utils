@@ -35,6 +35,24 @@ export const isCellSelection = selection => {
   return selection instanceof CellSelection;
 };
 
+// :: (selection: Selection) → ?{left: number, right: number, top: number, bottom: number}
+// Get the selection rectangle. Returns `undefined` if selection is not a CellSelection.
+//
+// ```javascript
+// const rect = getSelectionRect(selection);
+// ```
+export const getSelectionRect = selection => {
+  if (!isCellSelection(selection)) {
+    return;
+  }
+  const start = selection.$anchorCell.start(-1);
+  const map = TableMap.get(selection.$anchorCell.node(-1));
+  return map.rectBetween(
+    selection.$anchorCell.pos - start,
+    selection.$headCell.pos - start
+  );
+};
+
 // :: (columnIndex: number) → (selection: Selection) → boolean
 // Checks if entire column at index `columnIndex` is selected.
 //
@@ -43,16 +61,14 @@ export const isCellSelection = selection => {
 // ```
 export const isColumnSelected = columnIndex => selection => {
   if (isCellSelection(selection)) {
-    const { $anchorCell, $headCell } = selection;
-    const start = $anchorCell.start(-1);
-    const map = TableMap.get($anchorCell.node(-1));
-    const anchor = map.colCount($anchorCell.pos - start);
-    const head = map.colCount($headCell.pos - start);
-
+    const rect = getSelectionRect(selection);
+    if (!rect) {
+      return false;
+    }
     return (
       selection.isColSelection() &&
-      (columnIndex <= Math.max(anchor, head) &&
-        columnIndex >= Math.min(anchor, head))
+      columnIndex >= rect.left &&
+      columnIndex <= rect.right
     );
   }
 
@@ -67,13 +83,14 @@ export const isColumnSelected = columnIndex => selection => {
 // ```
 export const isRowSelected = rowIndex => selection => {
   if (isCellSelection(selection)) {
-    const { $anchorCell, $headCell } = selection;
-    const anchor = $anchorCell.index(-1);
-    const head = $headCell.index(-1);
-
+    const rect = getSelectionRect(selection);
+    if (!rect) {
+      return false;
+    }
     return (
       selection.isRowSelection() &&
-      (rowIndex <= Math.max(anchor, head) && rowIndex >= Math.min(anchor, head))
+      rowIndex >= rect.top &&
+      rowIndex <= rect.bottom
     );
   }
 

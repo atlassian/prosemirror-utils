@@ -108,9 +108,11 @@ export function setCellAttrs(cell: ContentNodeWithPos, attrs: Object): (tr: Tran
 
 export function findCellClosestToPos($pos: ResolvedPos): ContentNodeWithPos | undefined;
 
-export function findCellRectClosestToPos($pos: ResolvedPos): {top: number, bottom: number, left: number, right: number}
+export function findCellRectClosestToPos($pos: ResolvedPos): {top: number, bottom: number, left: number, right: number} | undefined;
 
 export function createTable(schema: Schema, rowsCount?: number, colsCount?: number, withHeaderRow?: boolean): ProsemirrorNode;
+
+export function getSelectionRect(selection: Selection): {top: number, bottom: number, left: number, right: number} | undefined;
 
 // Transforms
 export function removeParentNodeOfType(nodeType: NodeType | NodeType[]): (tr: Transaction) => Transaction;
