@@ -253,16 +253,16 @@ npm install prosemirror-utils
    ```
 
 
- * **`getCellsInColumn`**`(columnIndex: number) → fn(selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]`\
-   Returns an array of cells in a column at index `columnIndex`.
+ * **`getCellsInColumn`**`(columnIndex: number | [number]) → fn(selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]`\
+   Returns an array of cells in a column(s), where `columnIndex` could be a column index or an array of column indexes.
 
    ```javascript
    const cells = getCellsInColumn(i)(selection); // [{node, pos}, {node, pos}]
    ```
 
 
- * **`getCellsInRow`**`(rowIndex: number) → fn(selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]`\
-   Returns an array of cells in a row at index `rowIndex`.
+ * **`getCellsInRow`**`(rowIndex: number | [number]) → fn(selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]`\
+   Returns an array of cells in a row(s), where `rowIndex` could be a row index or an array of row indexes.
 
    ```javascript
    const cells = getCellsInRow(i)(selection); // [{node, pos}, {node, pos}]

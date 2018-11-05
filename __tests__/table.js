@@ -228,6 +228,28 @@ describe('table', () => {
       expect(cells[0].pos).toEqual(2);
       expect(cells[1].pos).toEqual(17);
     });
+    it('should return an array of cells in a range of columns', () => {
+      const {
+        state: { selection }
+      } = createEditor(
+        doc(
+          table(
+            row(td(p('1')), td(p('3')), tdEmpty),
+            row(td(p('2')), td(p('4')), tdEmpty)
+          )
+        )
+      );
+      const cells = getCellsInColumn([0, 1])(selection);
+      cells.forEach((cell, i) => {
+        expect(cell.node.type.name).toEqual('table_cell');
+        expect(cell.node.textContent).toEqual(`${i + 1}`);
+        expect(typeof cell.pos).toEqual('number');
+      });
+      expect(cells[0].pos).toEqual(2);
+      expect(cells[1].pos).toEqual(18);
+      expect(cells[2].pos).toEqual(7);
+      expect(cells[3].pos).toEqual(23);
+    });
   });
 
   describe('getCellsInRow', () => {
@@ -257,6 +279,31 @@ describe('table', () => {
       expect(cells[0].pos).toEqual(2);
       expect(cells[1].pos).toEqual(7);
       expect(cells[2].pos).toEqual(12);
+    });
+    it('should return an array of cells in a range of rows', () => {
+      const {
+        state: { selection }
+      } = createEditor(
+        doc(
+          table(
+            row(td(p('1')), td(p('2')), td(p('3'))),
+            row(td(p('4')), td(p('5')), td(p('6'))),
+            row(tdEmpty, tdEmpty, tdEmpty)
+          )
+        )
+      );
+      const cells = getCellsInRow([0, 1])(selection);
+      cells.forEach((cell, i) => {
+        expect(cell.node.type.name).toEqual('table_cell');
+        expect(cell.node.textContent).toEqual(`${i + 1}`);
+        expect(typeof cell.pos).toEqual('number');
+      });
+      expect(cells[0].pos).toEqual(2);
+      expect(cells[1].pos).toEqual(7);
+      expect(cells[2].pos).toEqual(12);
+      expect(cells[3].pos).toEqual(19);
+      expect(cells[4].pos).toEqual(24);
+      expect(cells[5].pos).toEqual(29);
     });
   });
 
