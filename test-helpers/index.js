@@ -69,5 +69,5 @@ testHelpers.createEditor = doc => {
     }
   });
 
-  return { state, view };
+  return { state, view, ...doc.tag };
 };

@@ -114,6 +114,10 @@ export function createTable(schema: Schema, rowsCount?: number, colsCount?: numb
 
 export function getSelectionRect(selection: Selection): {top: number, bottom: number, left: number, right: number} | undefined;
 
+export function getSelectionRangeInColumn(columnIndex: number): (tr: Transaction) => {$anchor: ResolvedPos, $head: ResolvedPos, indexes: number[]};
+
+export function getSelectionRangeInRow(rowIndex: number): (tr: Transaction) => {$anchor: ResolvedPos, $head: ResolvedPos, indexes: number[]};
+
 // Transforms
 export function removeParentNodeOfType(nodeType: NodeType | NodeType[]): (tr: Transaction) => Transaction;
 
