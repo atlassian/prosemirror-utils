@@ -68,7 +68,7 @@ export const isColumnSelected = columnIndex => selection => {
     return (
       selection.isColSelection() &&
       columnIndex >= rect.left &&
-      columnIndex <= rect.right
+      columnIndex < rect.right
     );
   }
 
@@ -90,7 +90,7 @@ export const isRowSelected = rowIndex => selection => {
     return (
       selection.isRowSelection() &&
       rowIndex >= rect.top &&
-      rowIndex <= rect.bottom
+      rowIndex < rect.bottom
     );
   }
 
