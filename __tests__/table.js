@@ -100,12 +100,14 @@ describe('table', () => {
         } = createEditor(
           doc(
             table(
-              row(td({ colspan: 2 }, p('<head>'))),
-              row(td(p('<anchor>')), tdEmpty)
+              row(td({ colspan: 2 }, p('<head>')), tdEmpty),
+              row(td(p('<anchor>')), tdEmpty, tdEmpty)
             )
           )
         );
+        expect(isColumnSelected(0)(selection)).toBe(true);
         expect(isColumnSelected(1)(selection)).toBe(true);
+        expect(isColumnSelected(2)(selection)).toBe(false);
       });
     });
     describe('when head column is merged and selection is inverted', () => {
@@ -115,12 +117,14 @@ describe('table', () => {
         } = createEditor(
           doc(
             table(
-              row(td(p('<head>')), tdEmpty),
-              row(td({ colspan: 2 }, p('<anchor>')))
+              row(td(p('<head>')), tdEmpty, tdEmpty),
+              row(td({ colspan: 2 }, p('<anchor>')), tdEmpty)
             )
           )
         );
+        expect(isColumnSelected(0)(selection)).toBe(true);
         expect(isColumnSelected(1)(selection)).toBe(true);
+        expect(isColumnSelected(2)(selection)).toBe(false);
       });
     });
   });
@@ -150,11 +154,14 @@ describe('table', () => {
           doc(
             table(
               row(td({ rowspan: 2 }, p('<head>')), td(p('<anchor>'))),
+              row(tdEmpty),
               row(tdEmpty)
             )
           )
         );
+        expect(isRowSelected(0)(selection)).toBe(true);
         expect(isRowSelected(1)(selection)).toBe(true);
+        expect(isRowSelected(2)(selection)).toBe(false);
       });
     });
     describe('when head row is merged and selection is inverted', () => {
@@ -165,11 +172,14 @@ describe('table', () => {
           doc(
             table(
               row(td(p('<head>')), td({ rowspan: 2 }, p('<anchor>'))),
+              row(tdEmpty),
               row(tdEmpty)
             )
           )
         );
+        expect(isRowSelected(0)(selection)).toBe(true);
         expect(isRowSelected(1)(selection)).toBe(true);
+        expect(isRowSelected(2)(selection)).toBe(false);
       });
     });
   });
