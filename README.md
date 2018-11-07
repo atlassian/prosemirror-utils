@@ -494,6 +494,22 @@ npm install prosemirror-utils
    ```
 
 
+ * **`getSelectionRangeInColumn`**`(columnIndex: number) → fn(tr: Transaction) → {$anchor: ResolvedPos, $head: ResolvedPos, indexes: [number]}`\
+   Returns a range of rectangular selection spanning all merged cells around a column at index `columnIndex`.
+
+   ```javascript
+   const range = getSelectionRangeInColumn(3)(state.tr);
+   ```
+
+
+ * **`getSelectionRangeInRow`**`(rowIndex: number) → fn(tr: Transaction) → {$anchor: ResolvedPos, $head: ResolvedPos, indexes: [number]}`\
+   Returns a range of rectangular selection spanning all merged cells around a row at index `rowIndex`.
+
+   ```javascript
+   const range = getSelectionRangeInRow(3)(state.tr);
+   ```
+
+
 ### Utils for document transformation
 
  * **`removeParentNodeOfType`**`(nodeType: NodeType | [NodeType]) → fn(tr: Transaction) → Transaction`\

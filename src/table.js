@@ -749,3 +749,144 @@ const filterCellsInRow = (rowIndex, predicate) => tr => {
 
   return foundCells;
 };
+
+// :: (columnIndex: number) → (tr: Transaction) → {$anchor: ResolvedPos, $head: ResolvedPos, indexes: [number]}
+// Returns a range of rectangular selection spanning all merged cells around a column at index `columnIndex`.
+//
+// ```javascript
+// const range = getSelectionRangeInColumn(3)(state.tr);
+// ```
+export const getSelectionRangeInColumn = columnIndex => tr => {
+  let startIndex = columnIndex;
+  let endIndex = columnIndex;
+
+  // looking for selection start column (startIndex)
+  for (let i = columnIndex; i >= 0; i--) {
+    const cells = getCellsInColumn(i)(tr.selection);
+    cells.forEach(cell => {
+      let maybeEndIndex = cell.node.attrs.colspan + i - 1;
+      if (maybeEndIndex >= startIndex) {
+        startIndex = i;
+      }
+      if (maybeEndIndex > endIndex) {
+        endIndex = maybeEndIndex;
+      }
+    });
+  }
+  // looking for selection end column (endIndex)
+  for (let i = columnIndex; i <= endIndex; i++) {
+    const cells = getCellsInColumn(i)(tr.selection);
+    cells.forEach(cell => {
+      let maybeEndIndex = cell.node.attrs.colspan + i - 1;
+      if (cell.node.attrs.colspan > 1 && maybeEndIndex > endIndex) {
+        endIndex = maybeEndIndex;
+      }
+    });
+  }
+
+  // filter out columns without cells (where all rows have colspan > 1 in the same column)
+  const indexes = [];
+  for (let i = startIndex; i <= endIndex; i++) {
+    const maybeCells = getCellsInColumn(i)(tr.selection);
+    if (maybeCells && maybeCells.length) {
+      indexes.push(i);
+    }
+  }
+  startIndex = indexes[0];
+  endIndex = indexes[indexes.length - 1];
+
+  const firstSelectedColumnCells = getCellsInColumn(startIndex)(tr.selection);
+  const firstRowCells = getCellsInRow(0)(tr.selection);
+  const $anchor = tr.doc.resolve(
+    firstSelectedColumnCells[firstSelectedColumnCells.length - 1].pos
+  );
+
+  let headCell;
+  for (let i = endIndex; i >= startIndex; i--) {
+    const columnCells = getCellsInColumn(i)(tr.selection);
+    if (columnCells && columnCells.length) {
+      for (let j = firstRowCells.length - 1; j >= 0; j--) {
+        if (firstRowCells[j].pos === columnCells[0].pos) {
+          headCell = columnCells[0];
+          break;
+        }
+      }
+      if (headCell) {
+        break;
+      }
+    }
+  }
+
+  const $head = tr.doc.resolve(headCell.pos);
+  return { $anchor, $head, indexes };
+};
+
+// :: (rowIndex: number) → (tr: Transaction) → {$anchor: ResolvedPos, $head: ResolvedPos, indexes: [number]}
+// Returns a range of rectangular selection spanning all merged cells around a row at index `rowIndex`.
+//
+// ```javascript
+// const range = getSelectionRangeInRow(3)(state.tr);
+// ```
+export const getSelectionRangeInRow = rowIndex => tr => {
+  let startIndex = rowIndex;
+  let endIndex = rowIndex;
+  // looking for selection start row (startIndex)
+  for (let i = rowIndex; i >= 0; i--) {
+    const cells = getCellsInRow(i)(tr.selection);
+    cells.forEach(cell => {
+      let maybeEndIndex = cell.node.attrs.rowspan + i - 1;
+      if (maybeEndIndex >= startIndex) {
+        startIndex = i;
+      }
+      if (maybeEndIndex > endIndex) {
+        endIndex = maybeEndIndex;
+      }
+    });
+  }
+  // looking for selection end row (endIndex)
+  for (let i = rowIndex; i <= endIndex; i++) {
+    const cells = getCellsInRow(i)(tr.selection);
+    cells.forEach(cell => {
+      let maybeEndIndex = cell.node.attrs.rowspan + i - 1;
+      if (cell.node.attrs.rowspan > 1 && maybeEndIndex > endIndex) {
+        endIndex = maybeEndIndex;
+      }
+    });
+  }
+
+  // filter out rows without cells (where all columns have rowspan > 1 in the same row)
+  const indexes = [];
+  for (let i = startIndex; i <= endIndex; i++) {
+    const maybeCells = getCellsInRow(i)(tr.selection);
+    if (maybeCells && maybeCells.length) {
+      indexes.push(i);
+    }
+  }
+  startIndex = indexes[0];
+  endIndex = indexes[indexes.length - 1];
+
+  const firstSelectedRowCells = getCellsInRow(startIndex)(tr.selection);
+  const firstColumnCells = getCellsInColumn(0)(tr.selection);
+  const $anchor = tr.doc.resolve(
+    firstSelectedRowCells[firstSelectedRowCells.length - 1].pos
+  );
+
+  let headCell;
+  for (let i = endIndex; i >= startIndex; i--) {
+    const rowCells = getCellsInRow(i)(tr.selection);
+    if (rowCells && rowCells.length) {
+      for (let j = firstColumnCells.length - 1; j >= 0; j--) {
+        if (firstColumnCells[j].pos === rowCells[0].pos) {
+          headCell = rowCells[0];
+          break;
+        }
+      }
+      if (headCell) {
+        break;
+      }
+    }
+  }
+
+  const $head = tr.doc.resolve(headCell.pos);
+  return { $anchor, $head, indexes };
+};
