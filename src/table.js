@@ -35,6 +35,24 @@ export const isCellSelection = selection => {
   return selection instanceof CellSelection;
 };
 
+// :: (selection: Selection) → ?{left: number, right: number, top: number, bottom: number}
+// Get the selection rectangle. Returns `undefined` if selection is not a CellSelection.
+//
+// ```javascript
+// const rect = getSelectionRect(selection);
+// ```
+export const getSelectionRect = selection => {
+  if (!isCellSelection(selection)) {
+    return;
+  }
+  const start = selection.$anchorCell.start(-1);
+  const map = TableMap.get(selection.$anchorCell.node(-1));
+  return map.rectBetween(
+    selection.$anchorCell.pos - start,
+    selection.$headCell.pos - start
+  );
+};
+
 // :: (columnIndex: number) → (selection: Selection) → boolean
 // Checks if entire column at index `columnIndex` is selected.
 //
@@ -43,16 +61,14 @@ export const isCellSelection = selection => {
 // ```
 export const isColumnSelected = columnIndex => selection => {
   if (isCellSelection(selection)) {
-    const { $anchorCell, $headCell } = selection;
-    const start = $anchorCell.start(-1);
-    const map = TableMap.get($anchorCell.node(-1));
-    const anchor = map.colCount($anchorCell.pos - start);
-    const head = map.colCount($headCell.pos - start);
-
+    const rect = getSelectionRect(selection);
+    if (!rect) {
+      return false;
+    }
     return (
       selection.isColSelection() &&
-      (columnIndex <= Math.max(anchor, head) &&
-        columnIndex >= Math.min(anchor, head))
+      columnIndex >= rect.left &&
+      columnIndex < rect.right
     );
   }
 
@@ -67,13 +83,14 @@ export const isColumnSelected = columnIndex => selection => {
 // ```
 export const isRowSelected = rowIndex => selection => {
   if (isCellSelection(selection)) {
-    const { $anchorCell, $headCell } = selection;
-    const anchor = $anchorCell.index(-1);
-    const head = $headCell.index(-1);
-
+    const rect = getSelectionRect(selection);
+    if (!rect) {
+      return false;
+    }
     return (
       selection.isRowSelection() &&
-      (rowIndex <= Math.max(anchor, head) && rowIndex >= Math.min(anchor, head))
+      rowIndex >= rect.top &&
+      rowIndex < rect.bottom
     );
   }
 
@@ -94,8 +111,8 @@ export const isTableSelected = selection => {
   return false;
 };
 
-// :: (columnIndex: number) → (selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]
-// Returns an array of cells in a column at index `columnIndex`.
+// :: (columnIndex: union<number, [number]>) → (selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]
+// Returns an array of cells in a column(s), where `columnIndex` could be a column index or an array of column indexes.
 //
 // ```javascript
 // const cells = getCellsInColumn(i)(selection); // [{node, pos}, {node, pos}]
@@ -104,24 +121,31 @@ export const getCellsInColumn = columnIndex => selection => {
   const table = findTable(selection);
   if (table) {
     const map = TableMap.get(table.node);
-    if (columnIndex >= 0 && columnIndex <= map.width - 1) {
-      const cells = map.cellsInRect({
-        left: columnIndex,
-        right: columnIndex + 1,
-        top: 0,
-        bottom: map.height
-      });
-      return cells.map(nodePos => {
-        const node = table.node.nodeAt(nodePos);
-        const pos = nodePos + table.start;
-        return { pos, start: pos + 1, node };
-      });
-    }
+    const indexes = Array.isArray(columnIndex)
+      ? columnIndex
+      : Array.from([columnIndex]);
+    return indexes.reduce((acc, index) => {
+      if (index >= 0 && index <= map.width - 1) {
+        const cells = map.cellsInRect({
+          left: index,
+          right: index + 1,
+          top: 0,
+          bottom: map.height
+        });
+        return acc.concat(
+          cells.map(nodePos => {
+            const node = table.node.nodeAt(nodePos);
+            const pos = nodePos + table.start;
+            return { pos, start: pos + 1, node };
+          })
+        );
+      }
+    }, []);
   }
 };
 
-// :: (rowIndex: number) → (selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]
-// Returns an array of cells in a row at index `rowIndex`.
+// :: (rowIndex: union<number, [number]>) → (selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]
+// Returns an array of cells in a row(s), where `rowIndex` could be a row index or an array of row indexes.
 //
 // ```javascript
 // const cells = getCellsInRow(i)(selection); // [{node, pos}, {node, pos}]
@@ -130,19 +154,24 @@ export const getCellsInRow = rowIndex => selection => {
   const table = findTable(selection);
   if (table) {
     const map = TableMap.get(table.node);
-    if (rowIndex >= 0 && rowIndex <= map.height - 1) {
-      const cells = map.cellsInRect({
-        left: 0,
-        right: map.width,
-        top: rowIndex,
-        bottom: rowIndex + 1
-      });
-      return cells.map(nodePos => {
-        const node = table.node.nodeAt(nodePos);
-        const pos = nodePos + table.start;
-        return { pos, start: pos + 1, node };
-      });
-    }
+    const indexes = Array.isArray(rowIndex) ? rowIndex : Array.from([rowIndex]);
+    return indexes.reduce((acc, index) => {
+      if (index >= 0 && index <= map.height - 1) {
+        const cells = map.cellsInRect({
+          left: 0,
+          right: map.width,
+          top: index,
+          bottom: index + 1
+        });
+        return acc.concat(
+          cells.map(nodePos => {
+            const node = table.node.nodeAt(nodePos);
+            const pos = nodePos + table.start;
+            return { pos, start: pos + 1, node };
+          })
+        );
+      }
+    }, []);
   }
 };
 
@@ -719,4 +748,145 @@ const filterCellsInRow = (rowIndex, predicate) => tr => {
   }
 
   return foundCells;
+};
+
+// :: (columnIndex: number) → (tr: Transaction) → {$anchor: ResolvedPos, $head: ResolvedPos, indexes: [number]}
+// Returns a range of rectangular selection spanning all merged cells around a column at index `columnIndex`.
+//
+// ```javascript
+// const range = getSelectionRangeInColumn(3)(state.tr);
+// ```
+export const getSelectionRangeInColumn = columnIndex => tr => {
+  let startIndex = columnIndex;
+  let endIndex = columnIndex;
+
+  // looking for selection start column (startIndex)
+  for (let i = columnIndex; i >= 0; i--) {
+    const cells = getCellsInColumn(i)(tr.selection);
+    cells.forEach(cell => {
+      let maybeEndIndex = cell.node.attrs.colspan + i - 1;
+      if (maybeEndIndex >= startIndex) {
+        startIndex = i;
+      }
+      if (maybeEndIndex > endIndex) {
+        endIndex = maybeEndIndex;
+      }
+    });
+  }
+  // looking for selection end column (endIndex)
+  for (let i = columnIndex; i <= endIndex; i++) {
+    const cells = getCellsInColumn(i)(tr.selection);
+    cells.forEach(cell => {
+      let maybeEndIndex = cell.node.attrs.colspan + i - 1;
+      if (cell.node.attrs.colspan > 1 && maybeEndIndex > endIndex) {
+        endIndex = maybeEndIndex;
+      }
+    });
+  }
+
+  // filter out columns without cells (where all rows have colspan > 1 in the same column)
+  const indexes = [];
+  for (let i = startIndex; i <= endIndex; i++) {
+    const maybeCells = getCellsInColumn(i)(tr.selection);
+    if (maybeCells && maybeCells.length) {
+      indexes.push(i);
+    }
+  }
+  startIndex = indexes[0];
+  endIndex = indexes[indexes.length - 1];
+
+  const firstSelectedColumnCells = getCellsInColumn(startIndex)(tr.selection);
+  const firstRowCells = getCellsInRow(0)(tr.selection);
+  const $anchor = tr.doc.resolve(
+    firstSelectedColumnCells[firstSelectedColumnCells.length - 1].pos
+  );
+
+  let headCell;
+  for (let i = endIndex; i >= startIndex; i--) {
+    const columnCells = getCellsInColumn(i)(tr.selection);
+    if (columnCells && columnCells.length) {
+      for (let j = firstRowCells.length - 1; j >= 0; j--) {
+        if (firstRowCells[j].pos === columnCells[0].pos) {
+          headCell = columnCells[0];
+          break;
+        }
+      }
+      if (headCell) {
+        break;
+      }
+    }
+  }
+
+  const $head = tr.doc.resolve(headCell.pos);
+  return { $anchor, $head, indexes };
+};
+
+// :: (rowIndex: number) → (tr: Transaction) → {$anchor: ResolvedPos, $head: ResolvedPos, indexes: [number]}
+// Returns a range of rectangular selection spanning all merged cells around a row at index `rowIndex`.
+//
+// ```javascript
+// const range = getSelectionRangeInRow(3)(state.tr);
+// ```
+export const getSelectionRangeInRow = rowIndex => tr => {
+  let startIndex = rowIndex;
+  let endIndex = rowIndex;
+  // looking for selection start row (startIndex)
+  for (let i = rowIndex; i >= 0; i--) {
+    const cells = getCellsInRow(i)(tr.selection);
+    cells.forEach(cell => {
+      let maybeEndIndex = cell.node.attrs.rowspan + i - 1;
+      if (maybeEndIndex >= startIndex) {
+        startIndex = i;
+      }
+      if (maybeEndIndex > endIndex) {
+        endIndex = maybeEndIndex;
+      }
+    });
+  }
+  // looking for selection end row (endIndex)
+  for (let i = rowIndex; i <= endIndex; i++) {
+    const cells = getCellsInRow(i)(tr.selection);
+    cells.forEach(cell => {
+      let maybeEndIndex = cell.node.attrs.rowspan + i - 1;
+      if (cell.node.attrs.rowspan > 1 && maybeEndIndex > endIndex) {
+        endIndex = maybeEndIndex;
+      }
+    });
+  }
+
+  // filter out rows without cells (where all columns have rowspan > 1 in the same row)
+  const indexes = [];
+  for (let i = startIndex; i <= endIndex; i++) {
+    const maybeCells = getCellsInRow(i)(tr.selection);
+    if (maybeCells && maybeCells.length) {
+      indexes.push(i);
+    }
+  }
+  startIndex = indexes[0];
+  endIndex = indexes[indexes.length - 1];
+
+  const firstSelectedRowCells = getCellsInRow(startIndex)(tr.selection);
+  const firstColumnCells = getCellsInColumn(0)(tr.selection);
+  const $anchor = tr.doc.resolve(
+    firstSelectedRowCells[firstSelectedRowCells.length - 1].pos
+  );
+
+  let headCell;
+  for (let i = endIndex; i >= startIndex; i--) {
+    const rowCells = getCellsInRow(i)(tr.selection);
+    if (rowCells && rowCells.length) {
+      for (let j = firstColumnCells.length - 1; j >= 0; j--) {
+        if (firstColumnCells[j].pos === rowCells[0].pos) {
+          headCell = rowCells[0];
+          break;
+        }
+      }
+      if (headCell) {
+        break;
+      }
+    }
+  }
+
+  const $head = tr.doc.resolve(headCell.pos);
+  return { $anchor, $head, indexes };
 };

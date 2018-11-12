@@ -122,6 +122,12 @@ npm install prosemirror-utils
 
 @createTable
 
+@getSelectionRect
+
+@getSelectionRangeInColumn
+
+@getSelectionRangeInRow
+
 ### Utils for document transformation
 
 @removeParentNodeOfType

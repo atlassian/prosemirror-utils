@@ -253,16 +253,16 @@ npm install prosemirror-utils
    ```
 
 
- * **`getCellsInColumn`**`(columnIndex: number) → fn(selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]`\
-   Returns an array of cells in a column at index `columnIndex`.
+ * **`getCellsInColumn`**`(columnIndex: number | [number]) → fn(selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]`\
+   Returns an array of cells in a column(s), where `columnIndex` could be a column index or an array of column indexes.
 
    ```javascript
    const cells = getCellsInColumn(i)(selection); // [{node, pos}, {node, pos}]
    ```
 
 
- * **`getCellsInRow`**`(rowIndex: number) → fn(selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]`\
-   Returns an array of cells in a row at index `rowIndex`.
+ * **`getCellsInRow`**`(rowIndex: number | [number]) → fn(selection: Selection) → ?[{pos: number, start: number, node: ProseMirrorNode}]`\
+   Returns an array of cells in a row(s), where `rowIndex` could be a row index or an array of row indexes.
 
    ```javascript
    const cells = getCellsInRow(i)(selection); // [{node, pos}, {node, pos}]
@@ -483,6 +483,30 @@ npm install prosemirror-utils
    dispatch(
      tr.replaceSelectionWith(table).scrollIntoView()
    );
+   ```
+
+
+ * **`getSelectionRect`**`(selection: Selection) → ?{left: number, right: number, top: number, bottom: number}`\
+   Get the selection rectangle. Returns `undefined` if selection is not a CellSelection.
+
+   ```javascript
+   const rect = getSelectionRect(selection);
+   ```
+
+
+ * **`getSelectionRangeInColumn`**`(columnIndex: number) → fn(tr: Transaction) → {$anchor: ResolvedPos, $head: ResolvedPos, indexes: [number]}`\
+   Returns a range of rectangular selection spanning all merged cells around a column at index `columnIndex`.
+
+   ```javascript
+   const range = getSelectionRangeInColumn(3)(state.tr);
+   ```
+
+
+ * **`getSelectionRangeInRow`**`(rowIndex: number) → fn(tr: Transaction) → {$anchor: ResolvedPos, $head: ResolvedPos, indexes: [number]}`\
+   Returns a range of rectangular selection spanning all merged cells around a row at index `rowIndex`.
+
+   ```javascript
+   const range = getSelectionRangeInRow(3)(state.tr);
    ```
 
 

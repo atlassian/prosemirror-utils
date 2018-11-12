@@ -37,7 +37,10 @@ import {
   findCellRectClosestToPos,
   setCellAttrs,
   createTable,
-  cloneRowAt
+  cloneRowAt,
+  getSelectionRect,
+  getSelectionRangeInColumn,
+  getSelectionRangeInRow
 } from '../src';
 
 describe('table', () => {
@@ -90,6 +93,40 @@ describe('table', () => {
       );
       expect(isColumnSelected(0)(selection)).toBe(false);
     });
+    describe('when head column is merged', () => {
+      it('should return `true` if CellSelection spans the entire column', () => {
+        const {
+          state: { selection }
+        } = createEditor(
+          doc(
+            table(
+              row(td({ colspan: 2 }, p('<head>')), tdEmpty),
+              row(td(p('<anchor>')), tdEmpty, tdEmpty)
+            )
+          )
+        );
+        expect(isColumnSelected(0)(selection)).toBe(true);
+        expect(isColumnSelected(1)(selection)).toBe(true);
+        expect(isColumnSelected(2)(selection)).toBe(false);
+      });
+    });
+    describe('when head column is merged and selection is inverted', () => {
+      it('should return `true` if CellSelection spans the entire column', () => {
+        const {
+          state: { selection }
+        } = createEditor(
+          doc(
+            table(
+              row(td(p('<head>')), tdEmpty, tdEmpty),
+              row(td({ colspan: 2 }, p('<anchor>')), tdEmpty)
+            )
+          )
+        );
+        expect(isColumnSelected(0)(selection)).toBe(true);
+        expect(isColumnSelected(1)(selection)).toBe(true);
+        expect(isColumnSelected(2)(selection)).toBe(false);
+      });
+    });
   });
 
   describe('isRowSelected', () => {
@@ -108,6 +145,42 @@ describe('table', () => {
         doc(table(row(td(p('<anchor>')), td(p('<head>')), tdEmpty)))
       );
       expect(isRowSelected(0)(selection)).toBe(false);
+    });
+    describe('when head row is merged', () => {
+      it('should return `true` if CellSelection spans the entire row', () => {
+        const {
+          state: { selection }
+        } = createEditor(
+          doc(
+            table(
+              row(td({ rowspan: 2 }, p('<head>')), td(p('<anchor>'))),
+              row(tdEmpty),
+              row(tdEmpty)
+            )
+          )
+        );
+        expect(isRowSelected(0)(selection)).toBe(true);
+        expect(isRowSelected(1)(selection)).toBe(true);
+        expect(isRowSelected(2)(selection)).toBe(false);
+      });
+    });
+    describe('when head row is merged and selection is inverted', () => {
+      it('should return `true` if CellSelection spans the entire row', () => {
+        const {
+          state: { selection }
+        } = createEditor(
+          doc(
+            table(
+              row(td(p('<head>')), td({ rowspan: 2 }, p('<anchor>'))),
+              row(tdEmpty),
+              row(tdEmpty)
+            )
+          )
+        );
+        expect(isRowSelected(0)(selection)).toBe(true);
+        expect(isRowSelected(1)(selection)).toBe(true);
+        expect(isRowSelected(2)(selection)).toBe(false);
+      });
     });
   });
 
@@ -167,6 +240,28 @@ describe('table', () => {
       expect(cells[0].pos).toEqual(2);
       expect(cells[1].pos).toEqual(17);
     });
+    it('should return an array of cells in a range of columns', () => {
+      const {
+        state: { selection }
+      } = createEditor(
+        doc(
+          table(
+            row(td(p('1')), td(p('3')), tdEmpty),
+            row(td(p('2')), td(p('4')), tdEmpty)
+          )
+        )
+      );
+      const cells = getCellsInColumn([0, 1])(selection);
+      cells.forEach((cell, i) => {
+        expect(cell.node.type.name).toEqual('table_cell');
+        expect(cell.node.textContent).toEqual(`${i + 1}`);
+        expect(typeof cell.pos).toEqual('number');
+      });
+      expect(cells[0].pos).toEqual(2);
+      expect(cells[1].pos).toEqual(18);
+      expect(cells[2].pos).toEqual(7);
+      expect(cells[3].pos).toEqual(23);
+    });
   });
 
   describe('getCellsInRow', () => {
@@ -196,6 +291,31 @@ describe('table', () => {
       expect(cells[0].pos).toEqual(2);
       expect(cells[1].pos).toEqual(7);
       expect(cells[2].pos).toEqual(12);
+    });
+    it('should return an array of cells in a range of rows', () => {
+      const {
+        state: { selection }
+      } = createEditor(
+        doc(
+          table(
+            row(td(p('1')), td(p('2')), td(p('3'))),
+            row(td(p('4')), td(p('5')), td(p('6'))),
+            row(tdEmpty, tdEmpty, tdEmpty)
+          )
+        )
+      );
+      const cells = getCellsInRow([0, 1])(selection);
+      cells.forEach((cell, i) => {
+        expect(cell.node.type.name).toEqual('table_cell');
+        expect(cell.node.textContent).toEqual(`${i + 1}`);
+        expect(typeof cell.pos).toEqual('number');
+      });
+      expect(cells[0].pos).toEqual(2);
+      expect(cells[1].pos).toEqual(7);
+      expect(cells[2].pos).toEqual(12);
+      expect(cells[3].pos).toEqual(19);
+      expect(cells[4].pos).toEqual(24);
+      expect(cells[5].pos).toEqual(29);
     });
   });
 
@@ -1400,6 +1520,763 @@ describe('table', () => {
       expect(rect.bottom).toEqual(2);
       expect(rect.left).toEqual(2);
       expect(rect.right).toEqual(3);
+    });
+  });
+
+  describe('getSelectionRect', () => {
+    it('should return `undefined` if there selection is not a CellSelection', () => {
+      const {
+        state: { selection }
+      } = createEditor(doc(p('one')));
+      const rect = getSelectionRect(selection);
+      expect(rect).toBeUndefined();
+    });
+
+    it('should return selection rect if selection is a CellSelection', () => {
+      const {
+        state: { selection }
+      } = createEditor(
+        doc(
+          table(
+            row(td(p('<anchor>')), tdEmpty, tdEmpty),
+            row(tdEmpty, tdEmpty, tdEmpty),
+            row(tdEmpty, td(p('<head>')), tdEmpty)
+          )
+        )
+      );
+      const rect = getSelectionRect(selection);
+      expect(rect.top).toEqual(0);
+      expect(rect.bottom).toEqual(3);
+      expect(rect.left).toEqual(0);
+      expect(rect.right).toEqual(2);
+    });
+  });
+
+  describe('getSelectionRangeInColumn', () => {
+    describe('when columns are merged', () => {
+      describe('1st combination of colspans', () => {
+        it(`columnIndex: 0`, () => {
+          const {
+            state: { tr },
+            anchorCell,
+            headCell
+          } = createEditor(
+            doc(
+              table(
+                row(
+                  td(p('<headCell>')),
+                  tdEmpty,
+                  td({ colspan: 2 }, p('')),
+                  tdEmpty,
+                  tdEmpty
+                ),
+                row(
+                  tdEmpty,
+                  tdEmpty,
+                  td({ colspan: 2 }, p('')),
+                  tdEmpty,
+                  tdEmpty
+                ),
+                row(
+                  td(p('<anchorCell>')),
+                  tdEmpty,
+                  tdEmpty,
+                  tdEmpty,
+                  td({ colspan: 2 }, p(''))
+                )
+              )
+            )
+          );
+          const range = getSelectionRangeInColumn(0)(tr);
+          expect(range.indexes).toEqual([0]);
+          expect(range.$anchor.pos).toEqual(anchorCell - 2);
+          expect(range.$head.pos).toEqual(headCell - 2);
+        });
+        Array.from(Array(4).keys()).forEach(columnIndex => {
+          it(`columnIndex: ${columnIndex + 1}`, () => {
+            const {
+              state: { tr },
+              anchorCell,
+              headCell
+            } = createEditor(
+              doc(
+                table(
+                  row(
+                    tdEmpty,
+                    td({ colspan: 2 }, p('')),
+                    tdEmpty,
+                    td(p('<headCell>')),
+                    tdEmpty
+                  ),
+                  row(
+                    tdEmpty,
+                    tdEmpty,
+                    td({ colspan: 2 }, p('')),
+                    tdEmpty,
+                    tdEmpty
+                  ),
+                  row(
+                    tdEmpty,
+                    td(p('<anchorCell>')),
+                    tdEmpty,
+                    td({ colspan: 2 }, p('')),
+                    tdEmpty
+                  )
+                )
+              )
+            );
+            const range = getSelectionRangeInColumn(columnIndex + 1)(tr);
+            expect(range.indexes).toEqual([1, 2, 3, 4]);
+            expect(range.$anchor.pos).toEqual(anchorCell - 2);
+            expect(range.$head.pos).toEqual(headCell - 2);
+          });
+        });
+        it(`columnIndex: 5`, () => {
+          const {
+            state: { tr },
+            anchorCell,
+            headCell
+          } = createEditor(
+            doc(
+              table(
+                row(
+                  tdEmpty,
+                  td({ colspan: 2 }, p('')),
+                  tdEmpty,
+                  tdEmpty,
+                  td(p('<headCell>'))
+                ),
+                row(
+                  tdEmpty,
+                  tdEmpty,
+                  td({ colspan: 2 }, p('')),
+                  tdEmpty,
+                  tdEmpty
+                ),
+                row(
+                  tdEmpty,
+                  tdEmpty,
+                  tdEmpty,
+                  td({ colspan: 2 }, p('')),
+                  td(p('<anchorCell>'))
+                )
+              )
+            )
+          );
+          const range = getSelectionRangeInColumn(5)(tr);
+          expect(range.indexes).toEqual([5]);
+          expect(range.$anchor.pos).toEqual(anchorCell - 2);
+          expect(range.$head.pos).toEqual(headCell - 2);
+        });
+      });
+      describe('2nd combination of colspans', () => {
+        it(`columnIndex: 0`, () => {
+          const {
+            state: { tr },
+            anchorCell,
+            headCell
+          } = createEditor(
+            doc(
+              table(
+                row(
+                  td(p('<headCell>')),
+                  tdEmpty,
+                  tdEmpty,
+                  tdEmpty,
+                  td({ colspan: 2 }, p(''))
+                ),
+                row(
+                  tdEmpty,
+                  tdEmpty,
+                  td({ colspan: 2 }, p('')),
+                  tdEmpty,
+                  tdEmpty
+                ),
+                row(
+                  td(p('<anchorCell>')),
+                  tdEmpty,
+                  td({ colspan: 2 }, p('')),
+                  tdEmpty,
+                  tdEmpty
+                )
+              )
+            )
+          );
+          const range = getSelectionRangeInColumn(0)(tr);
+          expect(range.indexes).toEqual([0]);
+          expect(range.$anchor.pos).toEqual(anchorCell - 2);
+          expect(range.$head.pos).toEqual(headCell - 2);
+        });
+        Array.from(Array(4).keys()).forEach(columnIndex => {
+          it(`columnIndex: ${columnIndex + 1}`, () => {
+            const {
+              state: { tr },
+              anchorCell,
+              headCell
+            } = createEditor(
+              doc(
+                table(
+                  row(
+                    tdEmpty,
+                    tdEmpty,
+                    tdEmpty,
+                    td({ colspan: 2 }, p('<headCell>')),
+                    tdEmpty
+                  ),
+                  row(
+                    tdEmpty,
+                    tdEmpty,
+                    td({ colspan: 2 }, p('')),
+                    tdEmpty,
+                    tdEmpty
+                  ),
+                  row(
+                    tdEmpty,
+                    td({ colspan: 2 }, p('<anchorCell>')),
+                    tdEmpty,
+                    tdEmpty,
+                    tdEmpty
+                  )
+                )
+              )
+            );
+            const range = getSelectionRangeInColumn(columnIndex + 1)(tr);
+            expect(range.indexes).toEqual([1, 2, 3, 4]);
+            expect(range.$anchor.pos).toEqual(anchorCell - 2);
+            expect(range.$head.pos).toEqual(headCell - 2);
+          });
+        });
+        it(`columnIndex: 5`, () => {
+          const {
+            state: { tr },
+            anchorCell,
+            headCell
+          } = createEditor(
+            doc(
+              table(
+                row(
+                  tdEmpty,
+                  tdEmpty,
+                  tdEmpty,
+                  td({ colspan: 2 }, p('')),
+                  td(p('<headCell>'))
+                ),
+                row(
+                  tdEmpty,
+                  tdEmpty,
+                  td({ colspan: 2 }, p('')),
+                  tdEmpty,
+                  tdEmpty
+                ),
+                row(
+                  tdEmpty,
+                  td({ colspan: 2 }, p('')),
+                  tdEmpty,
+                  tdEmpty,
+                  td(p('<anchorCell>'))
+                )
+              )
+            )
+          );
+          const range = getSelectionRangeInColumn(5)(tr);
+          expect(range.indexes).toEqual([5]);
+          expect(range.$anchor.pos).toEqual(anchorCell - 2);
+          expect(range.$head.pos).toEqual(headCell - 2);
+        });
+      });
+    });
+    describe('when columns and rows are merged', () => {
+      describe('1st combination of colspans and rowspans', () => {
+        it(`columnIndex: 0`, () => {
+          const {
+            state: { tr },
+            anchorCell,
+            headCell
+          } = createEditor(
+            doc(
+              table(
+                row(
+                  td(p('<headCell>')),
+                  td({ rowspan: 2 }, p('')),
+                  tdEmpty,
+                  tdEmpty,
+                  tdEmpty
+                ),
+                row(tdEmpty, td({ colspan: 2 }, p('')), tdEmpty),
+                row(
+                  tdEmpty,
+                  td({ colspan: 2 }, p('')),
+                  td({ rowspan: 2 }, p('')),
+                  tdEmpty
+                ),
+                row(td(p('<anchorCell>')), tdEmpty, tdEmpty, tdEmpty)
+              )
+            )
+          );
+          const range = getSelectionRangeInColumn(0)(tr);
+          expect(range.indexes).toEqual([0]);
+          expect(range.$anchor.pos).toEqual(anchorCell - 2);
+          expect(range.$head.pos).toEqual(headCell - 2);
+        });
+        Array.from(Array(3).keys()).forEach(columnIndex => {
+          it(`columnIndex: ${columnIndex + 1}`, () => {
+            const {
+              state: { tr },
+              anchorCell,
+              headCell
+            } = createEditor(
+              doc(
+                table(
+                  row(
+                    tdEmpty,
+                    td({ rowspan: 2 }, p('')),
+                    tdEmpty,
+                    td(p('<headCell>')),
+                    tdEmpty
+                  ),
+                  row(tdEmpty, td({ colspan: 2 }, p('')), tdEmpty),
+                  row(
+                    tdEmpty,
+                    td({ colspan: 2 }, p('')),
+                    td({ rowspan: 2 }, p('')),
+                    tdEmpty
+                  ),
+                  row(tdEmpty, td(p('<anchorCell>')), tdEmpty, tdEmpty)
+                )
+              )
+            );
+            const range = getSelectionRangeInColumn(columnIndex + 1)(tr);
+            expect(range.indexes).toEqual([1, 2, 3]);
+            expect(range.$anchor.pos).toEqual(anchorCell - 2);
+            expect(range.$head.pos).toEqual(headCell - 2);
+          });
+        });
+        it(`columnIndex: 4`, () => {
+          const {
+            state: { tr },
+            anchorCell,
+            headCell
+          } = createEditor(
+            doc(
+              table(
+                row(
+                  tdEmpty,
+                  td({ rowspan: 2 }, p('')),
+                  tdEmpty,
+                  tdEmpty,
+                  td(p('<headCell>'))
+                ),
+                row(tdEmpty, td({ colspan: 2 }, p('')), tdEmpty),
+                row(
+                  tdEmpty,
+                  td({ colspan: 2 }, p('')),
+                  td({ rowspan: 2 }, p('')),
+                  tdEmpty
+                ),
+                row(tdEmpty, tdEmpty, tdEmpty, td(p('<anchorCell>')))
+              )
+            )
+          );
+          const range = getSelectionRangeInColumn(4)(tr);
+          expect(range.indexes).toEqual([4]);
+          expect(range.$anchor.pos).toEqual(anchorCell - 2);
+          expect(range.$head.pos).toEqual(headCell - 2);
+        });
+      });
+      describe('2st combination of colspans and rowspans', () => {
+        it(`columnIndex: 0`, () => {
+          const {
+            state: { tr },
+            anchorCell,
+            headCell
+          } = createEditor(
+            doc(
+              table(
+                row(
+                  td(p('<headCell>')),
+                  tdEmpty,
+                  tdEmpty,
+                  td({ rowspan: 2 }, p('')),
+                  tdEmpty
+                ),
+                row(tdEmpty, td({ colspan: 2 }, p('')), tdEmpty),
+                row(
+                  tdEmpty,
+                  td({ rowspan: 2 }, p('')),
+                  td({ colspan: 2 }, p('')),
+                  tdEmpty
+                ),
+                row(td(p('<anchorCell>')), tdEmpty, tdEmpty, tdEmpty)
+              )
+            )
+          );
+          const range = getSelectionRangeInColumn(0)(tr);
+          expect(range.indexes).toEqual([0]);
+          expect(range.$anchor.pos).toEqual(anchorCell - 2);
+          expect(range.$head.pos).toEqual(headCell - 2);
+        });
+        Array.from(Array(3).keys()).forEach(columnIndex => {
+          it(`columnIndex: ${columnIndex + 1}`, () => {
+            const {
+              state: { tr },
+              anchorCell,
+              headCell
+            } = createEditor(
+              doc(
+                table(
+                  row(
+                    tdEmpty,
+                    tdEmpty,
+                    tdEmpty,
+                    td({ rowspan: 2 }, p('<headCell>')),
+                    tdEmpty
+                  ),
+                  row(tdEmpty, td({ colspan: 2 }, p('')), tdEmpty),
+                  row(
+                    tdEmpty,
+                    td({ rowspan: 2 }, p('<anchorCell>')),
+                    td({ colspan: 2 }, p('')),
+                    tdEmpty
+                  ),
+                  row(tdEmpty, tdEmpty, tdEmpty, tdEmpty)
+                )
+              )
+            );
+            const range = getSelectionRangeInColumn(columnIndex + 1)(tr);
+            expect(range.indexes).toEqual([1, 2, 3]);
+            expect(range.$anchor.pos).toEqual(anchorCell - 2);
+            expect(range.$head.pos).toEqual(headCell - 2);
+          });
+        });
+        it(`columnIndex: 4`, () => {
+          const {
+            state: { tr },
+            anchorCell,
+            headCell
+          } = createEditor(
+            doc(
+              table(
+                row(
+                  tdEmpty,
+                  tdEmpty,
+                  td({ rowspan: 2 }, p('')),
+                  tdEmpty,
+                  td(p('<headCell>'))
+                ),
+                row(tdEmpty, td({ colspan: 2 }, p('')), tdEmpty),
+                row(
+                  tdEmpty,
+                  td({ rowspan: 2 }, p('')),
+                  td({ colspan: 2 }, p('')),
+                  tdEmpty
+                ),
+                row(tdEmpty, tdEmpty, tdEmpty, td(p('<anchorCell>')))
+              )
+            )
+          );
+          const range = getSelectionRangeInColumn(4)(tr);
+          expect(range.indexes).toEqual([4]);
+          expect(range.$anchor.pos).toEqual(anchorCell - 2);
+          expect(range.$head.pos).toEqual(headCell - 2);
+        });
+      });
+    });
+  });
+
+  describe('getSelectionRangeInRow', () => {
+    describe('when rows are merged', () => {
+      describe('1st combination of rowspans', () => {
+        it(`rowIndex: 0`, () => {
+          const {
+            state: { tr },
+            anchorCell,
+            headCell
+          } = createEditor(
+            doc(
+              table(
+                row(td(p('<headCell>')), tdEmpty, td(p('<anchorCell>'))),
+                row(td({ rowspan: 2 }, p('')), tdEmpty, tdEmpty),
+                row(td({ rowspan: 2 }, p('')), tdEmpty),
+                row(tdEmpty, td({ rowspan: 2 }, p(''))),
+                row(tdEmpty, tdEmpty),
+                row(tdEmpty, tdEmpty, tdEmpty)
+              )
+            )
+          );
+          const range = getSelectionRangeInRow(0)(tr);
+          expect(range.indexes).toEqual([0]);
+          expect(range.$anchor.pos).toEqual(anchorCell - 2);
+          expect(range.$head.pos).toEqual(headCell - 2);
+        });
+        Array.from(Array(4).keys()).forEach(rowIndex => {
+          it(`rowIndex: ${rowIndex + 1}`, () => {
+            const {
+              state: { tr },
+              anchorCell,
+              headCell
+            } = createEditor(
+              doc(
+                table(
+                  row(tdEmpty, tdEmpty, tdEmpty),
+                  row(
+                    td({ rowspan: 2 }, p('')),
+                    tdEmpty,
+                    td(p('<anchorCell>'))
+                  ),
+                  row(td({ rowspan: 2 }, p('')), tdEmpty),
+                  row(tdEmpty, td({ rowspan: 2 }, p(''))),
+                  row(td(p('<headCell>')), tdEmpty),
+                  row(tdEmpty, tdEmpty, tdEmpty)
+                )
+              )
+            );
+            const range = getSelectionRangeInRow(rowIndex + 1)(tr);
+            expect(range.indexes).toEqual([1, 2, 3, 4]);
+            expect(range.$anchor.pos).toEqual(anchorCell - 2);
+            expect(range.$head.pos).toEqual(headCell - 2);
+          });
+        });
+        it(`rowIndex: 5`, () => {
+          const {
+            state: { tr },
+            anchorCell,
+            headCell
+          } = createEditor(
+            doc(
+              table(
+                row(tdEmpty, tdEmpty, tdEmpty),
+                row(td({ rowspan: 2 }, p('')), tdEmpty, tdEmpty),
+                row(td({ rowspan: 2 }, p('')), tdEmpty),
+                row(tdEmpty, td({ rowspan: 2 }, p(''))),
+                row(tdEmpty, tdEmpty),
+                row(td(p('<headCell>')), tdEmpty, td(p('<anchorCell>')))
+              )
+            )
+          );
+          const range = getSelectionRangeInRow(5)(tr);
+          expect(range.indexes).toEqual([5]);
+          expect(range.$anchor.pos).toEqual(anchorCell - 2);
+          expect(range.$head.pos).toEqual(headCell - 2);
+        });
+      });
+      describe('2nd combination of rowspans', () => {
+        it(`rowIndex: 0`, () => {
+          const {
+            state: { tr },
+            anchorCell,
+            headCell
+          } = createEditor(
+            doc(
+              table(
+                row(td(p('<headCell>')), tdEmpty, td(p('<anchorCell>'))),
+                row(tdEmpty, tdEmpty, td({ rowspan: 2 }, p(''))),
+                row(tdEmpty, td({ rowspan: 2 }, p(''))),
+                row(td({ rowspan: 2 }, p('')), tdEmpty),
+                row(tdEmpty, tdEmpty),
+                row(tdEmpty, tdEmpty, tdEmpty)
+              )
+            )
+          );
+          const range = getSelectionRangeInRow(0)(tr);
+          expect(range.indexes).toEqual([0]);
+          expect(range.$anchor.pos).toEqual(anchorCell - 2);
+          expect(range.$head.pos).toEqual(headCell - 2);
+        });
+        Array.from(Array(4).keys()).forEach(rowIndex => {
+          it(`rowIndex: ${rowIndex + 1}`, () => {
+            const {
+              state: { tr },
+              anchorCell,
+              headCell
+            } = createEditor(
+              doc(
+                table(
+                  row(tdEmpty, tdEmpty, tdEmpty),
+                  row(tdEmpty, tdEmpty, td({ rowspan: 2 }, p('<anchorCell>'))),
+                  row(tdEmpty, td({ rowspan: 2 }, p(''))),
+                  row(td({ rowspan: 2 }, p('<headCell>')), tdEmpty),
+                  row(tdEmpty, tdEmpty),
+                  row(tdEmpty, tdEmpty, tdEmpty)
+                )
+              )
+            );
+            const range = getSelectionRangeInRow(rowIndex + 1)(tr);
+            expect(range.indexes).toEqual([1, 2, 3, 4]);
+            expect(range.$anchor.pos).toEqual(anchorCell - 2);
+            expect(range.$head.pos).toEqual(headCell - 2);
+          });
+        });
+        it(`rowIndex: 5`, () => {
+          const {
+            state: { tr },
+            anchorCell,
+            headCell
+          } = createEditor(
+            doc(
+              table(
+                row(tdEmpty, tdEmpty, tdEmpty),
+                row(tdEmpty, tdEmpty, td({ rowspan: 2 }, p(''))),
+                row(tdEmpty, td({ rowspan: 2 }, p(''))),
+                row(td({ rowspan: 2 }, p('')), tdEmpty),
+                row(tdEmpty, tdEmpty),
+                row(td(p('<headCell>')), tdEmpty, td(p('<anchorCell>')))
+              )
+            )
+          );
+          const range = getSelectionRangeInRow(5)(tr);
+          expect(range.indexes).toEqual([5]);
+          expect(range.$anchor.pos).toEqual(anchorCell - 2);
+          expect(range.$head.pos).toEqual(headCell - 2);
+        });
+      });
+    });
+    describe('when rows and columns are merged', () => {
+      describe('1st combination of colspans and rowspans', () => {
+        it(`rowIndex: 0`, () => {
+          const {
+            state: { tr },
+            anchorCell,
+            headCell
+          } = createEditor(
+            doc(
+              table(
+                row(td(p('<headCell>')), tdEmpty, td(p('<anchorCell>'))),
+                row(td({ rowspan: 2 }, p('')), td({ colspan: 2 }, p(''))),
+                row(td({ rowspan: 2 }, p('')), tdEmpty),
+                row(tdEmpty, td({ rowspan: 2 }, p(''))),
+                row(td({ colspan: 2 }, p(''))),
+                row(tdEmpty, tdEmpty, tdEmpty)
+              )
+            )
+          );
+          const range = getSelectionRangeInRow(0)(tr);
+          expect(range.indexes).toEqual([0]);
+          expect(range.$anchor.pos).toEqual(anchorCell - 2);
+          expect(range.$head.pos).toEqual(headCell - 2);
+        });
+        Array.from(Array(4).keys()).forEach(rowIndex => {
+          it(`rowIndex: ${rowIndex + 1}`, () => {
+            const {
+              state: { tr },
+              anchorCell,
+              headCell
+            } = createEditor(
+              doc(
+                table(
+                  row(tdEmpty, tdEmpty, tdEmpty),
+                  row(
+                    td({ rowspan: 2 }, p('')),
+                    td({ colspan: 2 }, p('<anchorCell>'))
+                  ),
+                  row(td({ rowspan: 2 }, p('')), tdEmpty),
+                  row(tdEmpty, td({ rowspan: 2 }, p(''))),
+                  row(td({ colspan: 2 }, p('<headCell>'))),
+                  row(tdEmpty, tdEmpty, tdEmpty)
+                )
+              )
+            );
+            const range = getSelectionRangeInRow(rowIndex + 1)(tr);
+            expect(range.indexes).toEqual([1, 2, 3, 4]);
+            expect(range.$anchor.pos).toEqual(anchorCell - 2);
+            expect(range.$head.pos).toEqual(headCell - 2);
+          });
+        });
+        it(`rowIndex: 5`, () => {
+          const {
+            state: { tr },
+            anchorCell,
+            headCell
+          } = createEditor(
+            doc(
+              table(
+                row(tdEmpty, tdEmpty, tdEmpty),
+                row(td({ rowspan: 2 }, p('')), td({ colspan: 2 }, p(''))),
+                row(td({ rowspan: 2 }, p('')), tdEmpty),
+                row(tdEmpty, td({ rowspan: 2 }, p(''))),
+                row(td({ colspan: 2 }, p(''))),
+                row(td(p('<headCell>')), tdEmpty, td(p('<anchorCell>')))
+              )
+            )
+          );
+          const range = getSelectionRangeInRow(5)(tr);
+          expect(range.indexes).toEqual([5]);
+          expect(range.$anchor.pos).toEqual(anchorCell - 2);
+          expect(range.$head.pos).toEqual(headCell - 2);
+        });
+      });
+      describe('2nd combination of colspans and rowspans', () => {
+        it(`rowIndex: 0`, () => {
+          const {
+            state: { tr },
+            anchorCell,
+            headCell
+          } = createEditor(
+            doc(
+              table(
+                row(td(p('<headCell>')), tdEmpty, td(p('<anchorCell>'))),
+                row(td({ colspan: 2 }, p('')), td({ rowspan: 2 }, p(''))),
+                row(tdEmpty, td({ rowspan: 2 }, p(''))),
+                row(td({ rowspan: 2 }, p('')), tdEmpty),
+                row(td({ colspan: 2 }, p(''))),
+                row(tdEmpty, tdEmpty, tdEmpty)
+              )
+            )
+          );
+          const range = getSelectionRangeInRow(0)(tr);
+          expect(range.indexes).toEqual([0]);
+          expect(range.$anchor.pos).toEqual(anchorCell - 2);
+          expect(range.$head.pos).toEqual(headCell - 2);
+        });
+        Array.from(Array(4).keys()).forEach(rowIndex => {
+          it(`rowIndex: ${rowIndex + 1}`, () => {
+            const {
+              state: { tr },
+              anchorCell,
+              headCell
+            } = createEditor(
+              doc(
+                table(
+                  row(tdEmpty, tdEmpty, tdEmpty),
+                  row(
+                    td({ colspan: 2 }, p('')),
+                    td({ rowspan: 2 }, p('<anchorCell>'))
+                  ),
+                  row(tdEmpty, td({ rowspan: 2 }, p(''))),
+                  row(td({ rowspan: 2 }, p('<headCell>')), tdEmpty),
+                  row(td({ colspan: 2 }, p(''))),
+                  row(tdEmpty, tdEmpty, tdEmpty)
+                )
+              )
+            );
+            const range = getSelectionRangeInRow(rowIndex + 1)(tr);
+            expect(range.indexes).toEqual([1, 2, 3, 4]);
+            expect(range.$anchor.pos).toEqual(anchorCell - 2);
+            expect(range.$head.pos).toEqual(headCell - 2);
+          });
+        });
+        it(`rowIndex: 5`, () => {
+          const {
+            state: { tr },
+            anchorCell,
+            headCell
+          } = createEditor(
+            doc(
+              table(
+                row(tdEmpty, tdEmpty, tdEmpty),
+                row(td({ colspan: 2 }, p('')), td({ rowspan: 2 }, p(''))),
+                row(tdEmpty, td({ rowspan: 2 }, p(''))),
+                row(td({ rowspan: 2 }, p('')), tdEmpty),
+                row(td({ colspan: 2 }, p(''))),
+                row(td(p('<headCell>')), tdEmpty, td(p('<anchorCell>')))
+              )
+            )
+          );
+          const range = getSelectionRangeInRow(5)(tr);
+          expect(range.indexes).toEqual([5]);
+          expect(range.$anchor.pos).toEqual(anchorCell - 2);
+          expect(range.$head.pos).toEqual(headCell - 2);
+        });
+      });
     });
   });
 });
