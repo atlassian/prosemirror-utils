@@ -47,7 +47,6 @@ const testHelpers = (module.exports = builders(schema, {
 }));
 
 const { td, th, p } = testHelpers;
-const NON_WIDTH_CHAR = '\u200B';
 
 testHelpers.tdEmpty = td(p());
 testHelpers.thEmpty = th(p());
