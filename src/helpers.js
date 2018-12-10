@@ -125,19 +125,9 @@ export const findTableClosestToPos = $pos => {
   return findParentNodeClosestToPos($pos, predicate);
 };
 
-export const createEmptyParagraph = schema => {
-  const { paragraph } = schema.nodes;
-  const emptyText = schema.text('\u200B');
-  return paragraph.createChecked(null, emptyText);
-};
-
-export const createCell = (
-  cellType,
-  schema,
-  withDefaultNonWidthChar = false
-) => {
-  if (withDefaultNonWidthChar) {
-    return cellType.createChecked(null, createEmptyParagraph(schema));
+export const createCell = (cellType, withDefaultContent = null) => {
+  if (withDefaultContent) {
+    return cellType.createChecked(null, withDefaultContent);
   }
 
   return cellType.createAndFill();

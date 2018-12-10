@@ -663,10 +663,10 @@ export const setCellAttrs = (cell, attrs) => tr => {
   return tr;
 };
 
-// :: (schema: Schema, rowsCount: ?number, colsCount: ?number, withHeaderRow: ?boolean, withDefaultNonWidthChar: ?boolean) → Node
+// :: (schema: Schema, rowsCount: ?number, colsCount: ?number, withHeaderRow: ?boolean, withDefaultNodeContent: ?Node) → Node
 // Returns a table node of a given size.
 // `withHeaderRow` defines whether the first row of the table will be a header row.
-// `withDefaultNonWidthChar` adds a empty paragraph for all cells using a non-width char [u200B](http://unicode.org/cldr/utility/character.jsp?a=200B).
+// `withDefaultNodeContent` adds a default node for all cells.
 //
 // ```javascript
 // const table = createTable(state.schema); // 3x3 table node
@@ -679,7 +679,7 @@ export const createTable = (
   rowsCount = 3,
   colsCount = 3,
   withHeaderRow = true,
-  withDefaultNonWidthChar = false
+  withDefaultNodeContent = null
 ) => {
   const {
     cell: tableCell,
@@ -691,12 +691,10 @@ export const createTable = (
   const cells = [];
   const headerCells = [];
   for (let i = 0; i < colsCount; i++) {
-    cells.push(createCell(tableCell, schema, withDefaultNonWidthChar));
+    cells.push(createCell(tableCell, withDefaultNodeContent));
 
     if (withHeaderRow) {
-      headerCells.push(
-        createCell(tableHeader, schema, withDefaultNonWidthChar)
-      );
+      headerCells.push(createCell(tableHeader, withDefaultNodeContent));
     }
   }
 

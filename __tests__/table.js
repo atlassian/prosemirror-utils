@@ -10,7 +10,8 @@ import {
   tdEmpty,
   thEmpty,
   thWithNonWidthChar,
-  tdWithNonWidthChar
+  tdWithNonWidthChar,
+  createEmptyParagraph
 } from '../test-helpers';
 import {
   findTable,
@@ -1478,7 +1479,8 @@ describe('table', () => {
         const {
           state: { schema }
         } = createEditor(doc(p('')));
-        const tableResult = createTable(schema, 3, 3, true, true);
+        const emptyParagraph = createEmptyParagraph(schema);
+        const tableResult = createTable(schema, 3, 3, true, emptyParagraph);
         expect(tableResult.content.childCount).toEqual(3);
 
         expect(tableResult).toEqualDocument(
@@ -1496,7 +1498,7 @@ describe('table', () => {
         const {
           state: { schema }
         } = createEditor(doc(p('')));
-        const tableResult = createTable(schema, 3, 3, true, false);
+        const tableResult = createTable(schema, 3, 3, true);
         expect(tableResult.content.childCount).toEqual(3);
 
         expect(tableResult).toEqualDocument(

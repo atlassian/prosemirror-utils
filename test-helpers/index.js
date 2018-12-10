@@ -74,3 +74,9 @@ testHelpers.createEditor = doc => {
 
   return { state, view, ...doc.tag };
 };
+
+testHelpers.createEmptyParagraph = schema => {
+  const { paragraph } = schema.nodes;
+  const emptyText = schema.text('\u200B');
+  return paragraph.createChecked(null, emptyText);
+};
