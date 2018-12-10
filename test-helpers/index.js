@@ -47,9 +47,12 @@ const testHelpers = (module.exports = builders(schema, {
 }));
 
 const { td, th, p } = testHelpers;
+const NON_WIDTH_CHAR = '\u200B';
 
 testHelpers.tdEmpty = td(p());
 testHelpers.thEmpty = th(p());
+testHelpers.thWithNonWidthChar = th(p(NON_WIDTH_CHAR));
+testHelpers.tdWithNonWidthChar = td(p(NON_WIDTH_CHAR));
 testHelpers.tdCursor = td(p('<cursor>'));
 testHelpers.thCursor = th(p('<cursor>'));
 

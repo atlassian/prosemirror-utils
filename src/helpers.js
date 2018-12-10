@@ -124,3 +124,21 @@ export const findTableClosestToPos = $pos => {
     node.type.spec.tableRole && /table/i.test(node.type.spec.tableRole);
   return findParentNodeClosestToPos($pos, predicate);
 };
+
+export const createEmptyParagraph = schema => {
+  const { paragraph } = schema.nodes;
+  const emptyText = schema.text('\u200B');
+  return paragraph.createChecked(null, emptyText);
+};
+
+export const createCell = (
+  cellType,
+  schema,
+  withDefaultNonWidthChar = false
+) => {
+  if (withDefaultNonWidthChar) {
+    return cellType.createChecked(null, createEmptyParagraph(schema));
+  }
+
+  return cellType.createAndFill();
+};

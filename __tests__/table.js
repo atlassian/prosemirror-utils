@@ -7,7 +7,10 @@ import {
   td,
   th,
   tdCursor,
-  tdEmpty
+  tdEmpty,
+  thEmpty,
+  thWithNonWidthChar,
+  tdWithNonWidthChar
 } from '../test-helpers';
 import {
   findTable,
@@ -1466,6 +1469,42 @@ describe('table', () => {
         const table = createTable(schema, 3, 3, false);
         expect(table.content.child(0).child(0).type).toEqual(
           schema.nodes.table_cell
+        );
+      });
+    });
+
+    describe('when withDefaultNonWidthChar = true', () => {
+      it('should adds empty paragraph to all cells', () => {
+        const {
+          state: { schema }
+        } = createEditor(doc(p('')));
+        const tableResult = createTable(schema, 3, 3, true, true);
+        expect(tableResult.content.childCount).toEqual(3);
+
+        expect(tableResult).toEqualDocument(
+          table(
+            row(thWithNonWidthChar, thWithNonWidthChar, thWithNonWidthChar),
+            row(tdWithNonWidthChar, tdWithNonWidthChar, tdWithNonWidthChar),
+            row(tdWithNonWidthChar, tdWithNonWidthChar, tdWithNonWidthChar)
+          )
+        );
+      });
+    });
+
+    describe('when withDefaultNonWidthChar = false', () => {
+      it('should adds empty paragraph to all cells', () => {
+        const {
+          state: { schema }
+        } = createEditor(doc(p('')));
+        const tableResult = createTable(schema, 3, 3, true, false);
+        expect(tableResult.content.childCount).toEqual(3);
+
+        expect(tableResult).toEqualDocument(
+          table(
+            row(thEmpty, thEmpty, thEmpty),
+            row(tdEmpty, tdEmpty, tdEmpty),
+            row(tdEmpty, tdEmpty, tdEmpty)
+          )
         );
       });
     });
