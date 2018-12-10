@@ -8,10 +8,7 @@ import {
   th,
   tdCursor,
   tdEmpty,
-  thEmpty,
-  thWithNonWidthChar,
-  tdWithNonWidthChar,
-  createEmptyParagraph
+  thEmpty
 } from '../test-helpers';
 import {
   findTable,
@@ -1474,33 +1471,35 @@ describe('table', () => {
       });
     });
 
-    describe('when withDefaultNonWidthChar = true', () => {
+    describe('when cellContent is a node', () => {
       it('should adds empty paragraph to all cells', () => {
         const {
           state: { schema }
         } = createEditor(doc(p('')));
-        const emptyParagraph = createEmptyParagraph(schema);
-        const tableResult = createTable(schema, 3, 3, true, emptyParagraph);
+        const tableResult = createTable(schema, 3, 3, true, p('random'));
+
+        const thWithRandomText = th(p('random'));
+        const tdWithRandomText = td(p('random'));
+
         expect(tableResult.content.childCount).toEqual(3);
 
         expect(tableResult).toEqualDocument(
           table(
-            row(thWithNonWidthChar, thWithNonWidthChar, thWithNonWidthChar),
-            row(tdWithNonWidthChar, tdWithNonWidthChar, tdWithNonWidthChar),
-            row(tdWithNonWidthChar, tdWithNonWidthChar, tdWithNonWidthChar)
+            row(thWithRandomText, thWithRandomText, thWithRandomText),
+            row(tdWithRandomText, tdWithRandomText, tdWithRandomText),
+            row(tdWithRandomText, tdWithRandomText, tdWithRandomText)
           )
         );
       });
     });
 
-    describe('when withDefaultNonWidthChar = false', () => {
+    describe('when cellContent is null', () => {
       it('should adds empty paragraph to all cells', () => {
         const {
           state: { schema }
         } = createEditor(doc(p('')));
         const tableResult = createTable(schema, 3, 3, true);
         expect(tableResult.content.childCount).toEqual(3);
-
         expect(tableResult).toEqualDocument(
           table(
             row(thEmpty, thEmpty, thEmpty),

@@ -663,10 +663,10 @@ export const setCellAttrs = (cell, attrs) => tr => {
   return tr;
 };
 
-// :: (schema: Schema, rowsCount: ?number, colsCount: ?number, withHeaderRow: ?boolean, withDefaultNodeContent: ?Node) → Node
+// :: (schema: Schema, rowsCount: ?number, colsCount: ?number, withHeaderRow: ?boolean, cellContent: ?Node) → Node
 // Returns a table node of a given size.
 // `withHeaderRow` defines whether the first row of the table will be a header row.
-// `withDefaultNodeContent` adds a default node for all cells.
+// `cellContent` adds a default node for all cells.
 //
 // ```javascript
 // const table = createTable(state.schema); // 3x3 table node
@@ -679,7 +679,7 @@ export const createTable = (
   rowsCount = 3,
   colsCount = 3,
   withHeaderRow = true,
-  withDefaultNodeContent = null
+  cellContent = null
 ) => {
   const {
     cell: tableCell,
@@ -691,10 +691,10 @@ export const createTable = (
   const cells = [];
   const headerCells = [];
   for (let i = 0; i < colsCount; i++) {
-    cells.push(createCell(tableCell, withDefaultNodeContent));
+    cells.push(createCell(tableCell, cellContent));
 
     if (withHeaderRow) {
-      headerCells.push(createCell(tableHeader, withDefaultNodeContent));
+      headerCells.push(createCell(tableHeader, cellContent));
     }
   }
 

@@ -51,8 +51,6 @@ const NON_WIDTH_CHAR = '\u200B';
 
 testHelpers.tdEmpty = td(p());
 testHelpers.thEmpty = th(p());
-testHelpers.thWithNonWidthChar = th(p(NON_WIDTH_CHAR));
-testHelpers.tdWithNonWidthChar = td(p(NON_WIDTH_CHAR));
 testHelpers.tdCursor = td(p('<cursor>'));
 testHelpers.thCursor = th(p('<cursor>'));
 
@@ -73,10 +71,4 @@ testHelpers.createEditor = doc => {
   });
 
   return { state, view, ...doc.tag };
-};
-
-testHelpers.createEmptyParagraph = schema => {
-  const { paragraph } = schema.nodes;
-  const emptyText = schema.text('\u200B');
-  return paragraph.createChecked(null, emptyText);
 };
