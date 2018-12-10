@@ -125,9 +125,9 @@ export const findTableClosestToPos = $pos => {
   return findParentNodeClosestToPos($pos, predicate);
 };
 
-export const createCell = (cellType, withDefaultContent = null) => {
-  if (withDefaultContent) {
-    return cellType.createChecked(null, withDefaultContent);
+export const createCell = (cellType, cellContent = null) => {
+  if (cellContent) {
+    return cellType.createChecked(null, cellContent);
   }
 
   return cellType.createAndFill();
