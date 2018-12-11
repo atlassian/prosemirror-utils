@@ -110,7 +110,7 @@ export function findCellClosestToPos($pos: ResolvedPos): ContentNodeWithPos | un
 
 export function findCellRectClosestToPos($pos: ResolvedPos): {top: number, bottom: number, left: number, right: number} | undefined;
 
-export function createTable(schema: Schema, rowsCount?: number, colsCount?: number, withHeaderRow?: boolean): ProsemirrorNode;
+export function createTable(schema: Schema, rowsCount?: number, colsCount?: number, withHeaderRow?: boolean, cellContent?: Node): ProsemirrorNode;
 
 export function getSelectionRect(selection: Selection): {top: number, bottom: number, left: number, right: number} | undefined;
 
