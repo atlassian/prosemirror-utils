@@ -10,7 +10,12 @@ import { Selection } from 'prosemirror-state';
 import { Slice } from 'prosemirror-model';
 import { findParentNode, findParentNodeClosestToPos } from './selection';
 import { setTextSelection, safeInsert } from './transforms';
-import { cloneTr, tableNodeTypes, findTableClosestToPos } from './helpers';
+import {
+  cloneTr,
+  tableNodeTypes,
+  findTableClosestToPos,
+  createCell
+} from './helpers';
 
 // :: (selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}
 // Iterates over parent nodes, returning the closest table node.
@@ -658,9 +663,10 @@ export const setCellAttrs = (cell, attrs) => tr => {
   return tr;
 };
 
-// :: (schema: Schema, rowsCount: ?number, colsCount: ?number, withHeaderRow: ?boolean) → Node
+// :: (schema: Schema, rowsCount: ?number, colsCount: ?number, withHeaderRow: ?boolean, cellContent: ?Node) → Node
 // Returns a table node of a given size.
 // `withHeaderRow` defines whether the first row of the table will be a header row.
+// `cellContent` adds a default node for all cells.
 //
 // ```javascript
 // const table = createTable(state.schema); // 3x3 table node
@@ -672,7 +678,8 @@ export const createTable = (
   schema,
   rowsCount = 3,
   colsCount = 3,
-  withHeaderRow = true
+  withHeaderRow = true,
+  cellContent = null
 ) => {
   const {
     cell: tableCell,
@@ -682,14 +689,12 @@ export const createTable = (
   } = tableNodeTypes(schema);
 
   const cells = [];
-  for (let i = 0; i < colsCount; i++) {
-    cells.push(tableCell.createAndFill(null));
-  }
-
   const headerCells = [];
-  if (withHeaderRow) {
-    for (let i = 0; i < colsCount; i++) {
-      headerCells.push(tableHeader.createAndFill(null));
+  for (let i = 0; i < colsCount; i++) {
+    cells.push(createCell(tableCell, cellContent));
+
+    if (withHeaderRow) {
+      headerCells.push(createCell(tableHeader, cellContent));
     }
   }
 
