@@ -1472,7 +1472,7 @@ describe('table', () => {
     });
 
     describe('when cellContent is a node', () => {
-      it('should adds empty paragraph to all cells', () => {
+      it('should set the content of each cell equal to the given `cellContent` node', () => {
         const {
           state: { schema }
         } = createEditor(doc(p('')));

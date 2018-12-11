@@ -474,9 +474,10 @@ npm install prosemirror-utils
    ```
 
 
- * **`createTable`**`(schema: Schema, rowsCount: ?number = 3, colsCount: ?number = 3, withHeaderRow: ?boolean = true) → Node`\
+ * **`createTable`**`(schema: Schema, rowsCount: ?number = 3, colsCount: ?number = 3, withHeaderRow: ?boolean = true, cellContent: ?Node = null) → Node`\
    Returns a table node of a given size.
    `withHeaderRow` defines whether the first row of the table will be a header row.
+   `cellContent` defines the content of each cell.
 
    ```javascript
    const table = createTable(state.schema); // 3x3 table node

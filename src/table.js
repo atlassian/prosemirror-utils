@@ -666,7 +666,7 @@ export const setCellAttrs = (cell, attrs) => tr => {
 // :: (schema: Schema, rowsCount: ?number, colsCount: ?number, withHeaderRow: ?boolean, cellContent: ?Node) → Node
 // Returns a table node of a given size.
 // `withHeaderRow` defines whether the first row of the table will be a header row.
-// `cellContent` adds a default node for all cells.
+// `cellContent` defines the content of each cell.
 //
 // ```javascript
 // const table = createTable(state.schema); // 3x3 table node
