@@ -39,7 +39,8 @@
   "scripts": {
     "build": "NODE_ENV=production rollup -c",
     "build_readme": "builddocs --name utils --format markdown --main src/README.md src/*.js > README.md",
-    "build_all": "npm run build && npm run build_readme",
+    "build_typing": "cat head-typings.d.ts > typings.d.ts | builddocs --name utils --format ts-declaration --main src/README.md src/*.js >> typings.d.ts",
+    "build_all": "npm run build && npm run build_readme && npm run build_typing",
     "test": "NODE_ENV=testing jest",
     "test-ci": "NODE_ENV=testing jest --coverage && codecov",
     "prepare": "npm run build_all",
