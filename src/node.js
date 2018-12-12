@@ -83,7 +83,7 @@ export const findChildrenByType = (node, nodeType, descend) => {
   return findChildren(node, child => child.type === nodeType, descend);
 };
 
-// :: (node: ProseMirrorNode, markType: markType, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
+// :: (node: ProseMirrorNode, markType: MarkType, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Iterates over descendants of a given `node`, returning child nodes that have a mark of a given markType. It doesn't descend into a `node` when descend argument is `false` (defaults to `true`).
 //
 // ```javascript

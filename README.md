@@ -38,7 +38,7 @@ npm install prosemirror-utils
    ```
 
 
- * **`findParentDomRef`**`(predicate: fn(node: ProseMirrorNode) → boolean, domAtPos: fn(pos: number) → {node: dom.Node, offset: number}) → fn(selection: Selection) → ?dom.Node`\
+ * **`findParentDomRef`**`(predicate: fn(node: ProseMirrorNode) → boolean, domAtPos: fn(pos: number) → {node: Node, offset: number}) → fn(selection: Selection) → ?Node`\
    Iterates over parent nodes, returning DOM reference of the closest node `predicate` returns truthy for.
 
    ```javascript
@@ -84,7 +84,7 @@ npm install prosemirror-utils
    ```
 
 
- * **`findParentDomRefOfType`**`(nodeType: NodeType | [NodeType], domAtPos: fn(pos: number) → {node: dom.Node, offset: number}) → fn(selection: Selection) → ?dom.Node`\
+ * **`findParentDomRefOfType`**`(nodeType: NodeType | [NodeType], domAtPos: fn(pos: number) → {node: Node, offset: number}) → fn(selection: Selection) → ?Node`\
    Iterates over parent nodes, returning DOM reference of the closest node of a given `nodeType`.
 
    ```javascript
@@ -124,7 +124,7 @@ npm install prosemirror-utils
    ```
 
 
- * **`findDomRefAtPos`**`(position: number, domAtPos: fn(pos: number) → {node: dom.Node, offset: number}) → dom.Node`\
+ * **`findDomRefAtPos`**`(position: number, domAtPos: fn(pos: number) → {node: Node, offset: number}) → Node`\
    Returns DOM reference of a node at a given `position`. If the node type is of type `TEXT_NODE` it will return the reference of the parent node.
 
    ```javascript
@@ -191,7 +191,7 @@ npm install prosemirror-utils
    ```
 
 
- * **`findChildrenByMark`**`(node: ProseMirrorNode, markType: markType, descend: ?boolean) → [{node: ProseMirrorNode, pos: number}]`\
+ * **`findChildrenByMark`**`(node: ProseMirrorNode, markType: MarkType, descend: ?boolean) → [{node: ProseMirrorNode, pos: number}]`\
    Iterates over descendants of a given `node`, returning child nodes that have a mark of a given markType. It doesn't descend into a `node` when descend argument is `false` (defaults to `true`).
 
    ```javascript

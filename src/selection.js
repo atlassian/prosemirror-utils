@@ -44,7 +44,7 @@ export const findParentNodeClosestToPos = ($pos, predicate) => {
   }
 };
 
-// :: (predicate: (node: ProseMirrorNode) → boolean, domAtPos: (pos: number) → {node: dom.Node, offset: number}) → (selection: Selection) → ?dom.Node
+// :: (predicate: (node: ProseMirrorNode) → boolean, domAtPos: (pos: number) → {node: Node, offset: number}) → (selection: Selection) → ?Node
 // Iterates over parent nodes, returning DOM reference of the closest node `predicate` returns truthy for.
 //
 // ```javascript
@@ -105,7 +105,7 @@ export const hasParentNodeOfType = nodeType => selection => {
   return hasParentNode(node => equalNodeType(nodeType, node))(selection);
 };
 
-// :: (nodeType: union<NodeType, [NodeType]>, domAtPos: (pos: number) → {node: dom.Node, offset: number}) → (selection: Selection) → ?dom.Node
+// :: (nodeType: union<NodeType, [NodeType]>, domAtPos: (pos: number) → {node: Node, offset: number}) → (selection: Selection) → ?Node
 // Iterates over parent nodes, returning DOM reference of the closest node of a given `nodeType`.
 //
 // ```javascript
@@ -157,7 +157,7 @@ export const findPositionOfNodeBefore = selection => {
   }
 };
 
-// :: (position: number, domAtPos: (pos: number) → {node: dom.Node, offset: number}) → dom.Node
+// :: (position: number, domAtPos: (pos: number) → {node: Node, offset: number}) → Node
 // Returns DOM reference of a node at a given `position`. If the node type is of type `TEXT_NODE` it will return the reference of the parent node.
 //
 // ```javascript
