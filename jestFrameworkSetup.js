@@ -1,4 +1,4 @@
-const diff = require('./node_modules/jest-diff');
+const diff = require('jest-diff');
 
 expect.extend({
   toEqualDocument(actual, expected) {
