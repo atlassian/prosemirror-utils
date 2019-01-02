@@ -355,10 +355,10 @@ describe('selection', () => {
       expect(ref instanceof HTMLParagraphElement).toBe(true);
     });
 
-    it('should return DOM reference of a text node when offset>0', () => {
+    it('should return DOM reference of a paragraph if cursor is inside of a text node', () => {
       const { view } = createEditor(doc(p(atomInline(), 'text')));
       const ref = findDomRefAtPos(3, view.domAtPos.bind(view));
-      expect(ref instanceof Text).toBe(true);
+      expect(ref instanceof HTMLParagraphElement).toBe(true);
     });
   });
 });
