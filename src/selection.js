@@ -167,5 +167,14 @@ export const findPositionOfNodeBefore = selection => {
 export const findDomRefAtPos = (position, domAtPos) => {
   const dom = domAtPos(position);
   const node = dom.node.childNodes[dom.offset];
-  return node && node.nodeType !== Node.TEXT_NODE ? node : dom.node;
+
+  if (dom.node.nodeType === Node.TEXT_NODE) {
+    return dom.node.parentNode;
+  }
+
+  if (!node || node.nodeType === Node.TEXT_NODE) {
+    return dom.node;
+  }
+
+  return node;
 };
