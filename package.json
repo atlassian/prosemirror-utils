@@ -1,6 +1,6 @@
 {
   "name": "prosemirror-utils",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "Utils library for ProseMirror",
   "main": "dist/index.js",
   "author": {
