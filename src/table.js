@@ -521,10 +521,28 @@ export const removeSelectedColumns = tr => {
         selection.$anchorCell.pos - table.start,
         selection.$headCell.pos - table.start
       );
-      for (let i = rect.right - 1; i >= rect.left; i--) {
-        tr = removeColumnAt(i)(tr);
+
+      if (rect.left == 0 && rect.right == map.width) {
+        return false;
       }
-      return tr;
+
+      const pmTableRect = Object.assign({}, rect, {
+        map,
+        table: table.node,
+        tableStart: table.start
+      });
+
+      for (let i = pmTableRect.right - 1; ; i--) {
+        removeColumn(tr, pmTableRect, i);
+        if (i === pmTableRect.left) {
+          break;
+        }
+        pmTableRect.table = pmTableRect.tableStart
+          ? tr.doc.nodeAt(pmTableRect.tableStart - 1)
+          : tr.doc;
+        pmTableRect.map = TableMap.get(pmTableRect.table);
+      }
+      return cloneTr(tr);
     }
   }
   return tr;
@@ -551,10 +569,29 @@ export const removeSelectedRows = tr => {
         selection.$anchorCell.pos - table.start,
         selection.$headCell.pos - table.start
       );
-      for (let i = rect.bottom - 1; i >= rect.top; i--) {
-        tr = removeRowAt(i)(tr);
+
+      if (rect.top == 0 && rect.bottom == map.height) {
+        return false;
       }
-      return tr;
+
+      const pmTableRect = Object.assign({}, rect, {
+        map,
+        table: table.node,
+        tableStart: table.start
+      });
+
+      for (let i = pmTableRect.bottom - 1; ; i--) {
+        removeRow(tr, pmTableRect, i);
+        if (i === pmTableRect.top) {
+          break;
+        }
+        pmTableRect.table = pmTableRect.tableStart
+          ? tr.doc.nodeAt(pmTableRect.tableStart - 1)
+          : tr.doc;
+        pmTableRect.map = TableMap.get(pmTableRect.table);
+      }
+
+      return cloneTr(tr);
     }
   }
   return tr;
