@@ -14,7 +14,8 @@ import {
   cloneTr,
   tableNodeTypes,
   findTableClosestToPos,
-  createCell
+  createCell,
+  isRectSelected
 } from './helpers';
 
 // :: (selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}
@@ -66,15 +67,13 @@ export const getSelectionRect = selection => {
 // ```
 export const isColumnSelected = columnIndex => selection => {
   if (isCellSelection(selection)) {
-    const rect = getSelectionRect(selection);
-    if (!rect) {
-      return false;
-    }
-    return (
-      selection.isColSelection() &&
-      columnIndex >= rect.left &&
-      columnIndex < rect.right
-    );
+    const map = TableMap.get(selection.$anchorCell.node(-1));
+    return isRectSelected({
+      left: columnIndex,
+      right: columnIndex + 1,
+      top: 0,
+      bottom: map.height
+    })(selection);
   }
 
   return false;
@@ -88,15 +87,13 @@ export const isColumnSelected = columnIndex => selection => {
 // ```
 export const isRowSelected = rowIndex => selection => {
   if (isCellSelection(selection)) {
-    const rect = getSelectionRect(selection);
-    if (!rect) {
-      return false;
-    }
-    return (
-      selection.isRowSelection() &&
-      rowIndex >= rect.top &&
-      rowIndex < rect.bottom
-    );
+    const map = TableMap.get(selection.$anchorCell.node(-1));
+    return isRectSelected({
+      left: 0,
+      right: map.width,
+      top: rowIndex,
+      bottom: rowIndex + 1
+    })(selection);
   }
 
   return false;
@@ -110,7 +107,13 @@ export const isRowSelected = rowIndex => selection => {
 // ```
 export const isTableSelected = selection => {
   if (isCellSelection(selection)) {
-    return selection.isColSelection() && selection.isRowSelection();
+    const map = TableMap.get(selection.$anchorCell.node(-1));
+    return isRectSelected({
+      left: 0,
+      right: map.width,
+      top: 0,
+      bottom: map.height
+    })(selection);
   }
 
   return false;

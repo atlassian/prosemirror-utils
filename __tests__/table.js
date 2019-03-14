@@ -128,6 +128,20 @@ describe('table', () => {
         expect(isColumnSelected(2)(selection)).toBe(false);
       });
     });
+
+    it('should return `true` if CellSelection spans all cells in a column', () => {
+      const {
+        state: { selection }
+      } = createEditor(
+        doc(
+          table(
+            row(tdEmpty, td(p('<head>')), tdEmpty),
+            row(td({ colspan: 3 }, p('')), td(p('<anchor>')), tdEmpty)
+          )
+        )
+      );
+      expect(isColumnSelected(1)(selection)).toBe(true);
+    });
   });
 
   describe('isRowSelected', () => {
@@ -182,6 +196,20 @@ describe('table', () => {
         expect(isRowSelected(1)(selection)).toBe(true);
         expect(isRowSelected(2)(selection)).toBe(false);
       });
+    });
+
+    it('should return `true` if CellSelection spans all cells in a row', () => {
+      const {
+        state: { selection }
+      } = createEditor(
+        doc(
+          table(
+            row(td({ rowspan: 2 }, p('')), tdEmpty, tdEmpty),
+            row(td(p('<head>')), td(p('<anchor>')))
+          )
+        )
+      );
+      expect(isRowSelected(1)(selection)).toBe(true);
     });
   });
 
