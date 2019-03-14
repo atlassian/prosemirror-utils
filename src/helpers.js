@@ -1,5 +1,6 @@
-import { NodeSelection, Selection } from 'prosemirror-state';
+import { NodeSelection } from 'prosemirror-state';
 import { Fragment, Node as PMNode } from 'prosemirror-model';
+import { TableMap } from 'prosemirror-tables';
 import { setTextSelection } from './transforms';
 import { findParentNodeClosestToPos } from './selection';
 
@@ -131,4 +132,26 @@ export const createCell = (cellType, cellContent = null) => {
   }
 
   return cellType.createAndFill();
+};
+
+// (rect: {left: number, right: number, top: number, bottom: number}) → (selection: Selection) → boolean
+// Checks if a given CellSelection rect is selected
+export const isRectSelected = rect => selection => {
+  const map = TableMap.get(selection.$anchorCell.node(-1));
+  const start = selection.$anchorCell.start(-1);
+  const cells = map.cellsInRect(rect);
+  const selectedCells = map.cellsInRect(
+    map.rectBetween(
+      selection.$anchorCell.pos - start,
+      selection.$headCell.pos - start
+    )
+  );
+
+  for (let i = 0, count = cells.length; i < count; i++) {
+    if (selectedCells.indexOf(cells[i]) === -1) {
+      return false;
+    }
+  }
+
+  return true;
 };
