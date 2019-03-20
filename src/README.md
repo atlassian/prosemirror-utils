@@ -92,6 +92,10 @@ npm install prosemirror-utils
 
 @addColumnAt
 
+@moveRow
+
+@moveColumn
+
 @addRowAt
 
 @cloneRowAt
@@ -149,6 +153,10 @@ npm install prosemirror-utils
 @removeNodeBefore
 
 @setTextSelection
+
+@convertTableNodeToArrayOfRows
+
+@convertArrayOfRowsToTableNode
 
 ## License
 
