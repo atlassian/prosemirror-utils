@@ -808,25 +808,29 @@ export const getSelectionRangeInColumn = columnIndex => tr => {
   // looking for selection start column (startIndex)
   for (let i = columnIndex; i >= 0; i--) {
     const cells = getCellsInColumn(i)(tr.selection);
-    cells.forEach(cell => {
-      let maybeEndIndex = cell.node.attrs.colspan + i - 1;
-      if (maybeEndIndex >= startIndex) {
-        startIndex = i;
-      }
-      if (maybeEndIndex > endIndex) {
-        endIndex = maybeEndIndex;
-      }
-    });
+    if (cells) {
+      cells.forEach(cell => {
+        let maybeEndIndex = cell.node.attrs.colspan + i - 1;
+        if (maybeEndIndex >= startIndex) {
+          startIndex = i;
+        }
+        if (maybeEndIndex > endIndex) {
+          endIndex = maybeEndIndex;
+        }
+      });
+    }
   }
   // looking for selection end column (endIndex)
   for (let i = columnIndex; i <= endIndex; i++) {
     const cells = getCellsInColumn(i)(tr.selection);
-    cells.forEach(cell => {
-      let maybeEndIndex = cell.node.attrs.colspan + i - 1;
-      if (cell.node.attrs.colspan > 1 && maybeEndIndex > endIndex) {
-        endIndex = maybeEndIndex;
-      }
-    });
+    if (cells) {
+      cells.forEach(cell => {
+        let maybeEndIndex = cell.node.attrs.colspan + i - 1;
+        if (cell.node.attrs.colspan > 1 && maybeEndIndex > endIndex) {
+          endIndex = maybeEndIndex;
+        }
+      });
+    }
   }
 
   // filter out columns without cells (where all rows have colspan > 1 in the same column)
