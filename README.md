@@ -334,6 +334,7 @@ npm install prosemirror-utils
    by default "tryToFit" is false, that means if you try to move a row to a place
    where we will need to split a row with merged cells it'll throw an exception, for example:
 
+   ```
         ____________________________
        |      |      |             |
     0  |  A1  |  B1  |     C1      |
@@ -344,6 +345,7 @@ npm install prosemirror-utils
        |      |      |      |  D1  |
     2  |  A3  |  B3  |  C2  |      |
        |______|______|______|______|
+   ```
 
    if you try to move the row 0 to the row index 1 with tryToFit false,
    it'll throw an exception since you can't split the row 1;
@@ -356,6 +358,7 @@ npm install prosemirror-utils
 
    for example, if you call the function using `moveRow(0, 1, { tryToFit: true })`
    the result will be:
+   ```
         ____________________________
        |      |             |      |
     0  |  A2  |     B2      |      |
@@ -366,6 +369,7 @@ npm install prosemirror-utils
        |      |      |             |
     2  |  A1  |  B1  |     C1      |
        |______|______|______ ______|
+   ```
 
    since we could put the row zero on index one,
    we pushed to the best place to fit the row index 0,
@@ -378,6 +382,7 @@ npm install prosemirror-utils
    place to fit using the origin and target index, for example:
 
 
+   ```
         ____________________________
        |      |      |             |
     0  |  A1  |  B1  |     C1      |
@@ -394,6 +399,7 @@ npm install prosemirror-utils
        |      |      |      |  D2  |
     4  |  A5  |  B5  |  C3  |      |
        |______|______|______|______|
+   ```
 
 
    If you try to move the row 0 to row index 4 with "tryToFit" enabled, by default,
@@ -401,6 +407,7 @@ npm install prosemirror-utils
    but you can override it using the "direction" option.
 
    -1: Always put the origin before the target
+   ```
         ____________________________
        |      |             |      |
     0  |  A2  |     B2      |      |
@@ -417,8 +424,10 @@ npm install prosemirror-utils
        |      |      |      |  D2  |
     4  |  A5  |  B5  |  C3  |      |
        |______|______|______|______|
+   ```
 
     0: Automatically decide the best place to fit
+   ```
         ____________________________
        |      |             |      |
     0  |  A2  |     B2      |      |
@@ -435,8 +444,10 @@ npm install prosemirror-utils
        |      |      |             |
     4  |  A1  |  B1  |     C1      |
        |______|______|______ ______|
+   ```
 
     1: Always put the origin after the target
+   ```
         ____________________________
        |      |             |      |
     0  |  A2  |     B2      |      |
@@ -453,6 +464,7 @@ npm install prosemirror-utils
        |      |      |             |
     4  |  A1  |  B1  |     C1      |
        |______|______|______ ______|
+   ```
 
    ```javascript
    dispatch(
@@ -467,6 +479,7 @@ npm install prosemirror-utils
    by default "tryToFit" is false, that means if you try to move a column to a place
    where we will need to split a column with merged cells it'll throw an exception, for example:
 
+   ```
       0      1         2
     ____________________________
    |      |      |             |
@@ -478,6 +491,7 @@ npm install prosemirror-utils
    |      |      |      |  D1  |
    |  A3  |  B3  |  C2  |      |
    |______|______|______|______|
+   ```
 
 
    if you try to move the column 0 to the column index 1 with tryToFit false,
@@ -492,6 +506,7 @@ npm install prosemirror-utils
    for example, if you call the function using `moveColumn(0, 1, { tryToFit: true })`
    the result will be:
 
+   ```
       0       1             2
    _____________________ _______
    |      |             |      |
@@ -503,6 +518,7 @@ npm install prosemirror-utils
    |      |      |  D1  |      |
    |  B3  |  C2  |      |  A3  |
    |______|______|______|______|
+   ```
 
    since we could put the column zero on index one,
    we pushed to the best place to fit the column 0, in this case, column index 2.
@@ -513,6 +529,7 @@ npm install prosemirror-utils
    place to fit using the origin and target index, for example:
 
 
+   ```
        0      1       2     3      4      5       6
      _________________________________________________
     |      |      |             |      |             |
@@ -524,6 +541,7 @@ npm install prosemirror-utils
     |      |      |      |  D1  |      |      |  G2  |
     |  A3  |  B3  |  C3  |      |  E3  |  F3  |      |
     |______|______|______|______|______|______|______|
+   ```
 
 
    If you try to move the column 0 to column index 5 with "tryToFit" enabled, by default,
@@ -532,6 +550,7 @@ npm install prosemirror-utils
 
    -1: Always put the origin before the target
 
+   ```
        0      1       2     3      4      5       6
      _________________________________________________
     |      |             |      |      |             |
@@ -543,9 +562,11 @@ npm install prosemirror-utils
     |      |      |  D1  |      |      |      |  G2  |
     |  B3  |  C3  |      |  A3  |  E3  |  F3  |      |
     |______|______|______|______|______|______|______|
+   ```
 
     0: Automatically decide the best place to fit
 
+   ```
        0      1       2     3      4      5       6
      _________________________________________________
     |      |             |      |             |      |
@@ -557,9 +578,11 @@ npm install prosemirror-utils
     |      |      |  D1  |      |      |  G2  |      |
     |  B3  |  C3  |      |  E3  |  F3  |      |  A3  |
     |______|______|______|______|______|______|______|
+   ```
 
     1: Always put the origin after the target
 
+   ```
        0      1       2     3      4      5       6
      _________________________________________________
     |      |             |      |             |      |
@@ -571,6 +594,7 @@ npm install prosemirror-utils
     |      |      |  D1  |      |      |  G2  |      |
     |  B3  |  C3  |      |  E3  |  F3  |      |  A3  |
     |______|______|______|______|______|______|______|
+   ```
 
    ```javascript
    dispatch(
