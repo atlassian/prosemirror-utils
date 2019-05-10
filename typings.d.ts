@@ -11,6 +11,8 @@ export type NodeWithPos = {pos: number, node: ProsemirrorNode};
 
 export type CellTransform = (cell: ContentNodeWithPos, tr: Transaction) => Transaction;
 
+export type MovementOptions = { tryToFit: boolean, direction?: -1 | 0 | 1 };
+
 // Selection
 export function findParentNode(predicate: Predicate): (selection: Selection) => ContentNodeWithPos | undefined;
 
@@ -82,6 +84,10 @@ export function emptyCell(cell: ContentNodeWithPos, schema: Schema): (tr: Transa
 
 export function addColumnAt(columnIndex: number): (tr: Transaction) => Transaction;
 
+export function moveRow(originRowIndex: number, targetRowIndex: number, options?: MovementOptions): (tr: Transaction) => Transaction;
+
+export function moveColumn(originColumnIndex: number, targetColumnIndex: number, options?: MovementOptions): (tr: Transaction) => Transaction;
+
 export function addRowAt(rowIndex: number, clonePreviousRow?: boolean): (tr: Transaction) => Transaction;
 
 export function cloneRowAt(cloneRowIndex: number): (tr: Transaction) => Transaction;
@@ -126,6 +132,10 @@ export function replaceParentNodeOfType(nodeType: NodeType | NodeType[], node: P
 export function removeSelectedNode(tr: Transaction): Transaction;
 
 export function replaceSelectedNode(node: ProsemirrorNode): (tr: Transaction) => Transaction;
+
+export function convertTableNodeToArrayOfRows(tableNode: ProsemirrorNode): ProsemirrorNode[];
+
+export function convertArrayOfRowsToTableNode(tableNode: ProsemirrorNode, tableArray: ProsemirrorNode[]): ProsemirrorNode;
 
 export function canInsert($pos: ResolvedPos, node: ProsemirrorNode | Fragment): boolean;
 
