@@ -189,6 +189,7 @@ export const transpose = array => {
 // into a matrix of rows and columns respecting merged cells,
 // for example this table will be convert to the below:
 //
+// ```
 //  ____________________________
 // |      |      |             |
 // |  A1  |  B1  |     C1      |
@@ -199,13 +200,16 @@ export const transpose = array => {
 // |      |      |      |  D1  |
 // |  A3  |  B3  |  C2  |      |
 // |______|______|______|______|
+// ```
 //
 //
+// ```javascript
 // array = [
 //   [A1, B1, C1, null],
 //   [A2, B2, null, D1],
 //   [A3. B3, C2, null],
 // ]
+// ```
 export const convertTableNodeToArrayOfRows = tableNode => {
   const map = TableMap.get(tableNode);
   const rows = [];
@@ -237,11 +241,15 @@ export const convertTableNodeToArrayOfRows = tableNode => {
 // into table node respecting merged cells and rows configurations,
 // for example this array will be convert to the table below:
 //
+// ```javascript
 // array = [
 //   [A1, B1, C1, null],
 //   [A2, B2, null, D1],
 //   [A3. B3, C2, null],
 // ]
+// ```
+//
+// ```
 //  ____________________________
 // |      |      |             |
 // |  A1  |  B1  |     C1      |
@@ -252,6 +260,7 @@ export const convertTableNodeToArrayOfRows = tableNode => {
 // |      |      |      |  D1  |
 // |  A3  |  B3  |  C2  |      |
 // |______|______|______|______|
+// ```
 //
 export const convertArrayOfRowsToTableNode = (tableNode, arrayOfNodes) => {
   const rowsPM = [];
