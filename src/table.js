@@ -210,41 +210,72 @@ export const getCellsInTable = selection => {
   }
 };
 
-// :: (columnIndex: number) → (tr: Transaction) → Transaction
+const select = type => (index, expand) => tr => {
+  const table = findTable(tr.selection);
+  const isRowSelection = type === 'row';
+  if (table) {
+    const map = TableMap.get(table.node);
+
+    // Check if the index is valid
+    if (index >= 0 && index < (isRowSelection ? map.height : map.width)) {
+      let $firstCell;
+
+      const lastCell = map.positionAt(
+        isRowSelection ? index : map.height - 1,
+        isRowSelection ? map.width - 1 : index,
+        table.node
+      );
+      const $lastCell = tr.doc.resolve(table.start + lastCell);
+
+      const createCellSelection = isRowSelection
+        ? CellSelection.rowSelection
+        : CellSelection.colSelection;
+
+      if (expand) {
+        const cell = findCellClosestToPos(tr.selection.$from);
+        if (cell) {
+          $firstCell = tr.doc.resolve(cell.pos);
+          return cloneTr(
+            tr.setSelection(createCellSelection($lastCell, $firstCell))
+          );
+        }
+      } else {
+        const firstCell = map.positionAt(
+          isRowSelection ? index : 0,
+          isRowSelection ? 0 : index,
+          table.node
+        );
+        $firstCell = tr.doc.resolve(table.start + firstCell);
+        return cloneTr(
+          tr.setSelection(createCellSelection($lastCell, $firstCell))
+        );
+      }
+    }
+  }
+  return tr;
+};
+
+// :: (columnIndex: number, expand: ?boolean) → (tr: Transaction) → Transaction
 // Returns a new transaction that creates a `CellSelection` on a column at index `columnIndex`.
+// Use the optional `expand` param to extend from current selection.
 //
 // ```javascript
 // dispatch(
 //   selectColumn(i)(state.tr)
 // );
 // ```
-export const selectColumn = columnIndex => tr => {
-  const cells = getCellsInColumn(columnIndex)(tr.selection);
-  if (cells) {
-    const $anchor = tr.doc.resolve(cells[0].pos);
-    const $head = tr.doc.resolve(cells[cells.length - 1].pos);
-    return cloneTr(tr.setSelection(new CellSelection($anchor, $head)));
-  }
-  return tr;
-};
+export const selectColumn = select('column');
 
-// :: (rowIndex: number) → (tr: Transaction) → Transaction
+// :: (rowIndex: number, expand: ?boolean) → (tr: Transaction) → Transaction
 // Returns a new transaction that creates a `CellSelection` on a column at index `rowIndex`.
+// Use the optional `expand` param to extend from current selection.
 //
 // ```javascript
 // dispatch(
 //   selectRow(i)(state.tr)
 // );
 // ```
-export const selectRow = rowIndex => tr => {
-  const cells = getCellsInRow(rowIndex)(tr.selection);
-  if (cells) {
-    const $anchor = tr.doc.resolve(cells[0].pos);
-    const $head = tr.doc.resolve(cells[cells.length - 1].pos);
-    return cloneTr(tr.setSelection(new CellSelection($anchor, $head)));
-  }
-  return tr;
-};
+export const selectRow = select('row');
 
 // :: (selection: Selection) → (tr: Transaction) → Transaction
 // Returns a new transaction that creates a `CellSelection` on the entire table.
@@ -257,9 +288,9 @@ export const selectRow = rowIndex => tr => {
 export const selectTable = tr => {
   const cells = getCellsInTable(tr.selection);
   if (cells) {
-    const $anchor = tr.doc.resolve(cells[0].pos);
-    const $head = tr.doc.resolve(cells[cells.length - 1].pos);
-    return cloneTr(tr.setSelection(new CellSelection($anchor, $head)));
+    const $firstCell = tr.doc.resolve(cells[0].pos);
+    const $lastCell = tr.doc.resolve(cells[cells.length - 1].pos);
+    return cloneTr(tr.setSelection(new CellSelection($lastCell, $firstCell)));
   }
   return tr;
 };
