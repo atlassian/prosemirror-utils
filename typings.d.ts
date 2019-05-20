@@ -74,9 +74,9 @@ export function getCellsInRow(rowIndex: number | number[]): (selection: Selectio
 
 export function getCellsInTable(selection: Selection): ContentNodeWithPos[] | undefined;
 
-export function selectColumn(columnIndex: number): (tr: Transaction) => Transaction;
+export function selectColumn(columnIndex: number, expand?: boolean): (tr: Transaction) => Transaction;
 
-export function selectRow(rowIndex: number): (tr: Transaction) => Transaction;
+export function selectRow(rowIndex: number, expand?: boolean): (tr: Transaction) => Transaction;
 
 export function selectTable(tr: Transaction): Transaction;
 

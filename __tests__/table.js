@@ -402,8 +402,48 @@ describe('table', () => {
       );
       const newTr = selectColumn(0)(tr);
       expect(newTr).not.toBe(tr);
-      expect(newTr.selection.$anchorCell.pos).toEqual(2);
-      expect(newTr.selection.$headCell.pos).toEqual(14);
+      expect(newTr.selection.$anchorCell.pos).toEqual(14);
+      expect(newTr.selection.$headCell.pos).toEqual(2);
+    });
+
+    describe('Expand', () => {
+      it('should return a new transaction that expands the existing selection', () => {
+        const {
+          state: { tr }
+        } = createEditor(
+          doc(
+            table(
+              row(td(p('1<head>')), tdEmpty, tdEmpty),
+              row(tdEmpty, tdEmpty, tdEmpty),
+              row(tdEmpty, td(p('2<anchor>')), tdEmpty)
+            )
+          )
+        );
+
+        const newTr = selectColumn(2, true)(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.selection.$anchorCell.pos).toEqual(40);
+        expect(newTr.selection.$headCell.pos).toEqual(2);
+      });
+
+      it('should return a new transaction that expands the existing text selection', () => {
+        const {
+          state: { tr }
+        } = createEditor(
+          doc(
+            table(
+              row(td(p('1')), tdEmpty, tdEmpty),
+              row(td(p('2<cursor>')), tdEmpty, td(p('3'))),
+              row(tdEmpty, tdEmpty, tdEmpty)
+            )
+          )
+        );
+
+        const newTr = selectColumn(2, true)(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.selection.$anchorCell.pos).toEqual(41);
+        expect(newTr.selection.$headCell.pos).toEqual(2);
+      });
     });
   });
 
@@ -428,8 +468,48 @@ describe('table', () => {
       );
       const newTr = selectRow(0)(tr);
       expect(newTr).not.toBe(tr);
-      expect(newTr.selection.$anchorCell.pos).toEqual(2);
-      expect(newTr.selection.$headCell.pos).toEqual(7);
+      expect(newTr.selection.$anchorCell.pos).toEqual(7);
+      expect(newTr.selection.$headCell.pos).toEqual(2);
+    });
+
+    describe('Expand', () => {
+      it('should return a new transaction that expands the existing selection', () => {
+        const {
+          state: { tr }
+        } = createEditor(
+          doc(
+            table(
+              row(td(p('1<head>')), tdEmpty, tdEmpty),
+              row(tdEmpty, tdEmpty, td(p('2<anchor>'))),
+              row(tdEmpty, tdEmpty, tdEmpty)
+            )
+          )
+        );
+
+        const newTr = selectRow(2, true)(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.selection.$anchorCell.pos).toEqual(40);
+        expect(newTr.selection.$headCell.pos).toEqual(2);
+      });
+
+      it('should return a new transaction that expands the existing text selection', () => {
+        const {
+          state: { tr }
+        } = createEditor(
+          doc(
+            table(
+              row(td(p('1')), td(p('2<cursor>')), tdEmpty),
+              row(tdEmpty, tdEmpty, td(p('3'))),
+              row(tdEmpty, tdEmpty, tdEmpty)
+            )
+          )
+        );
+
+        const newTr = selectRow(2, true)(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.selection.$anchorCell.pos).toEqual(41);
+        expect(newTr.selection.$headCell.pos).toEqual(2);
+      });
     });
   });
 
@@ -447,8 +527,8 @@ describe('table', () => {
       );
       const newTr = selectTable(tr);
       expect(newTr).not.toBe(tr);
-      expect(newTr.selection.$anchorCell.pos).toEqual(2);
-      expect(newTr.selection.$headCell.pos).toEqual(19);
+      expect(newTr.selection.$anchorCell.pos).toEqual(19);
+      expect(newTr.selection.$headCell.pos).toEqual(2);
     });
   });
 

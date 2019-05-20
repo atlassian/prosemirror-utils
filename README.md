@@ -277,8 +277,9 @@ npm install prosemirror-utils
    ```
 
 
- * **`selectColumn`**`(columnIndex: number) → fn(tr: Transaction) → Transaction`\
+ * **`selectColumn`**`(columnIndex: number, expand: ?boolean) → fn(tr: Transaction) → Transaction`\
    Returns a new transaction that creates a `CellSelection` on a column at index `columnIndex`.
+   Use the optional `expand` param to extend from current selection.
 
    ```javascript
    dispatch(
@@ -287,8 +288,9 @@ npm install prosemirror-utils
    ```
 
 
- * **`selectRow`**`(rowIndex: number) → fn(tr: Transaction) → Transaction`\
+ * **`selectRow`**`(rowIndex: number, expand: ?boolean) → fn(tr: Transaction) → Transaction`\
    Returns a new transaction that creates a `CellSelection` on a column at index `rowIndex`.
+   Use the optional `expand` param to extend from current selection.
 
    ```javascript
    dispatch(
