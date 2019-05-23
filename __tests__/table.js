@@ -389,6 +389,7 @@ describe('table', () => {
       const newTr = selectColumn(2)(tr);
       expect(tr).toBe(newTr);
     });
+
     it('should return a new transaction that selects a column at `columnIndex`', () => {
       const {
         state: { tr }
@@ -404,6 +405,38 @@ describe('table', () => {
       expect(newTr).not.toBe(tr);
       expect(newTr.selection.$anchorCell.pos).toEqual(14);
       expect(newTr.selection.$headCell.pos).toEqual(2);
+    });
+
+    /**
+     * Select the second column
+     *   ____________
+     *  |     |     |
+     *  |  1  |     |
+     *  |_____|     |
+     *  |     |     |
+     *  |  3  |  2  |
+     *  |_____|     |
+     *  |     |     |
+     *  |  4  |     |
+     *  |_____|_____|
+     */
+
+    it('should return a new transaction that selects a merged column at `rowIndex`', () => {
+      const {
+        state: { tr }
+      } = createEditor(
+        doc(
+          table(
+            row(td(p('1<cursor>')), td({ rowspan: 3 }, p('2'))),
+            row(td(p('3'))),
+            row(td(p('4')))
+          )
+        )
+      );
+      const newTr = selectColumn(1)(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.selection.$anchorCell.pos).toEqual(7);
+      expect(newTr.selection.$headCell.pos).toEqual(7);
     });
 
     describe('Expand', () => {
@@ -455,6 +488,7 @@ describe('table', () => {
       const newTr = selectRow(2)(tr);
       expect(tr).toBe(newTr);
     });
+
     it('should return a new transaction that selects a row at `rowIndex`', () => {
       const {
         state: { tr }
@@ -528,6 +562,24 @@ describe('table', () => {
       const newTr = selectTable(tr);
       expect(newTr).not.toBe(tr);
       expect(newTr.selection.$anchorCell.pos).toEqual(19);
+      expect(newTr.selection.$headCell.pos).toEqual(2);
+    });
+
+    it('should return a new transaction that selects the entire table when last cell is merged', () => {
+      const {
+        state: { tr }
+      } = createEditor(
+        doc(
+          table(
+            row(td(p('1<cursor>')), td({ rowspan: 3 }, p('2'))),
+            row(td(p('3'))),
+            row(td(p('4')))
+          )
+        )
+      );
+      const newTr = selectTable(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.selection.$anchorCell.pos).toEqual(7);
       expect(newTr.selection.$headCell.pos).toEqual(2);
     });
   });
