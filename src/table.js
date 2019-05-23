@@ -218,38 +218,50 @@ const select = type => (index, expand) => tr => {
 
     // Check if the index is valid
     if (index >= 0 && index < (isRowSelection ? map.height : map.width)) {
-      let $firstCell;
-
-      const lastCell = map.positionAt(
-        isRowSelection ? index : map.height - 1,
-        isRowSelection ? map.width - 1 : index,
-        table.node
-      );
-      const $lastCell = tr.doc.resolve(table.start + lastCell);
-
-      const createCellSelection = isRowSelection
-        ? CellSelection.rowSelection
-        : CellSelection.colSelection;
+      let left = isRowSelection ? 0 : index;
+      let top = isRowSelection ? index : 0;
+      let right = isRowSelection ? map.width : index + 1;
+      let bottom = isRowSelection ? index + 1 : map.height;
 
       if (expand) {
         const cell = findCellClosestToPos(tr.selection.$from);
-        if (cell) {
-          $firstCell = tr.doc.resolve(cell.pos);
-          return cloneTr(
-            tr.setSelection(createCellSelection($lastCell, $firstCell))
-          );
+        if (!cell) {
+          return tr;
         }
-      } else {
-        const firstCell = map.positionAt(
-          isRowSelection ? index : 0,
-          isRowSelection ? 0 : index,
-          table.node
-        );
-        $firstCell = tr.doc.resolve(table.start + firstCell);
-        return cloneTr(
-          tr.setSelection(createCellSelection($lastCell, $firstCell))
-        );
+
+        const selRect = map.findCell(cell.pos - table.start);
+        if (isRowSelection) {
+          top = Math.min(top, selRect.top);
+          bottom = Math.max(bottom, selRect.bottom);
+        } else {
+          left = Math.min(left, selRect.left);
+          right = Math.max(right, selRect.right);
+        }
       }
+
+      const cellsInFirstRow = map.cellsInRect({
+        left,
+        top,
+        right: isRowSelection ? right : left + 1,
+        bottom: isRowSelection ? top + 1 : bottom
+      });
+
+      const cellsInLastRow =
+        bottom - top === 1
+          ? cellsInFirstRow
+          : map.cellsInRect({
+              left: isRowSelection ? left : right - 1,
+              top: isRowSelection ? bottom - 1 : top,
+              right,
+              bottom
+            });
+
+      const head = table.start + cellsInFirstRow[0];
+      const anchor = table.start + cellsInLastRow[cellsInLastRow.length - 1];
+      const $head = tr.doc.resolve(head);
+      const $anchor = tr.doc.resolve(anchor);
+
+      return cloneTr(tr.setSelection(new CellSelection($anchor, $head)));
     }
   }
   return tr;
@@ -286,11 +298,17 @@ export const selectRow = select('row');
 // );
 // ```
 export const selectTable = tr => {
-  const cells = getCellsInTable(tr.selection);
-  if (cells) {
-    const $firstCell = tr.doc.resolve(cells[0].pos);
-    const $lastCell = tr.doc.resolve(cells[cells.length - 1].pos);
-    return cloneTr(tr.setSelection(new CellSelection($lastCell, $firstCell)));
+  const table = findTable(tr.selection);
+  if (table) {
+    const { map } = TableMap.get(table.node);
+    if (map && map.length) {
+      const head = table.start + map[0];
+      const anchor = table.start + map[map.length - 1];
+      const $head = tr.doc.resolve(head);
+      const $anchor = tr.doc.resolve(anchor);
+
+      return cloneTr(tr.setSelection(new CellSelection($anchor, $head)));
+    }
   }
   return tr;
 };
