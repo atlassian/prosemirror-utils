@@ -16,14 +16,27 @@ const atomInline = {
   inline: true,
   group: 'inline',
   atom: true,
+  attrs: {
+    color: { default: null }
+  },
   selectable: true,
   parseDOM: [
     {
-      tag: 'span[data-node-type="atomInline"]'
+      tag: 'span[data-node-type="atomInline"]',
+      getAttrs: dom => {
+        return {
+          color: dom.getAttribute('data-color')
+        };
+      }
     }
   ],
-  toDOM() {
-    return ['span', { 'data-node-type': 'atomInline' }];
+  toDOM(node) {
+    const { color } = node.attrs;
+    const attrs = {
+      'data-node-type': 'atomInline',
+      'data-color': color
+    };
+    return ['span', attrs];
   }
 };
 
@@ -31,14 +44,27 @@ const atomBlock = {
   inline: false,
   group: 'block',
   atom: true,
+  attrs: {
+    color: { default: null }
+  },
   selectable: true,
   parseDOM: [
     {
-      tag: 'div[data-node-type="atomBlock"]'
+      tag: 'div[data-node-type="atomBlock"]',
+      getAttrs: dom => {
+        return {
+          color: dom.getAttribute('data-color')
+        };
+      }
     }
   ],
-  toDOM() {
-    return ['div', { 'data-node-type': 'atomBlock' }];
+  toDOM(node) {
+    const { color } = node.attrs;
+    const attrs = {
+      'data-node-type': 'atomBlock',
+      'data-color': color
+    };
+    return ['div', attrs];
   }
 };
 

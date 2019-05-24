@@ -26,7 +26,8 @@ import {
   setParentNodeMarkup,
   selectParentNodeOfType,
   removeNodeBefore,
-  createTable
+  createTable,
+  isNodeSelection
 } from '../src';
 
 describe('transforms', () => {
@@ -257,19 +258,61 @@ describe('transforms', () => {
           );
           expect(newTr.selection.$from.parent.textContent).toEqual('new');
         });
-        it('should append a node if selection is a NodeSelection', () => {
-          const { state } = createEditor(doc(table(row(td(atomBlock())))));
-          const tr = state.tr.setSelection(NodeSelection.create(state.doc, 3));
-          const node = state.schema.nodes.paragraph.createChecked(
-            {},
-            state.schema.text('new')
+      });
+    });
+
+    describe('When selection is a NodeSelection', () => {
+      describe('when tryToReplace = true', () => {
+        it('should replace selected block node with the given block node', () => {
+          const { state } = createEditor(doc(atomBlock({ color: 'green' })));
+          const node = state.schema.nodes.atomBlock.createChecked({
+            color: 'red'
+          });
+          const tr = state.tr.setSelection(NodeSelection.create(state.doc, 0));
+          const newTr = safeInsert(node, undefined, true)(tr);
+          expect(newTr).not.toBe(tr);
+          expect(newTr.doc).toEqualDocument(doc(atomBlock({ color: 'red' })));
+          expect(isNodeSelection(newTr.selection)).toBe(true);
+        });
+
+        it('should replace selected inline node with the given inline node', () => {
+          const { state } = createEditor(
+            doc(p(atomInline({ color: 'green' })))
           );
+          const node = state.schema.nodes.atomInline.createChecked({
+            color: 'red'
+          });
+          const tr = state.tr.setSelection(NodeSelection.create(state.doc, 1));
+          const newTr = safeInsert(node, undefined, true)(tr);
+          expect(newTr).not.toBe(tr);
+          expect(newTr.doc).toEqualDocument(
+            doc(p(atomInline({ color: 'red' })))
+          );
+          expect(isNodeSelection(newTr.selection)).toBe(true);
+        });
+      });
+
+      describe('when tryToReplace = false', () => {
+        it('should append a node', () => {
+          const { state } = createEditor(
+            doc(table(row(td(atomBlock({ color: 'green' })))))
+          );
+          const tr = state.tr.setSelection(NodeSelection.create(state.doc, 3));
+          const node = state.schema.nodes.atomBlock.createChecked({
+            color: 'red'
+          });
           const newTr = safeInsert(node)(tr);
           expect(newTr).not.toBe(tr);
           expect(newTr.doc).toEqualDocument(
-            doc(table(row(td(atomBlock(), p('new')))))
+            doc(
+              table(
+                row(
+                  td(atomBlock({ color: 'green' }), atomBlock({ color: 'red' }))
+                )
+              )
+            )
           );
-          expect(newTr.selection.$from.parent.textContent).toEqual('new');
+          expect(isNodeSelection(newTr.selection)).toBe(true);
         });
       });
     });
@@ -310,11 +353,15 @@ describe('transforms', () => {
           const {
             state: { schema, tr }
           } = createEditor(doc(p('<cursor>')));
-          const node = schema.nodes.atomBlock.createChecked({});
+          const node = schema.nodes.atomBlock.createChecked({
+            color: 'yellow'
+          });
           const newTr = safeInsert(node)(tr);
           expect(newTr).not.toBe(tr);
-          expect(newTr.doc).toEqualDocument(doc(atomBlock()));
-          expect(newTr.selection.$from.pos).toEqual(0);
+          expect(newTr.doc).toEqualDocument(
+            doc(atomBlock({ color: 'yellow' }))
+          );
+          expect(isNodeSelection(newTr.selection)).toBe(true);
         });
       });
     });
