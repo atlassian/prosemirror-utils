@@ -69,7 +69,7 @@ export const removeSelectedNode = tr => {
 };
 
 // :: (node: ProseMirrorNode) → (tr: Transaction) → Transaction
-// Returns a new transaction that replaces selected node with a given `node`.
+// Returns a new transaction that replaces selected node with a given `node`, keeping NodeSelection on the new `node`.
 // It will return the original transaction if either current selection is not a NodeSelection or replacing is not possible.
 //
 // ```javascript
@@ -84,7 +84,12 @@ export const replaceSelectedNode = node => tr => {
     if (
       $from.parent.canReplaceWith($from.index(), $from.indexAfter(), node.type)
     ) {
-      return cloneTr(tr.replaceWith($from.pos, $to.pos, node));
+      return cloneTr(
+        tr
+          .replaceWith($from.pos, $to.pos, node)
+          // restore node selection
+          .setSelection(new NodeSelection($from))
+      );
     }
   }
   return tr;
@@ -108,8 +113,9 @@ export const setTextSelection = (position, dir = 1) => tr => {
   return tr;
 };
 
-// :: (content: union<ProseMirrorNode, Fragment>, position: ?number) → (tr: Transaction) → Transaction
+// :: (content: union<ProseMirrorNode, Fragment>, position: ?number, tryToReplace?: boolean) → (tr: Transaction) → Transaction
 // Returns a new transaction that inserts a given `content` at the current cursor position, or at a given `position`, if it is allowed by schema. If schema restricts such nesting, it will try to find an appropriate place for a given node in the document, looping through parent nodes up until the root document node.
+// If `tryToReplace` is true and current selection is a NodeSelection, it will replace selected node with inserted content if its allowed by schema.
 // If cursor is inside of an empty paragraph, it will try to replace that paragraph with the given content. If insertion is successful and inserted node has content, it will set cursor inside of that content.
 // It will return an original transaction if the place for insertion hasn't been found.
 //
@@ -119,15 +125,24 @@ export const setTextSelection = (position, dir = 1) => tr => {
 //   safeInsert(node)(tr)
 // );
 // ```
-export const safeInsert = (content, position) => tr => {
+export const safeInsert = (content, position, tryToReplace) => tr => {
   const hasPosition = typeof position === 'number';
   const { $from } = tr.selection;
   const $insertPos = hasPosition
     ? tr.doc.resolve(position)
     : isNodeSelection(tr.selection)
-      ? tr.doc.resolve($from.pos + 1)
-      : $from;
+    ? tr.doc.resolve($from.pos + 1)
+    : $from;
   const { parent, depth } = $insertPos;
+
+  // try to replace selected node
+  if (isNodeSelection(tr.selection) && tryToReplace) {
+    const oldTr = tr;
+    tr = replaceSelectedNode(content)(tr);
+    if (oldTr !== tr) {
+      return tr;
+    }
+  }
 
   // try to replace an empty paragraph
   if (isEmptyParagraph(parent)) {
