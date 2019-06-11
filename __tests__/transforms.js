@@ -379,6 +379,7 @@ describe('transforms', () => {
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(doc(p('new'), p('one'), p('two')));
         expect(newTr.selection.$from.parent.textContent).toEqual('new');
+        expect(!!newTr.selection.$cursor).toBe(true);
       });
       it('should insert a Fragment at position 0 (start of the doc) and move cursor inside of the new paragraph', () => {
         const {
@@ -392,6 +393,7 @@ describe('transforms', () => {
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(doc(p('new'), p('one'), p('two')));
         expect(newTr.selection.$from.parent.textContent).toEqual('new');
+        expect(!!newTr.selection.$cursor).toBe(true);
       });
       it('should insert a node at position 1 and move cursor inside of the new paragraph', () => {
         const {
@@ -405,6 +407,7 @@ describe('transforms', () => {
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
         expect(newTr.selection.$from.parent.textContent).toEqual('new');
+        expect(!!newTr.selection.$cursor).toBe(true);
       });
       it('should insert a node at position in between two nodes and move cursor inside of the new paragraph', () => {
         const {
@@ -418,6 +421,7 @@ describe('transforms', () => {
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
         expect(newTr.selection.$from.parent.textContent).toEqual('new');
+        expect(!!newTr.selection.$cursor).toBe(true);
       });
     });
 
@@ -430,6 +434,7 @@ describe('transforms', () => {
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(doc(p('new')));
         expect(newTr.selection.head).toEqual(4);
+        expect(!!newTr.selection.$cursor).toBe(true);
       });
       it('should move cursor to the inserted paragraph', () => {
         const {
@@ -443,6 +448,7 @@ describe('transforms', () => {
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(doc(p('old'), p('new')));
         expect(newTr.selection.head).toEqual(6);
+        expect(!!newTr.selection.$cursor).toBe(true);
       });
       it('should move cursor to the first cell of the inserted table', () => {
         const {
@@ -462,6 +468,48 @@ describe('transforms', () => {
           )
         );
         expect(newTr.selection.head).toEqual(10);
+        expect(!!newTr.selection.$cursor).toBe(true);
+      });
+
+      it('should set NodeSelection when the node is selectable and inserted after the current node', () => {
+        const {
+          state: { tr, schema }
+        } = createEditor(doc(p('tex<cursor>t')));
+        const node = schema.nodes.atomBlock.createChecked({
+          color: 'red'
+        });
+        const newTr = safeInsert(node)(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(
+          doc(p('tex<cursor>t'), atomBlock({ color: 'red' }))
+        );
+        expect(isNodeSelection(newTr.selection)).toBe(true);
+      });
+
+      it('should set NodeSelection when the node is selectable and empty paragraph is replaced', () => {
+        const {
+          state: { tr, schema }
+        } = createEditor(doc(p('<cursor>')));
+        const node = schema.nodes.atomBlock.createChecked({
+          color: 'red'
+        });
+        const newTr = safeInsert(node)(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(doc(atomBlock({ color: 'red' })));
+        expect(isNodeSelection(newTr.selection)).toBe(true);
+      });
+
+      it('should set NodeSelection when the node is selectable and inserted at the given position', () => {
+        const {
+          state: { tr, schema }
+        } = createEditor(doc(p('<cursor>')));
+        const node = schema.nodes.atomInline.createChecked({
+          color: 'red'
+        });
+        const newTr = safeInsert(node)(tr);
+        expect(newTr).not.toBe(tr);
+        expect(newTr.doc).toEqualDocument(doc(p(atomInline({ color: 'red' }))));
+        expect(isNodeSelection(newTr.selection)).toBe(true);
       });
     });
   });
