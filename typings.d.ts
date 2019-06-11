@@ -139,7 +139,7 @@ export function convertArrayOfRowsToTableNode(tableNode: ProsemirrorNode, tableA
 
 export function canInsert($pos: ResolvedPos, node: ProsemirrorNode | Fragment): boolean;
 
-export function safeInsert(node: ProsemirrorNode | Fragment, position?: number): (tr: Transaction) => Transaction;
+export function safeInsert(node: ProsemirrorNode | Fragment, position?: number, tryToReplace?: boolean): (tr: Transaction) => Transaction;
 
 export function setParentNodeMarkup(nodeType: NodeType | NodeType[], type?: NodeType | null, attrs?: { [key: string]: any } | null, marks?: Mark[]): (tr: Transaction) => Transaction;
 
