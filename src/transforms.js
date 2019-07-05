@@ -121,9 +121,10 @@ export const setTextSelection = (position, dir = 1) => tr => {
 };
 
 const isSelectableNode = node => node.type && node.type.spec.selectable;
+const shouldSelectNode = node => isSelectableNode(node) && node.type.isLeaf;
 
 const setSelection = (node, pos, tr) => {
-  if (isSelectableNode(node)) {
+  if (shouldSelectNode(node)) {
     return tr.setSelection(new NodeSelection(tr.doc.resolve(pos)));
   }
   return setTextSelection(pos)(tr);

@@ -10,7 +10,6 @@ import {
   th,
   tdCursor,
   tdEmpty,
-  thEmpty,
   blockquote,
   atomInline,
   atomBlock
@@ -541,6 +540,26 @@ describe('transforms', () => {
       const newTr = replaceSelectedNode(node)(tr);
       expect(newTr).not.toBe(tr);
       expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
+    });
+
+    it('should replace selected node with the given `fragment`', () => {
+      const { state } = createEditor(doc(p('one'), p('test'), p('two')));
+      const tr = state.tr.setSelection(NodeSelection.create(state.doc, 5));
+      const fragment = Fragment.fromArray([
+        state.schema.nodes.paragraph.createChecked(
+          {},
+          state.schema.text('new')
+        ),
+        state.schema.nodes.paragraph.createChecked(
+          {},
+          state.schema.text('paragraphs')
+        )
+      ]);
+      const newTr = replaceSelectedNode(fragment)(tr);
+      expect(newTr).not.toBe(tr);
+      expect(newTr.doc).toEqualDocument(
+        doc(p('one'), p('new'), p('paragraphs'), p('two'))
+      );
     });
   });
 
