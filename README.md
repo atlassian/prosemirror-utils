@@ -822,7 +822,7 @@ npm install prosemirror-utils
    ```
 
 
- * **`replaceSelectedNode`**`(node: ProseMirrorNode) → fn(tr: Transaction) → Transaction`\
+ * **`replaceSelectedNode`**`(content: ProseMirrorNode | ProseMirrorFragment) → fn(tr: Transaction) → Transaction`\
    Returns a new transaction that replaces selected node with a given `node`, keeping NodeSelection on the new `node`.
    It will return the original transaction if either current selection is not a NodeSelection or replacing is not possible.
 

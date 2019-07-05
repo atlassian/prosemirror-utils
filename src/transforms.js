@@ -1,4 +1,5 @@
 import { NodeSelection, Selection } from 'prosemirror-state';
+import { Fragment } from 'prosemirror-model';
 import { findParentNodeOfType, findPositionOfNodeBefore } from './selection';
 import {
   cloneTr,
@@ -68,7 +69,7 @@ export const removeSelectedNode = tr => {
   return tr;
 };
 
-// :: (node: ProseMirrorNode) → (tr: Transaction) → Transaction
+// :: (content: union<ProseMirrorNode, ProseMirrorFragment>) → (tr: Transaction) → Transaction
 // Returns a new transaction that replaces selected node with a given `node`, keeping NodeSelection on the new `node`.
 // It will return the original transaction if either current selection is not a NodeSelection or replacing is not possible.
 //
@@ -78,17 +79,23 @@ export const removeSelectedNode = tr => {
 //   replaceSelectedNode(node)(tr)
 // );
 // ```
-export const replaceSelectedNode = node => tr => {
+export const replaceSelectedNode = content => tr => {
   if (isNodeSelection(tr.selection)) {
     const { $from, $to } = tr.selection;
     if (
-      $from.parent.canReplaceWith($from.index(), $from.indexAfter(), node.type)
+      (content instanceof Fragment &&
+        $from.parent.canReplace($from.index(), $from.indexAfter(), content)) ||
+      $from.parent.canReplaceWith(
+        $from.index(),
+        $from.indexAfter(),
+        content.type
+      )
     ) {
       return cloneTr(
         tr
-          .replaceWith($from.pos, $to.pos, node)
+          .replaceWith($from.pos, $to.pos, content)
           // restore node selection
-          .setSelection(new NodeSelection($from))
+          .setSelection(new NodeSelection(tr.doc.resolve($from.pos)))
       );
     }
   }

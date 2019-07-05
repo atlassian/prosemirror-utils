@@ -15,7 +15,7 @@ import {
   atomInline,
   atomBlock
 } from '../test-helpers';
-import { NodeSelection, TextSelection } from 'prosemirror-state';
+import { NodeSelection } from 'prosemirror-state';
 import { Fragment } from 'prosemirror-model';
 import {
   removeParentNodeOfType,
