@@ -7,7 +7,6 @@ import {
   removeRow
 } from 'prosemirror-tables';
 import { Selection } from 'prosemirror-state';
-import { Slice } from 'prosemirror-model';
 import { findParentNode, findParentNodeClosestToPos } from './selection';
 import { setTextSelection, safeInsert } from './transforms';
 import {
@@ -324,13 +323,9 @@ export const selectTable = tr => {
 // ```
 export const emptyCell = (cell, schema) => tr => {
   if (cell) {
-    const content = tableNodeTypes(schema).cell.createAndFill().content;
+    const { content } = tableNodeTypes(schema).cell.createAndFill();
     if (!cell.node.content.eq(content)) {
-      tr.replaceWith(
-        cell.pos,
-        cell.pos + cell.node.nodeSize - 1,
-        new Slice(content, 0, 0)
-      );
+      tr.replaceWith(cell.pos + 1, cell.pos + cell.node.nodeSize, content);
       return cloneTr(tr);
     }
   }
