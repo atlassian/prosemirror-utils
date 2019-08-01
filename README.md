@@ -621,13 +621,38 @@ npm install prosemirror-utils
    ```
 
 
- * **`cloneRowAt`**`(cloneRowIndex: number) → fn(tr: Transaction) → Transaction`\
-   Returns a new transaction that adds a new row after `cloneRowIndex`, cloning the row attributes at `cloneRowIndex`.
+ * **`copyRow`**`(insertNewRowIndex: number, rowToBeClonedIndex: number, options: ?CopyRowOptions) → fn(tr: Transaction) → Transaction`\
+   Returns a new transaction that adds a new row at index `insertNewRowIndex`.
+   Copying the cells from any row using `rowToBeClonedIndex`,
+   you can configure how that copy should working by the options:
 
    ```javascript
-   dispatch(
-     cloneRowAt(i)(state.tr)
-   );
+   options = {
+     /**
+      * if you want to keep the colspan from the cloned row,
+      * by default, it will split the cells.
+      *
+      */
+     keepColspan: false,
+     /**
+      * To keep the deprecated behavior from `cloneRowAt`
+      * that clones the row and increases the rowspan from the previous rows.
+      */
+     expandRowspanFromClonedRow: false
+     /**
+      * You can control what you want to do with the previous cells,
+      * for example, copy the background color when the last cell has a determinate value,
+      * or keep the content for any reason.
+      *
+      * It is not allowed to change the `colspan` or `rowspan` attributes.
+      * Those values will always be changed to the original value.
+      * You can use other flags to control it.
+      */
+     getNewCell: (copyFromPreviousCell) => cell,
+   }
+
+   That function doesn't take care about header rows, it will copy any row, if you need special rules
+   to header row, you need to check the table before copy the row.
    ```
 
 
@@ -955,6 +980,80 @@ npm install prosemirror-utils
    |      |      |      |  D1  |
    |  A3  |  B3  |  C2  |      |
    |______|______|______|______|
+   ```
+
+
+### Deprecated methods
+
+ * **`cloneRowAt`**`(cloneRowIndex: number) → fn(tr: Transaction) → Transaction`\
+   Returns a new transaction that adds a new row after `cloneRowIndex`, cloning the row attributes at `cloneRowIndex`.
+   This function is deprecated and will be removed on the next major version, to keep the same behavior please consider to use
+   the `copyRow` function with those params:
+
+   ```javascript
+   dispatch(
+     cloneRowAt(rowIndex)(tr)
+   );
+   ```
+
+   This will keep this result:
+
+   ```
+   ORIGINAL TABLE
+        ____________________________
+       |      |      |             |
+    0  |  A1  |  B1  |     C1      |
+       |______|______|______ ______|
+       |      |             |      |
+    1  |  A2  |     B2      |      |
+       |______|______ ______|      |
+       |      |      |      |  D1  |
+    2  |  A3  |  B3  |  C2  |      |
+       |______|______|______|______|
+       |      |             |      |
+    3  |  A4  |     B4      |      |
+       |______|______ ______|      |
+       |      |      |      |  D2  |
+    4  |  A5  |  B5  |  C3  |      |
+       |______|______|______|______|
+   ```
+
+   ```javascript
+   const rowIndexToClone = 3; // Add a new row at that position
+   const newRowIndexPosition = rowIndexToClone - 1;
+
+   dispatch(
+     copyRow(rowIndexToClone, newRowIndexPosition, {
+       keepColspan: true,
+       expandRowspanFromClonedRow: true
+     })(tr)
+   );
+   ```
+
+   This will add new row at index 3 but it will expand
+   the cell D1, so the new row will have only three new cells.
+
+   ```
+   RESULT
+        ____________________________
+       |      |      |             |
+    0  |  A1  |  B1  |     C1      |
+       |______|______|______ ______|
+       |      |             |      |
+    1  |  A2  |     B2      |      |
+       |______|______ ______|      |
+       |      |      |      |  D1  |
+    2  |  A3  |  B3  |  C2  |      |
+       |______|______|______|      |
+       |      |      |      |      |
+    3  |      |      |      |      |
+       |______|______|______|______|
+       |      |             |      |
+    4  |  A4  |     B4      |      |
+       |______|______ ______|      |
+       |      |      |      |  D2  |
+    5  |  A5  |  B5  |  C3  |      |
+       |______|______|______|______|
    ```
 
 

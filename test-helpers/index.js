@@ -71,3 +71,42 @@ testHelpers.createEditor = doc => {
 
   return { state, view, ...doc.tag };
 };
+
+testHelpers.createEditorFactory = () => {
+  let view;
+  let place;
+  afterEach(() => {
+    if (view) {
+      view.destroy();
+    }
+
+    if (place && place.parentNode) {
+      place.parentNode.removeChild(place);
+    }
+  });
+
+  return doc => {
+    if (view) {
+      view.destroy();
+    }
+
+    const opa = document.body;
+    while (opa.firstChild) {
+      opa.removeChild(opa.firstChild);
+    }
+
+    if (place && place.parentNode) {
+      place.parentNode.removeChild(place);
+    }
+
+    place = document.body.appendChild(document.createElement('div'));
+    const state = EditorState.create({
+      doc,
+      schema,
+      selection: initSelection(doc)
+    });
+    view = new EditorView(place, { state });
+
+    return { state, view, ...doc.tag };
+  };
+};

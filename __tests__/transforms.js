@@ -606,7 +606,8 @@ describe('transforms', () => {
             rowspan: 7,
             colwidth: null,
             pretty: true,
-            ugly: false
+            ugly: false,
+            background: false
           });
         }
       });

@@ -98,7 +98,7 @@ npm install prosemirror-utils
 
 @addRowAt
 
-@cloneRowAt
+@copyRow
 
 @removeColumnAt
 
@@ -157,6 +157,10 @@ npm install prosemirror-utils
 @convertTableNodeToArrayOfRows
 
 @convertArrayOfRowsToTableNode
+
+### Deprecated methods
+
+@cloneRowAt
 
 ## License
 

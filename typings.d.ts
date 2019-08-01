@@ -13,6 +13,12 @@ export type CellTransform = (cell: ContentNodeWithPos, tr: Transaction) => Trans
 
 export type MovementOptions = { tryToFit: boolean, direction?: -1 | 0 | 1 };
 
+export type CopyRowOptions = {
+  keepColspan?: boolean,
+  expandRowspanFromClonedRow?: boolean,
+  getNewCell?: (previousCellNode: ProsemirrorNode) => ProsemirrorNode,
+};
+
 // Selection
 export function findParentNode(predicate: Predicate): (selection: Selection) => ContentNodeWithPos | undefined;
 
@@ -91,6 +97,8 @@ export function moveColumn(originColumnIndex: number, targetColumnIndex: number,
 export function addRowAt(rowIndex: number, clonePreviousRow?: boolean): (tr: Transaction) => Transaction;
 
 export function cloneRowAt(cloneRowIndex: number): (tr: Transaction) => Transaction;
+
+export function copyRow(insertNewRowIndex: number, rowToBeClonedIndex: number, options?: CopyRowOptions): (tr: Transaction) => Transaction;
 
 export function removeColumnAt(columnIndex: number): (tr: Transaction) => Transaction;
 

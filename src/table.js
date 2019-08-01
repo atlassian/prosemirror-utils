@@ -17,7 +17,8 @@ import {
   isRectSelected,
   moveTableRow,
   moveTableColumn,
-  checkInvalidMovements
+  checkInvalidMovements,
+  convertTableNodeToArrayOfRows
 } from './helpers';
 
 // :: (selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}
@@ -720,6 +721,163 @@ export const moveColumn = (
   );
 };
 
+// :: (insertNewRowIndex: number, rowToBeClonedIndex: number, options?: CopyRowOptions) → (tr: Transaction) → Transaction
+// Returns a new transaction that adds a new row at index `insertNewRowIndex`.
+// Copying the cells from any row using `rowToBeClonedIndex`,
+// you can configure how that copy should working by the options:
+//
+// ```javascript
+// options = {
+//   /**
+//    * if you want to keep the colspan from the cloned row,
+//    * by default, it will split the cells.
+//    *
+//    */
+//   keepColspan: false,
+//   /**
+//    * To keep the deprecated behavior from `cloneRowAt`
+//    * that clones the row and increases the rowspan from the previous rows.
+//    */
+//   expandRowspanFromClonedRow: false
+//   /**
+//    * You can control what you want to do with the previous cells,
+//    * for example, copy the background color when the last cell has a determinate value,
+//    * or keep the content for any reason.
+//    *
+//    * It is not allowed to change the `colspan` or `rowspan` attributes.
+//    * Those values will always be changed to the original value.
+//    * You can use other flags to control it.
+//    */
+//   getNewCell: (copyFromPreviousCell) => cell,
+// }
+//
+// That function doesn't take care about header rows, it will copy any row, if you need special rules
+// to header row, you need to check the table before copy the row.
+// ```
+export const copyRow = (
+  insertNewRowIndex,
+  rowToBeClonedIndex,
+  options
+) => tr => {
+  const config = Object.assign(
+    {
+      keepColspan: false,
+      getNewCellAttributes: null,
+      expandRowspanFromClonedRow: false,
+      getNewCell: null
+    },
+    options
+  );
+  const {
+    getNewCellAttributes,
+    keepColspan,
+    expandRowspanFromClonedRow,
+    getNewCell
+  } = config;
+  const table = findTable(tr.selection);
+  if (!table) {
+    return tr;
+  }
+
+  const map = TableMap.get(table.node);
+  const copyRowIndex = rowToBeClonedIndex;
+
+  if (insertNewRowIndex < 0 || insertNewRowIndex > map.height) {
+    return tr;
+  }
+
+  const tableNode = table.node;
+  const tableNodes = tableNodeTypes(tableNode.type.schema);
+  const arrayOfRows = convertTableNodeToArrayOfRows(table.node);
+
+  const cellsInRow = map.cellsInRect({
+    left: 0,
+    right: map.width,
+    top: copyRowIndex,
+    bottom: copyRowIndex + 1
+  });
+  const offsetIndexPosition = copyRowIndex * map.width;
+  const offsetNextLineIndexPosition = insertNewRowIndex * map.width;
+  const cellsPositionsInOriginalRow = map.map.slice(
+    offsetIndexPosition,
+    offsetIndexPosition + map.width
+  );
+
+  const cellsPositionsInNextRow = map.map.slice(
+    offsetNextLineIndexPosition,
+    offsetNextLineIndexPosition + map.width
+  );
+
+  let cells = [];
+  let fixRowspans = [];
+  for (let i = 0; i < cellsPositionsInOriginalRow.length; ) {
+    const pos = cellsPositionsInOriginalRow[i];
+    const documentCellPos = pos + table.start;
+    const node = tr.doc.nodeAt(documentCellPos);
+    const defaultCell = tableNodes[node.type.spec.tableRole].createAndFill({});
+    const tableCell = tableNodes[node.type.spec.tableRole];
+    const tmpCell =
+      (getNewCell ? getNewCell(node.copy(node.content)) : defaultCell) ||
+      defaultCell;
+
+    const attributes = Object.assign(tmpCell.attrs, {
+      colspan: 1,
+      rowspan: 1
+    });
+
+    const newCell = tableCell.createAndFill(
+      attributes,
+      tmpCell.content,
+      tmpCell.marks
+    );
+
+    const updateRowspanFromPreviousRow =
+      expandRowspanFromClonedRow && node.attrs.rowspan > 1;
+
+    if (
+      updateRowspanFromPreviousRow ||
+      cellsPositionsInNextRow.indexOf(pos) > -1
+    ) {
+      fixRowspans.push({ pos: documentCellPos, node });
+    } else if (cellsInRow.indexOf(pos) > -1) {
+      if (keepColspan && node.attrs.colspan > 1) {
+        cells.push(
+          tableCell.createAndFill(
+            Object.assign(attributes, {
+              colspan: node.attrs.colspan
+            })
+          )
+        );
+        i = i + node.attrs.colspan;
+
+        continue;
+      }
+
+      cells.push(newCell);
+    } else {
+      cells.push(newCell);
+    }
+
+    i++;
+  }
+
+  fixRowspans.forEach(cell => {
+    tr = setCellAttrs(cell, {
+      rowspan: cell.node.attrs.rowspan + 1
+    })(tr);
+  });
+
+  const cloneRow = tableNode.child(copyRowIndex);
+  let rowPos = table.start;
+  for (let i = 0; i < insertNewRowIndex; i++) {
+    rowPos += tableNode.child(i).nodeSize;
+  }
+
+  return cloneTr(
+    safeInsert(tableNodes.row.create(cloneRow.attrs, cells), rowPos)(tr)
+  );
+};
+
 // :: (rowIndex: number, clonePreviousRow?: boolean) → (tr: Transaction) → Transaction
 // Returns a new transaction that adds a new row at index `rowIndex`. Optionally clone the previous row.
 //
@@ -737,13 +895,13 @@ export const moveColumn = (
 export const addRowAt = (rowIndex, clonePreviousRow) => tr => {
   const table = findTable(tr.selection);
   if (table) {
-    const map = TableMap.get(table.node);
-    const cloneRowIndex = rowIndex - 1;
-
-    if (clonePreviousRow && cloneRowIndex >= 0) {
-      return cloneTr(cloneRowAt(cloneRowIndex)(tr));
+    if (clonePreviousRow && rowIndex > 0) {
+      return cloneTr(
+        copyRow(rowIndex, rowIndex - 1, { keepColspan: true })(tr)
+      );
     }
 
+    const map = TableMap.get(table.node);
     if (rowIndex >= 0 && rowIndex <= map.height) {
       return cloneTr(
         addRow(
@@ -761,73 +919,82 @@ export const addRowAt = (rowIndex, clonePreviousRow) => tr => {
   return tr;
 };
 
+// @deprecated
 // :: (cloneRowIndex: number) → (tr: Transaction) → Transaction
 // Returns a new transaction that adds a new row after `cloneRowIndex`, cloning the row attributes at `cloneRowIndex`.
+// This function is deprecated and will be removed on the next major version, to keep the same behavior please consider to use
+// the `copyRow` function with those params:
 //
 // ```javascript
 // dispatch(
-//   cloneRowAt(i)(state.tr)
+//   cloneRowAt(rowIndex)(tr)
 // );
 // ```
+//
+// This will keep this result:
+//
+// ```
+// ORIGINAL TABLE
+//      ____________________________
+//     |      |      |             |
+//  0  |  A1  |  B1  |     C1      |
+//     |______|______|______ ______|
+//     |      |             |      |
+//  1  |  A2  |     B2      |      |
+//     |______|______ ______|      |
+//     |      |      |      |  D1  |
+//  2  |  A3  |  B3  |  C2  |      |
+//     |______|______|______|______|
+//     |      |             |      |
+//  3  |  A4  |     B4      |      |
+//     |______|______ ______|      |
+//     |      |      |      |  D2  |
+//  4  |  A5  |  B5  |  C3  |      |
+//     |______|______|______|______|
+// ```
+//
+// ```javascript
+// const rowIndexToClone = 3; // Add a new row at that position
+// const newRowIndexPosition = rowIndexToClone - 1;
+//
+// dispatch(
+//   copyRow(rowIndexToClone, newRowIndexPosition, {
+//     keepColspan: true,
+//     expandRowspanFromClonedRow: true
+//   })(tr)
+// );
+// ```
+//
+// This will add new row at index 3 but it will expand
+// the cell D1, so the new row will have only three new cells.
+//
+// ```
+// RESULT
+//      ____________________________
+//     |      |      |             |
+//  0  |  A1  |  B1  |     C1      |
+//     |______|______|______ ______|
+//     |      |             |      |
+//  1  |  A2  |     B2      |      |
+//     |______|______ ______|      |
+//     |      |      |      |  D1  |
+//  2  |  A3  |  B3  |  C2  |      |
+//     |______|______|______|      |
+//     |      |      |      |      |
+//  3  |      |      |      |      |
+//     |______|______|______|______|
+//     |      |             |      |
+//  4  |  A4  |     B4      |      |
+//     |______|______ ______|      |
+//     |      |      |      |  D2  |
+//  5  |  A5  |  B5  |  C3  |      |
+//     |______|______|______|______|
+// ```
 export const cloneRowAt = rowIndex => tr => {
-  const table = findTable(tr.selection);
-  if (table) {
-    const map = TableMap.get(table.node);
-
-    if (rowIndex >= 0 && rowIndex <= map.height) {
-      const tableNode = table.node;
-      const tableNodes = tableNodeTypes(tableNode.type.schema);
-
-      let rowPos = table.start;
-      for (let i = 0; i < rowIndex + 1; i++) {
-        rowPos += tableNode.child(i).nodeSize;
-      }
-
-      const cloneRow = tableNode.child(rowIndex);
-      // Re-create the same nodes with same attrs, dropping the node content.
-      let cells = [];
-      let rowWidth = 0;
-      cloneRow.forEach(cell => {
-        // If we're copying a row with rowspan somewhere, we dont want to copy that cell
-        // We'll increment its span below.
-        if (cell.attrs.rowspan === 1) {
-          rowWidth += cell.attrs.colspan;
-          cells.push(
-            tableNodes[cell.type.spec.tableRole].createAndFill(
-              cell.attrs,
-              cell.marks
-            )
-          );
-        }
-      });
-
-      // If a higher row spans past our clone row, bump the higher row to cover this new row too.
-      if (rowWidth < map.width) {
-        let rowSpanCells = [];
-        for (let i = rowIndex; i >= 0; i--) {
-          let foundCells = filterCellsInRow(i, (cell, tr) => {
-            const rowspan = cell.node.attrs.rowspan;
-            const spanRange = i + rowspan;
-            return rowspan > 1 && spanRange > rowIndex;
-          })(tr);
-          rowSpanCells.push(...foundCells);
-        }
-
-        if (rowSpanCells.length) {
-          rowSpanCells.forEach(cell => {
-            tr = setCellAttrs(cell, {
-              rowspan: cell.node.attrs.rowspan + 1
-            })(tr);
-          });
-        }
-      }
-
-      return safeInsert(tableNodes.row.create(cloneRow.attrs, cells), rowPos)(
-        tr
-      );
-    }
-  }
-  return tr;
+  return copyRow(rowIndex + 1, rowIndex, {
+    keepColspan: true,
+    expandRowspanFromClonedRow: true
+  })(tr);
 };
 
 // :: (columnIndex: number) → (tr: Transaction) → Transaction
