@@ -737,6 +737,10 @@ export const moveColumn = (
 //   /**
 //    * To keep the deprecated behavior from `cloneRowAt`
 //    * that clones the row and increases the rowspan from the previous rows.
+//    *
+//    * To use that flag `rowToBeClonedIndex` need to be the previous row,
+//    * that's means: (rowToBeClonedIndex === insertNewRowIndex - 1).
+//    * If is not the function will throw a error.
 //    */
 //   expandRowspanFromClonedRow: false
 //   /**
@@ -784,6 +788,14 @@ export const copyRow = (
 
   if (insertNewRowIndex < 0 || insertNewRowIndex > map.height) {
     return tr;
+  }
+
+  const isRowToCopyThePreviousOne =
+    rowToBeClonedIndex === insertNewRowIndex - 1;
+  if (expandRowspanFromClonedRow && !isRowToCopyThePreviousOne) {
+    throw Error(
+      `To use the \`expandRowspanFromClonedRow\` you must always copy from the previous row. rowToBeClonedIndex: ${rowToBeClonedIndex} insertNewRowIndex: ${insertNewRowIndex}`
+    );
   }
 
   const tableNode = table.node;

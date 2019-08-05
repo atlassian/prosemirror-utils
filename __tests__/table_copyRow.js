@@ -247,6 +247,14 @@ describe('table', () => {
         tr = editor.state.tr;
       });
 
+      describe('when the rowToBeClonedIndex is not the previous row', () => {
+        it('should throw an error', () => {
+          expect(() => {
+            copyRow(4, 1, { expandRowspanFromClonedRow: true })(tr);
+          }).toThrow();
+        });
+      });
+
       describe('with flag true', () => {
         it('should increase previous rowspan', () => {
           const newTr = copyRow(4, 3, { expandRowspanFromClonedRow: true })(tr);
