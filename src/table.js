@@ -724,7 +724,7 @@ export const moveColumn = (
 // :: (insertNewRowIndex: number, rowToBeClonedIndex: number, options?: CopyRowOptions) → (tr: Transaction) → Transaction
 // Returns a new transaction that adds a new row at index `insertNewRowIndex`.
 // Copying the cells from any row using `rowToBeClonedIndex`,
-// you can configure how that copy should working by the options:
+// you can configure how that copy should work by the options:
 //
 // ```javascript
 // options = {
