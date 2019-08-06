@@ -4,11 +4,30 @@ import { findParentNodeOfType, findPositionOfNodeBefore } from './selection';
 import {
   cloneTr,
   isNodeSelection,
-  replaceNodeAtPos,
   removeNodeAtPos,
   canInsert,
-  isEmptyParagraph
+  isEmptyParagraph,
+  canReplace
 } from './helpers';
+
+// (position: number, content: union<ProseMirrorNode, Fragment>) → (tr: Transaction) → Transaction
+// Returns a `replace` transaction that replaces a node at a given position with the given `content`.
+// It will return the original transaction if replacing is not possible.
+// `position` should point at the position immediately before the node.
+const replaceNodeAtPos = (position, content) => tr => {
+  const node = tr.doc.nodeAt(position);
+  const $pos = tr.doc.resolve(position);
+  if (canReplace($pos, content)) {
+    tr = tr.replaceWith(position, position + node.nodeSize, content);
+    const start = tr.selection.$from.pos - 1;
+    // put cursor inside of the inserted node
+    tr = setTextSelection(Math.max(start, 0), -1)(tr);
+    // move cursor to the start of the node
+    tr = setTextSelection(tr.selection.$from.start())(tr);
+    return cloneTr(tr);
+  }
+  return tr;
+};
 
 // :: (nodeType: union<NodeType, [NodeType]>) → (tr: Transaction) → Transaction
 // Returns a new transaction that removes a node of a given `nodeType`. It will return an original transaction if parent node hasn't been found.

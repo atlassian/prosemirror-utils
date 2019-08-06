@@ -12,13 +12,24 @@ import { setTextSelection, safeInsert } from './transforms';
 import {
   cloneTr,
   tableNodeTypes,
-  findTableClosestToPos,
   createCell,
   isRectSelected,
   moveTableRow,
   moveTableColumn,
   checkInvalidMovements
 } from './helpers';
+
+// ($pos: ResolvedPos) → ?{pos: number, start: number, node: ProseMirrorNode}
+// Iterates over parent nodes, returning a table node closest to a given `$pos`.
+//
+// ```javascript
+// const table = findTableClosestToPos(state.doc.resolve(10));
+// ```
+const findTableClosestToPos = $pos => {
+  const predicate = node =>
+    node.type.spec.tableRole && /table/i.test(node.type.spec.tableRole);
+  return findParentNodeClosestToPos($pos, predicate);
+};
 
 // :: (selection: Selection) → ?{pos: number, start: number, node: ProseMirrorNode}
 // Iterates over parent nodes, returning the closest table node.
