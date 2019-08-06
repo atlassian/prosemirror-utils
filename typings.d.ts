@@ -133,9 +133,9 @@ export function removeSelectedNode(tr: Transaction): Transaction;
 
 export function replaceSelectedNode(node: ProsemirrorNode): (tr: Transaction) => Transaction;
 
-export function convertTableNodeToArrayOfRows(tableNode: ProsemirrorNode): ProsemirrorNode[];
+export function convertTableNodeToArrayOfRows(tableNode: ProsemirrorNode): Array<Array<ProsemirrorNode | null>>;
 
-export function convertArrayOfRowsToTableNode(tableNode: ProsemirrorNode, tableArray: ProsemirrorNode[]): ProsemirrorNode;
+export function convertArrayOfRowsToTableNode(tableNode: ProsemirrorNode, tableArray: Array<Array<ProsemirrorNode | null>>): ProsemirrorNode;
 
 export function canInsert($pos: ResolvedPos, node: ProsemirrorNode | Fragment): boolean;
 
