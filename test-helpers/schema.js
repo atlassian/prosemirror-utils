@@ -8,7 +8,8 @@ const { table, table_cell, table_header, table_row } = tableNodes({
   cellContent: 'block+',
   cellAttributes: {
     pretty: { default: true },
-    ugly: { default: false }
+    ugly: { default: false },
+    background: { default: false }
   }
 });
 
