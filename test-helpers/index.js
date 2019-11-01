@@ -12,12 +12,15 @@ const resolveCell = (doc, tag) => {
 };
 
 const initSelection = doc => {
-  const { cursor, node } = doc.tag;
+  const { cursor, node, start, end } = doc.tag;
   if (node) {
     return new NodeSelection(doc.resolve(node));
   }
   if (typeof cursor === 'number') {
     return new TextSelection(doc.resolve(cursor));
+  }
+  if (typeof start === 'number' && typeof end === 'number') {
+    return new TextSelection(doc.resolve(start), doc.resolve(end));
   }
   const $anchor = resolveCell(doc, doc.tag.anchor);
   if ($anchor) {

@@ -56,6 +56,24 @@ describe('selection', () => {
       )(selection);
       expect(result).toBeUndefined();
     });
+    it('should return `undefined` if the whole selection doesnt share the same parent', () => {
+      const {
+        state: { schema, selection }
+      } = createEditor(doc(table(tr(td(p('<start>')))), p('<end>')));
+      const result = findParentNode(node => node.type === schema.nodes.table)(
+        selection
+      );
+      expect(result).toBeUndefined();
+    });
+    it('should return `table` if the whole selection is inside the table', () => {
+      const {
+        state: { schema, selection }
+      } = createEditor(doc(table(tr(td(p('<start>'), td(p('<end>')))))));
+      const { node } = findParentNode(node => node.type === schema.nodes.table)(
+        selection
+      );
+      expect(node.type.name).toEqual('table');
+    });
   });
 
   describe('findParentNodeClosestToPos', () => {

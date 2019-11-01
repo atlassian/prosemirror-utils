@@ -8,8 +8,24 @@ import { equalNodeType, isNodeSelection } from './helpers';
 // const predicate = node => node.type === schema.nodes.blockquote;
 // const parent = findParentNode(predicate)(selection);
 // ```
-export const findParentNode = predicate => ({ $from }) =>
-  findParentNodeClosestToPos($from, predicate);
+export const findParentNode = predicate => ({ $from, $to }) => {
+  // Check if parent are different
+  if ($from.parent !== $to.parent) {
+    // If they are, I need to find a common parent
+    let depth = 0;
+    while (depth < $from.depth && depth < $to.depth) {
+      if ($from.node(depth + 1) === $to.node(depth + 1)) {
+        depth = depth + 1;
+        continue;
+      }
+      break;
+    }
+    const pos = depth > 0 ? $from.before(depth) : 0;
+    return findParentNodeClosestToPos($from.doc.resolve(pos), predicate);
+  }
+
+  return findParentNodeClosestToPos($from, predicate);
+};
 
 // :: ($pos: ResolvedPos, predicate: (node: ProseMirrorNode) → boolean) → ?{pos: number, start: number, depth: number, node: ProseMirrorNode}
 // Iterates over parent nodes starting from the given `$pos`, returning the closest node and its start position `predicate` returns truthy for. `start` points to the start position of the node, `pos` points directly before the node.

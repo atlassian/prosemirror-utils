@@ -2,7 +2,11 @@
   "env": {
     "testing": {
       "presets":[
-        ["env"]
+        ["env", {
+          "targets": {
+            "node": 'current'
+          }
+        }]
       ]
     },
     "production": {
