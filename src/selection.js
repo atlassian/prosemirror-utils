@@ -12,16 +12,26 @@ export const findParentNode = predicate => ({ $from, $to }) => {
   // Check if parent are different
   if ($from.parent !== $to.parent) {
     // If they are, I need to find a common parent
-    let depth = 0;
-    while (depth < $from.depth && depth < $to.depth) {
-      if ($from.node(depth + 1) === $to.node(depth + 1)) {
-        depth = depth + 1;
-        continue;
+    let depth = Math.min($from.depth, $to.depth);
+    while (depth >= 0) {
+      const fromNode = $from.node(depth);
+      const toNode = $to.node(depth);
+      if (toNode === fromNode) {
+        // The have the same parent
+        if (predicate(fromNode)) {
+          // Check the predicate
+          return {
+            // Return the resolved pos
+            pos: depth > 0 ? $from.before(depth) : 0,
+            start: $from.start(depth),
+            depth: depth,
+            node: fromNode
+          };
+        }
       }
-      break;
+      depth = depth - 1; // Keep looking
     }
-    const pos = depth > 0 ? $from.before(depth) : 0;
-    return findParentNodeClosestToPos($from.doc.resolve(pos), predicate);
+    return;
   }
 
   return findParentNodeClosestToPos($from, predicate);

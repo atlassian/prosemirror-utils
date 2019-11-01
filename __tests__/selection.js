@@ -69,10 +69,10 @@ describe('selection', () => {
       const {
         state: { schema, selection }
       } = createEditor(doc(table(tr(td(p('<start>'), td(p('<end>')))))));
-      const { node } = findParentNode(node => node.type === schema.nodes.table)(
-        selection
-      );
-      expect(node.type.name).toEqual('table');
+      const { node } = findParentNode(
+        node => node.type === schema.nodes.table_row
+      )(selection);
+      expect(node.type.name).toEqual('table_row');
     });
   });
 
