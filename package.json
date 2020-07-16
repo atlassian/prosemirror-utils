@@ -3,6 +3,7 @@
   "version": "0.9.6",
   "description": "Utils library for ProseMirror",
   "main": "dist/index.js",
+  "module": "dist/index.esm.js",
   "author": {
     "name": "Eduard Shvedai",
     "email": "eshvedai@gmail.com",
