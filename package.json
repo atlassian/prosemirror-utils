@@ -48,7 +48,7 @@
   "peerDependencies": {
     "prosemirror-model": "^1.0.0",
     "prosemirror-state": "^1.0.1",
-    "prosemirror-tables": "^0.9.1"
+    "prosemirror-tables": "^1.1.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
