@@ -1,15 +1,12 @@
 import {
   createEditor,
+  code_block,
   doc,
+  hr,
   p,
+  heading as h1,
   strong,
-  table,
-  tr as row,
   containerWithRestrictedContent,
-  td,
-  th,
-  tdCursor,
-  tdEmpty,
   blockquote,
   atomInline,
   atomBlock
@@ -25,7 +22,6 @@ import {
   setParentNodeMarkup,
   selectParentNodeOfType,
   removeNodeBefore,
-  createTable,
   isNodeSelection
 } from '../src';
 
@@ -35,15 +31,15 @@ describe('transforms', () => {
       const {
         state: { schema, tr }
       } = createEditor(doc(p('<cursor>')));
-      const newTr = removeParentNodeOfType(schema.nodes.table)(tr);
+      const newTr = removeParentNodeOfType(schema.nodes.blockquote)(tr);
       expect(tr).toBe(newTr);
     });
-    describe('when there is a p("one") before the table node and p("two") after', () => {
-      it('should remove table and preserve p("one") and p("two")', () => {
+    describe('when there is a p("one") before the blockquote node and p("two") after', () => {
+      it('should remove blockquote and preserve p("one") and p("two")', () => {
         const {
           state: { schema, tr }
-        } = createEditor(doc(p('one'), table(row(tdCursor)), p('two')));
-        const newTr = removeParentNodeOfType(schema.nodes.table)(tr);
+        } = createEditor(doc(p('one'), blockquote(p('<cursor>')), p('two')));
+        const newTr = removeParentNodeOfType(schema.nodes.blockquote)(tr);
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(doc(p('one'), p('two')));
       });
@@ -60,15 +56,21 @@ describe('transforms', () => {
           {},
           schema.text('new')
         );
-        const newTr = replaceParentNodeOfType(schema.nodes.table, node)(tr);
+        const newTr = replaceParentNodeOfType(
+          schema.nodes.blockquote,
+          node
+        )(tr);
         expect(tr).toBe(newTr);
       });
       it('should return an original transaction if replacing is not possible', () => {
         const {
           state: { schema, tr }
-        } = createEditor(doc(p('one'), table(row(tdCursor)), p('two')));
+        } = createEditor(doc(p('one'), blockquote(p('<cursor>'))), p('two'));
         const node = schema.text('new');
-        const newTr = replaceParentNodeOfType(schema.nodes.table, node)(tr);
+        const newTr = replaceParentNodeOfType(
+          schema.nodes.blockquote,
+          node
+        )(tr);
         expect(tr).toBe(newTr);
       });
     });
@@ -86,16 +88,19 @@ describe('transforms', () => {
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('three')));
       });
-      describe('when there is a p("one") before the table node and p("two") after', () => {
-        it('should replace table with p("new"), preserve p("one") and p("two"), and put cursor inside of the new node', () => {
+      describe('when there is a p("one") before the blockquote node and p("two") after', () => {
+        it('should replace blockquote with p("new"), preserve p("one") and p("two"), and put cursor inside of the new node', () => {
           const {
             state: { schema, tr }
-          } = createEditor(doc(p('one'), table(row(tdCursor)), p('two')));
+          } = createEditor(doc(p('one'), blockquote(p('<cursor>')), p('two')));
           const node = schema.nodes.paragraph.createChecked(
             {},
             schema.text('new')
           );
-          const newTr = replaceParentNodeOfType(schema.nodes.table, node)(tr);
+          const newTr = replaceParentNodeOfType(
+            schema.nodes.blockquote,
+            node
+          )(tr);
           expect(newTr).not.toBe(tr);
           expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
           expect(newTr.selection.$from.pos).toEqual(6);
@@ -110,9 +115,10 @@ describe('transforms', () => {
             {},
             schema.text('new')
           );
-          const newTr = replaceParentNodeOfType(schema.nodes.paragraph, node)(
-            tr
-          );
+          const newTr = replaceParentNodeOfType(
+            schema.nodes.paragraph,
+            node
+          )(tr);
           expect(newTr).not.toBe(tr);
           expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
           expect(newTr.selection.$from.pos).toEqual(6);
@@ -124,12 +130,12 @@ describe('transforms', () => {
         const {
           state: { schema, tr }
         } = createEditor(
-          doc(p('one'), table(row(td(p('hello<cursor>there')))), p('two'))
+          doc(p('one'), blockquote(p('hello<cursor>there')), p('two'))
         );
-        const { paragraph, table: tableNode } = schema.nodes;
+        const { paragraph, blockquote: blockquoteNode } = schema.nodes;
         const node = paragraph.createChecked({}, schema.text('new'));
 
-        const newTr = replaceParentNodeOfType(tableNode, node)(tr);
+        const newTr = replaceParentNodeOfType(blockquoteNode, node)(tr);
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(doc(p('one'), p('new'), p('two')));
 
@@ -294,9 +300,9 @@ describe('transforms', () => {
       describe('when tryToReplace = false', () => {
         it('should append a node', () => {
           const { state } = createEditor(
-            doc(table(row(td(atomBlock({ color: 'green' })))))
+            doc(blockquote(atomBlock({ color: 'green' })))
           );
-          const tr = state.tr.setSelection(NodeSelection.create(state.doc, 3));
+          const tr = state.tr.setSelection(NodeSelection.create(state.doc, 1));
           const node = state.schema.nodes.atomBlock.createChecked({
             color: 'red'
           });
@@ -304,10 +310,9 @@ describe('transforms', () => {
           expect(newTr).not.toBe(tr);
           expect(newTr.doc).toEqualDocument(
             doc(
-              table(
-                row(
-                  td(atomBlock({ color: 'green' }), atomBlock({ color: 'red' }))
-                )
+              blockquote(
+                atomBlock({ color: 'green' }),
+                atomBlock({ color: 'red' })
               )
             )
           );
@@ -335,15 +340,15 @@ describe('transforms', () => {
       it("should replace an empty paragraph inside other node if it's allowed by schema", () => {
         const {
           state: { schema, tr }
-        } = createEditor(doc(table(row(td(p('<cursor>'))))));
-        const node = schema.nodes.blockquote.createChecked(
+        } = createEditor(doc(blockquote(p('<cursor>'))));
+        const node = schema.nodes.containerWithRestrictedContent.createChecked(
           {},
           schema.nodes.paragraph.createChecked({}, schema.text('two'))
         );
         const newTr = safeInsert(node)(tr);
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(
-          doc(table(row(td(blockquote(p('two'))))))
+          doc(blockquote(containerWithRestrictedContent(p('two'))))
         );
         expect(newTr.selection.$from.parent.textContent).toEqual('two');
       });
@@ -447,26 +452,6 @@ describe('transforms', () => {
         expect(newTr).not.toBe(tr);
         expect(newTr.doc).toEqualDocument(doc(p('old'), p('new')));
         expect(newTr.selection.head).toEqual(6);
-        expect(!!newTr.selection.$cursor).toBe(true);
-      });
-      it('should move cursor to the first cell of the inserted table', () => {
-        const {
-          state: { schema, tr }
-        } = createEditor(doc(p('tex<cursor>t')));
-        const node = createTable(schema);
-        const newTr = safeInsert(node)(tr);
-        expect(newTr).not.toBe(tr);
-        expect(newTr.doc).toEqualDocument(
-          doc(
-            p('text'),
-            table(
-              row(th(p('')), th(p('')), th(p(''))),
-              row(td(p('')), td(p('')), td(p(''))),
-              row(td(p('')), td(p('')), td(p('')))
-            )
-          )
-        );
-        expect(newTr.selection.head).toEqual(10);
         expect(!!newTr.selection.$cursor).toBe(true);
       });
 
@@ -578,35 +563,30 @@ describe('transforms', () => {
     it('should update nodeType', () => {
       const {
         state: { schema, tr }
-      } = createEditor(doc(table(row(td(p('text<cursor>'))))));
+      } = createEditor(doc(p('text<cursor>')));
       const newTr = setParentNodeMarkup(
-        schema.nodes.table_cell,
-        schema.nodes.table_header
+        schema.nodes.paragraph,
+        schema.nodes.code_block
       )(tr);
       expect(newTr).not.toBe(tr);
-      expect(newTr.doc).toEqualDocument(doc(table(row(th(p('text'))))));
+      expect(newTr.doc).toEqualDocument(doc(code_block('text')));
     });
 
     it('should update attributes', () => {
-      const { state } = createEditor(doc(table(row(td(p('text<cursor>'))))));
+      const { state } = createEditor(doc(h1('text<cursor>')));
       const {
         schema: {
-          nodes: { table_cell }
+          nodes: { heading }
         }
       } = state;
-      const newTr = setParentNodeMarkup(table_cell, null, {
-        colspan: 5,
-        rowspan: 7
+      const newTr = setParentNodeMarkup(heading, null, {
+        level: 5
       })(state.tr);
       expect(newTr).not.toBe(state.tr);
       newTr.doc.content.descendants(child => {
-        if (child.type === table_cell) {
+        if (child.type === heading) {
           expect(child.attrs).toEqual({
-            colspan: 5,
-            rowspan: 7,
-            colwidth: null,
-            pretty: true,
-            ugly: false
+            level: 5
           });
         }
       });
@@ -624,7 +604,7 @@ describe('transforms', () => {
       const {
         state: { tr, schema }
       } = createEditor(doc(p('one')));
-      const newTr = selectParentNodeOfType(schema.nodes.table)(tr);
+      const newTr = selectParentNodeOfType(schema.nodes.blockquote)(tr);
       expect(tr).toBe(newTr);
     });
     it('should return a new transaction that selects a parent node of a given `nodeType`', () => {
@@ -640,11 +620,11 @@ describe('transforms', () => {
         state: {
           tr,
           schema: {
-            nodes: { paragraph, table }
+            nodes: { paragraph, blockquote: blockquoteNode }
           }
         }
       } = createEditor(doc(p('one')));
-      const newTr = selectParentNodeOfType([table, paragraph])(tr);
+      const newTr = selectParentNodeOfType([blockquoteNode, paragraph])(tr);
       expect(newTr).not.toBe(tr);
       expect(newTr.selection.node.type.name).toEqual('paragraph');
     });
@@ -658,12 +638,10 @@ describe('transforms', () => {
       const newTr = removeNodeBefore(tr);
       expect(tr).toBe(newTr);
     });
-    it('should a new transaction that removes nodeBefore if its a table', () => {
+    it('should a new transaction that removes nodeBefore if its a hr', () => {
       const {
         state: { tr }
-      } = createEditor(
-        doc(p('one'), table(row(tdEmpty), row(tdEmpty)), '<cursor>', p('two'))
-      );
+      } = createEditor(doc(p('one'), hr(), '<cursor>', p('two')));
       const newTr = removeNodeBefore(tr);
       expect(newTr).not.toBe(tr);
       expect(newTr.doc).toEqualDocument(doc(p('one'), p('two')));
