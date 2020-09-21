@@ -3,6 +3,7 @@
 ### Changed
 
 - Removed prosemirror-tables dependecy
+- All util functions related to tables will be moved to `editor-tables`
 
 ## 0.9.6 (2018-08-07)
 
