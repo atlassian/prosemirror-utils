@@ -2,8 +2,11 @@
 
 ### Changed
 
-- Removed prosemirror-tables dependecy
-- All util functions related to tables will be moved to `editor-tables`
+- Breaking change; removed `prosemirror-tables` dependency
+
+All utility functions related to tables will be moved to `editor-tables`. A link will be added once it is publicly available.
+
+We are in the process of deprecating `promisemirror-tables` as the code has become increasingly difficult to maintain.
 
 ## 0.9.6 (2018-08-07)
 
