@@ -8,6 +8,51 @@ All utility functions related to tables will be moved to `editor-tables`. A link
 
 We are in the process of deprecating `promisemirror-tables` as the code has become increasingly difficult to maintain.
 
+The functions removed in this release are:
+
+* addColumnAt
+* addRowAt
+* cloneRowAt
+* convertArrayOfRowsToTableNode
+* convertTableNodeToArrayOfRows
+* createCell
+* createTable
+* emptyCell
+* findCellClosestToPos
+* findCellRectClosestToPos
+* findTable
+* findTableClosestToPos
+* forEachCellInColumn
+* forEachCellInRow
+* getCellsInColumn
+* getCellsInRow
+* getCellsInTable
+* getSelectionRangeInColumn
+* getSelectionRangeInRow
+* getSelectionRect
+* isCellSelection
+* isColumnSelected
+* isRectSelected
+* isRowSelected
+* isTableSelected
+* moveColumn
+* moveRow
+* moveTableColumn
+* moveTableRow
+* removeColumnAt
+* removeColumnClosestToPos
+* removeRowAt
+* removeRowClosestToPos
+* removeSelectedColumns
+* removeSelectedRows
+* removeTable
+* selectColumn
+* selectRow
+* selectTable
+* setCellAttrs
+* tableNodeTypes
+* transpose
+
 ## 0.9.6 (2018-08-07)
 
 ### Changed
