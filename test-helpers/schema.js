@@ -1,16 +1,15 @@
 import { Schema } from 'prosemirror-model';
 import { nodes, marks } from 'prosemirror-schema-basic';
-import { tableNodes } from 'prosemirror-tables';
 
-const { doc, paragraph, text, horizontal_rule: rule, blockquote } = nodes;
-const { table, table_cell, table_header, table_row } = tableNodes({
-  tableGroup: 'block',
-  cellContent: 'block+',
-  cellAttributes: {
-    pretty: { default: true },
-    ugly: { default: false }
-  }
-});
+const {
+  doc,
+  paragraph,
+  text,
+  horizontal_rule: rule,
+  blockquote,
+  heading,
+  code_block
+} = nodes;
 
 const atomInline = {
   inline: true,
@@ -99,17 +98,16 @@ const containerWithRestrictedContent = {
 export default new Schema({
   nodes: {
     doc,
+    heading,
     paragraph,
     text,
     atomInline,
     atomBlock,
     atomContainer,
     containerWithRestrictedContent,
-    table,
-    table_row,
-    table_cell,
-    table_header,
-    blockquote
+    blockquote,
+    rule,
+    code_block
   },
   marks
 });

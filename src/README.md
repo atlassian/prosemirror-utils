@@ -64,74 +64,6 @@ npm install prosemirror-utils
 
 @contains
 
-### Utils for working with `table`
-
-@findTable
-
-@isCellSelection
-
-@isColumnSelected
-
-@isRowSelected
-
-@isTableSelected
-
-@getCellsInColumn
-
-@getCellsInRow
-
-@getCellsInTable
-
-@selectColumn
-
-@selectRow
-
-@selectTable
-
-@emptyCell
-
-@addColumnAt
-
-@moveRow
-
-@moveColumn
-
-@addRowAt
-
-@cloneRowAt
-
-@removeColumnAt
-
-@removeRowAt
-
-@removeTable
-
-@removeSelectedColumns
-
-@removeSelectedRows
-
-@removeColumnClosestToPos
-
-@removeRowClosestToPos
-
-@findCellClosestToPos
-
-@findCellRectClosestToPos
-
-@forEachCellInColumn
-
-@forEachCellInRow
-
-@setCellAttrs
-
-@createTable
-
-@getSelectionRect
-
-@getSelectionRangeInColumn
-
-@getSelectionRangeInRow
-
 ### Utils for document transformation
 
 @removeParentNodeOfType
@@ -154,10 +86,6 @@ npm install prosemirror-utils
 
 @setTextSelection
 
-@convertTableNodeToArrayOfRows
-
-@convertArrayOfRowsToTableNode
-
 ## License
 
-* **Apache 2.0** : http://www.apache.org/licenses/LICENSE-2.0
+- **Apache 2.0** : http://www.apache.org/licenses/LICENSE-2.0
