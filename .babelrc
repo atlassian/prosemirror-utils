@@ -1,13 +1,21 @@
 {
   "env": {
     "testing": {
-      "presets":[
-        ["env"]
+      "plugins": ["@babel/plugin-transform-modules-commonjs"],
+      "presets": [
+        [
+          "@babel/preset-env",
+        ]
       ]
     },
     "production": {
-      "presets":[
-        ["env", { "modules": false }]
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "modules": false
+          }
+        ]
       ]
     }
   }
