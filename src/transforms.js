@@ -1,4 +1,4 @@
-import { NodeSelection, Selection } from 'prosemirror-state';
+import { NodeSelection } from 'prosemirror-state';
 import { Fragment } from 'prosemirror-model';
 import { findParentNodeOfType, findPositionOfNodeBefore } from './selection';
 import {
@@ -7,7 +7,8 @@ import {
   replaceNodeAtPos,
   removeNodeAtPos,
   canInsert,
-  isEmptyParagraph
+  isEmptyParagraph,
+  setTextSelection
 } from './helpers';
 
 // :: (nodeType: union<NodeType, [NodeType]>) → (tr: Transaction) → Transaction
@@ -98,24 +99,6 @@ export const replaceSelectedNode = content => tr => {
           .setSelection(new NodeSelection(tr.doc.resolve($from.pos)))
       );
     }
-  }
-  return tr;
-};
-
-// :: (position: number, dir: ?number) → (tr: Transaction) → Transaction
-// Returns a new transaction that tries to find a valid cursor selection starting at the given `position`
-// and searching back if `dir` is negative, and forward if positive.
-// If a valid cursor position hasn't been found, it will return the original transaction.
-//
-// ```javascript
-// dispatch(
-//   setTextSelection(5)(tr)
-// );
-// ```
-export const setTextSelection = (position, dir = 1) => tr => {
-  const nextSelection = Selection.findFrom(tr.doc.resolve(position), dir, true);
-  if (nextSelection) {
-    return tr.setSelection(nextSelection);
   }
   return tr;
 };

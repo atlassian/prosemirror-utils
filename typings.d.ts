@@ -1,4 +1,4 @@
-import { Node as ProsemirrorNode, Schema, NodeType, Mark, MarkType, ResolvedPos, Fragment } from 'prosemirror-model';
+import { Node as ProsemirrorNode, NodeType, Mark, MarkType, ResolvedPos, Fragment } from 'prosemirror-model';
 import { Selection, Transaction } from 'prosemirror-state';
 
 export type Predicate = (node: ProsemirrorNode) => boolean;
