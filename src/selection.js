@@ -121,7 +121,7 @@ export const findSelectedNodeOfType = nodeType => selection => {
   if (isNodeSelection(selection)) {
     const { node, $from } = selection;
     if (equalNodeType(nodeType, node)) {
-      return { node, pos: $from.pos, depth: $from.depth };
+      return { node, pos: $from.pos, depth: $from.depth, start: $from.start() };
     }
   }
 };
