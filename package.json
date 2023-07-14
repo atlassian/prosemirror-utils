@@ -6,6 +6,9 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
   "author": {
     "name": "Eduard Shvedai",
     "email": "eshvedai@gmail.com",
