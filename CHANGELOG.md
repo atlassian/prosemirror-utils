@@ -1,3 +1,9 @@
+## 1.1.1 (2023-07-14)
+
+# Changed
+
+Fix peerDependency issue on distribute packages
+
 ## 1.1.0 (2023-07-14)
 
 # Changed
