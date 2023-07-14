@@ -35,29 +35,20 @@
     "type": "git",
     "url": "git://github.com/atlassian/prosemirror-utils.git"
   },
-  "keywords": [
-    "ProseMirror",
-    "utils",
-    "helpers"
-  ],
+  "keywords": ["ProseMirror", "utils", "helpers"],
   "jest": {
     "preset": "ts-jest",
-    "setupFilesAfterEnv": [
-      "./jestFrameworkSetup.ts"
-    ],
+    "setupFilesAfterEnv": ["./jestFrameworkSetup.ts"],
     "testEnvironment": "jsdom"
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "lint": "eslint ./src/ --ext .ts --fix",
     "build": "./build.js",
     "build_all": "npm run build",
-    "test": "jest ./__tests__/*.ts",
+    "test": "jest",
     "test-ci": "NODE_ENV=testing jest --coverage && codecov",
-    "prepare": "npm run build_all",
-    "precommit": "lint-staged"
+    "prepare": "npm run build_all"
   },
   "peerDependencies": {
     "prosemirror-model": "^1.19.2",
@@ -86,10 +77,7 @@
     "typescript": "^5.1.6"
   },
   "lint-staged": {
-    "*.{js, md}": [
-      "prettier --write",
-      "git add"
-    ]
+    "*.{js, md}$": ["prettier --write"]
   },
   "prettier": {
     "singleQuote": true,
