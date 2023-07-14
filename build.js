@@ -24,3 +24,14 @@ esbuild.buildSync({
     ...Object.keys(pkg.peerDependencies || {}),
   ],
 });
+
+esbuild.buildSync({
+  format: 'esm',
+  bundle: true,
+  entryPoints: ['./src/index.ts'],
+  outfile: './dist/index.esm.js',
+  external: [
+    ...Object.keys(pkg.dependencies || {}),
+    ...Object.keys(pkg.peerDependencies || {}),
+  ],
+});
