@@ -1,12 +1,14 @@
 import type { Node as PMNode, NodeType, Fragment } from 'prosemirror-model';
 
-export type ContentNodeWithPos = {
+export type NodeWithPos = {
   pos: number;
-  start: number;
-  depth: number;
   node: PMNode;
 };
-export type NodeWithPos = ContentNodeWithPos;
+
+export type ContentNodeWithPos = {
+  start: number;
+  depth: number;
+} & NodeWithPos;
 
 export type DomAtPos = (pos: number) => { node: Node; offset: number };
 export type FindPredicate = (node: PMNode) => boolean;
