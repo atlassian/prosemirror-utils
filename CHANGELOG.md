@@ -1,3 +1,9 @@
+## 1.1.2 (2023-07-14)
+
+# Changed
+
+Add esm format to the build output
+
 ## 1.1.1 (2023-07-14)
 
 # Changed
