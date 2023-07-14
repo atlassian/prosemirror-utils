@@ -8,6 +8,21 @@
 [![Downloads](https://img.shields.io/npm/dw/prosemirror-utils.svg?style=flat-square)](https://www.npmjs.com/package/prosemirror-utils)
 [![Code size](https://img.shields.io/github/languages/code-size/atlassian/prosemirror-utils.svg?style=flat-square)](https://www.npmjs.com/package/prosemirror-utils)
 
+
+## How to
+
+### Test
+
+```sh
+npm run test
+```
+
+### Build
+
+```sh
+npm run build_all
+```
+
 ## Quick Start
 
 Install `prosemirror-utils` package from npm:

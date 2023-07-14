@@ -1,9 +1,8 @@
-import { NodeSelection } from 'prosemirror-state';
-import { Fragment, Node as PMNode } from 'prosemirror-model';
+import { Selection, NodeSelection, type Transaction } from 'prosemirror-state';
+import { Fragment, Node as PMNode, type ResolvedPos } from 'prosemirror-model';
 import { setTextSelection } from './transforms';
-import { findParentNodeClosestToPos } from './selection';
+import type { NodeTypeParam, Content } from './types';
 
-// :: (selection: Selection) → boolean
 // Checks if current selection is a `NodeSelection`.
 //
 // ```javascript
@@ -11,47 +10,54 @@ import { findParentNodeClosestToPos } from './selection';
 //   // ...
 // }
 // ```
-export const isNodeSelection = selection => {
+export const isNodeSelection = (
+  selection: Selection
+): selection is NodeSelection => {
   return selection instanceof NodeSelection;
 };
 
-// (nodeType: union<NodeType, [NodeType]>) → boolean
 // Checks if the type a given `node` equals to a given `nodeType`.
-export const equalNodeType = (nodeType, node) => {
+export const equalNodeType = (
+  nodeType: NodeTypeParam,
+  node: PMNode
+): boolean => {
   return (
     (Array.isArray(nodeType) && nodeType.indexOf(node.type) > -1) ||
     node.type === nodeType
   );
 };
 
-// (tr: Transaction) → Transaction
 // Creates a new transaction object from a given transaction
-export const cloneTr = tr => {
+export const cloneTr = (tr: Transaction): Transaction => {
   return Object.assign(Object.create(tr), tr).setTime(Date.now());
 };
 
-// (position: number, content: union<ProseMirrorNode, Fragment>) → (tr: Transaction) → Transaction
 // Returns a `replace` transaction that replaces a node at a given position with the given `content`.
 // It will return the original transaction if replacing is not possible.
 // `position` should point at the position immediately before the node.
-export const replaceNodeAtPos = (position, content) => tr => {
-  const node = tr.doc.nodeAt(position);
-  const $pos = tr.doc.resolve(position);
-  if (canReplace($pos, content)) {
-    tr = tr.replaceWith(position, position + node.nodeSize, content);
-    const start = tr.selection.$from.pos - 1;
-    // put cursor inside of the inserted node
-    tr = setTextSelection(Math.max(start, 0), -1)(tr);
-    // move cursor to the start of the node
-    tr = setTextSelection(tr.selection.$from.start())(tr);
-    return cloneTr(tr);
-  }
-  return tr;
-};
+export const replaceNodeAtPos =
+  (position: number, content: Content) =>
+  (tr: Transaction): Transaction => {
+    const node = tr.doc.nodeAt(position);
+    const $pos = tr.doc.resolve(position);
+    if (!node) {
+      return tr;
+    }
 
-// ($pos: ResolvedPos, doc: ProseMirrorNode, content: union<ProseMirrorNode, Fragment>, ) → boolean
+    if (canReplace($pos, content)) {
+      tr = tr.replaceWith(position, position + node.nodeSize, content);
+      const start = tr.selection.$from.pos - 1;
+      // put cursor inside of the inserted node
+      tr = setTextSelection(Math.max(start, 0), -1)(tr);
+      // move cursor to the start of the node
+      tr = setTextSelection(tr.selection.$from.start())(tr);
+      return cloneTr(tr);
+    }
+    return tr;
+  };
+
 // Checks if replacing a node at a given `$pos` inside of the `doc` node with the given `content` is possible.
-export const canReplace = ($pos, content) => {
+export const canReplace = ($pos: ResolvedPos, content: Content): boolean => {
   const node = $pos.node($pos.depth);
   return (
     node &&
@@ -61,15 +67,19 @@ export const canReplace = ($pos, content) => {
   );
 };
 
-// (position: number) → (tr: Transaction) → Transaction
 // Returns a `delete` transaction that removes a node at a given position with the given `node`.
 // `position` should point at the position immediately before the node.
-export const removeNodeAtPos = position => tr => {
-  const node = tr.doc.nodeAt(position);
-  return cloneTr(tr.delete(position, position + node.nodeSize));
-};
+export const removeNodeAtPos =
+  (position: number) =>
+  (tr: Transaction): Transaction => {
+    const node = tr.doc.nodeAt(position);
+    if (!node) {
+      return tr;
+    }
 
-// :: ($pos: ResolvedPos, content: union<ProseMirrorNode, Fragment>) → boolean
+    return cloneTr(tr.delete(position, position + node.nodeSize));
+  };
+
 // Checks if a given `content` can be inserted at the given `$pos`
 //
 // ```javascript
@@ -79,7 +89,7 @@ export const removeNodeAtPos = position => tr => {
 //   // ...
 // }
 // ```
-export const canInsert = ($pos, content) => {
+export const canInsert = ($pos: ResolvedPos, content: Content): boolean => {
   const index = $pos.index();
 
   if (content instanceof Fragment) {
@@ -90,18 +100,17 @@ export const canInsert = ($pos, content) => {
   return false;
 };
 
-// (node: ProseMirrorNode) → boolean
 // Checks if a given `node` is an empty paragraph
-export const isEmptyParagraph = node => {
+export const isEmptyParagraph = (node: PMNode): boolean => {
   return !node || (node.type.name === 'paragraph' && node.nodeSize === 2);
 };
 
 export const checkInvalidMovements = (
-  originIndex,
-  targetIndex,
-  targets,
-  type
-) => {
+  originIndex: number,
+  targetIndex: number,
+  targets: number[],
+  type: unknown
+): boolean => {
   const direction = originIndex > targetIndex ? -1 : 1;
   const errorMessage = `Target position is invalid, you can't move the ${type} ${originIndex} to ${targetIndex}, the target can't be split. You could use tryToFit option.`;
 

@@ -1,13 +1,15 @@
-import { createEditor, doc, p, strong, atomInline } from '../test-helpers';
+import { createEditor, testHelpers } from '../test-helpers';
 import { Fragment } from 'prosemirror-model';
 import { canInsert, removeNodeAtPos } from '../src/helpers';
+
+const { doc, p, strong, atomInline } = testHelpers;
 
 describe('helpers', () => {
   describe('canInsert', () => {
     it('should return true if insertion of a given node is allowed at the current cursor position', () => {
       const { state } = createEditor(doc(p('one<cursor>')));
       const {
-        selection: { $from }
+        selection: { $from },
       } = state;
       const node = state.schema.nodes.atomInline.createChecked();
       expect(canInsert($from, node)).toBe(true);
@@ -16,7 +18,7 @@ describe('helpers', () => {
     it('should return true if insertion of a given Fragment is allowed at the current cursor position', () => {
       const { state } = createEditor(doc(p('one<cursor>')));
       const {
-        selection: { $from }
+        selection: { $from },
       } = state;
       const node = state.schema.nodes.atomInline.createChecked();
       expect(canInsert($from, Fragment.from(node))).toBe(true);
@@ -27,7 +29,7 @@ describe('helpers', () => {
         doc(p(strong('zero'), 'o<cursor>ne'), p('three'))
       );
       const {
-        selection: { $from }
+        selection: { $from },
       } = state;
       const node = state.schema.nodes.paragraph.createChecked(
         {},
@@ -41,7 +43,7 @@ describe('helpers', () => {
         doc(p(strong('zero'), 'o<cursor>ne'), p('three'))
       );
       const {
-        selection: { $from }
+        selection: { $from },
       } = state;
       const node = state.schema.nodes.paragraph.createChecked(
         {},
@@ -54,7 +56,7 @@ describe('helpers', () => {
   describe('removeNodeAtPos', () => {
     it('should remove a block top level node at the given position', () => {
       const {
-        state: { tr }
+        state: { tr },
       } = createEditor(doc(p('x'), p('one')));
       const newTr = removeNodeAtPos(3)(tr);
       expect(newTr).not.toBe(tr);
@@ -63,7 +65,7 @@ describe('helpers', () => {
 
     it('should remove a nested inline node at the given position', () => {
       const {
-        state: { tr }
+        state: { tr },
       } = createEditor(doc(p('one', atomInline())));
       const newTr = removeNodeAtPos(4)(tr);
       expect(newTr).not.toBe(tr);

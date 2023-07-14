@@ -1,12 +1,4 @@
-import {
-  blockquote,
-  createEditor,
-  code,
-  doc,
-  p,
-  atomInline,
-  strong
-} from '../test-helpers';
+import { createEditor, testHelpers } from '../test-helpers';
 import {
   flatten,
   findChildren,
@@ -15,8 +7,9 @@ import {
   findChildrenByAttr,
   findChildrenByType,
   findChildrenByMark,
-  contains
+  contains,
 } from '../src';
+const { blockquote, code, doc, p, atomInline, strong } = testHelpers;
 
 describe('node', () => {
   describe('flatten', () => {
@@ -28,9 +21,9 @@ describe('node', () => {
         const { state } = createEditor(
           doc(blockquote(blockquote(p()), blockquote(p()), blockquote(p())))
         );
-        const result = flatten(state.doc.firstChild, false);
+        const result = flatten(state.doc.firstChild!, false);
         expect(result.length).toEqual(3);
-        result.forEach(item => {
+        result.forEach((item) => {
           expect(Object.keys(item)).toEqual(['node', 'pos']);
           expect(typeof item.pos).toEqual('number');
           expect(item.node.type.name).toEqual('blockquote');
@@ -48,7 +41,7 @@ describe('node', () => {
             )
           )
         );
-        const result = flatten(state.doc.firstChild);
+        const result = flatten(state.doc.firstChild!);
         expect(result.length).toEqual(9);
       });
     });
@@ -60,19 +53,19 @@ describe('node', () => {
         doc(blockquote(p(), p(), blockquote(p()), code()))
       );
       const result = findChildren(
-        state.doc.firstChild,
-        node => node.type === state.schema.nodes.paragraph
+        state.doc.firstChild!,
+        (node) => node.type === state.schema.nodes.paragraph
       );
       expect(result.length).toEqual(3);
-      result.forEach(item => {
+      result.forEach((item) => {
         expect(item.node.type.name).toEqual('paragraph');
       });
     });
     it('should return an empty array if `predicate` returns falthy', () => {
       const { state } = createEditor(doc(blockquote(p())));
       const result = findChildren(
-        state.doc.firstChild,
-        node => node.type === state.schema.nodes.atomInline
+        state.doc.firstChild!,
+        (node) => node.type === state.schema.nodes.atomInline
       );
       expect(result.length).toEqual(0);
     });
@@ -81,16 +74,16 @@ describe('node', () => {
   describe('findTextNodes', () => {
     it('should return an empty array if a given node does not have text nodes', () => {
       const { state } = createEditor(doc(blockquote(p())));
-      const result = findTextNodes(state.doc.firstChild);
+      const result = findTextNodes(state.doc.firstChild!);
       expect(result.length).toEqual(0);
     });
     it('should return an array if text nodes of a given node', () => {
       const { state } = createEditor(
         doc(blockquote(p('one', atomInline(), 'two'), p('three')))
       );
-      const result = findTextNodes(state.doc.firstChild);
+      const result = findTextNodes(state.doc.firstChild!);
       expect(result.length).toEqual(3);
-      result.forEach(item => {
+      result.forEach((item) => {
         expect(item.node.isText).toBe(true);
       });
     });
@@ -99,14 +92,14 @@ describe('node', () => {
   describe('findBlockNodes', () => {
     it('should return an empty array if a given node does not have block nodes', () => {
       const { state } = createEditor(doc(p('')));
-      const result = findBlockNodes(state.doc.firstChild);
+      const result = findBlockNodes(state.doc.firstChild!);
       expect(result.length).toEqual(0);
     });
     it('should return an array if block nodes of a given node', () => {
       const { state } = createEditor(doc(blockquote(p(), p())));
       const result = findBlockNodes(state.doc);
       expect(result.length).toEqual(3);
-      result.forEach(item => {
+      result.forEach((item) => {
         expect(item.node.isBlock).toBe(true);
       });
     });
@@ -116,8 +109,8 @@ describe('node', () => {
     it('should return an empty array if a given node does not have nodes with the given attribute', () => {
       const { state } = createEditor(doc(p('')));
       const result = findChildrenByAttr(
-        state.doc.firstChild,
-        attrs => attrs && attrs.colspan === 2
+        state.doc.firstChild!,
+        (attrs) => attrs && attrs.colspan === 2
       );
       expect(result.length).toEqual(0);
     });
@@ -135,10 +128,10 @@ describe('node', () => {
       );
       const result = findChildrenByAttr(
         state.doc,
-        attrs => attrs.color === 'red'
+        (attrs) => attrs.color === 'red'
       );
       expect(result.length).toEqual(2);
-      result.forEach(item => {
+      result.forEach((item) => {
         expect(item.node.attrs.color).toEqual('red');
       });
     });
@@ -160,7 +153,7 @@ describe('node', () => {
         state.schema.nodes.paragraph
       );
       expect(result.length).toEqual(3);
-      result.forEach(item => {
+      result.forEach((item) => {
         expect(item.node.type.name).toEqual('paragraph');
       });
     });
@@ -181,7 +174,7 @@ describe('node', () => {
       );
       const result = findChildrenByMark(state.doc, state.schema.marks.strong);
       expect(result.length).toEqual(2);
-      result.forEach(item => {
+      result.forEach((item) => {
         expect(item.node.marks[0].type.name).toEqual('strong');
       });
     });

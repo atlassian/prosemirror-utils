@@ -1,4 +1,8 @@
-import { Schema } from 'prosemirror-model';
+import {
+  Schema,
+  type Node as PMNode,
+  type DOMOutputSpec,
+} from 'prosemirror-model';
 import { nodes, marks } from 'prosemirror-schema-basic';
 
 const {
@@ -8,35 +12,38 @@ const {
   horizontal_rule: rule,
   blockquote,
   heading,
-  code_block
+  code_block,
 } = nodes;
 
+type Attrs = {
+  [key: string]: unknown;
+};
 const atomInline = {
   inline: true,
   group: 'inline',
   atom: true,
   attrs: {
-    color: { default: null }
+    color: { default: null },
   },
   selectable: true,
   parseDOM: [
     {
       tag: 'span[data-node-type="atomInline"]',
-      getAttrs: dom => {
+      getAttrs: (dom: HTMLElement | string): Attrs => {
         return {
-          color: dom.getAttribute('data-color')
+          color: (dom as HTMLElement).getAttribute('data-color'),
         };
-      }
-    }
+      },
+    },
   ],
-  toDOM(node) {
+  toDOM(node: PMNode): DOMOutputSpec {
     const { color } = node.attrs;
     const attrs = {
       'data-node-type': 'atomInline',
-      'data-color': color
+      'data-color': color,
     };
     return ['span', attrs];
-  }
+  },
 };
 
 const atomBlock = {
@@ -44,27 +51,27 @@ const atomBlock = {
   group: 'block',
   atom: true,
   attrs: {
-    color: { default: null }
+    color: { default: null },
   },
   selectable: true,
   parseDOM: [
     {
       tag: 'div[data-node-type="atomBlock"]',
-      getAttrs: dom => {
+      getAttrs: (dom: HTMLElement | string): Attrs => {
         return {
-          color: dom.getAttribute('data-color')
+          color: (dom as HTMLElement).getAttribute('data-color'),
         };
-      }
-    }
+      },
+    },
   ],
-  toDOM(node) {
+  toDOM(node: PMNode): DOMOutputSpec {
     const { color } = node.attrs;
     const attrs = {
       'data-node-type': 'atomBlock',
-      'data-color': color
+      'data-color': color,
     };
     return ['div', attrs];
-  }
+  },
 };
 
 const atomContainer = {
@@ -73,12 +80,12 @@ const atomContainer = {
   content: 'atomBlock',
   parseDOM: [
     {
-      tag: 'div[data-node-type="atomBlockContainer"]'
-    }
+      tag: 'div[data-node-type="atomBlockContainer"]',
+    },
   ],
-  toDOM() {
+  toDOM(): DOMOutputSpec {
     return ['div', { 'data-node-type': 'atomBlockContainer' }];
-  }
+  },
 };
 
 const containerWithRestrictedContent = {
@@ -87,12 +94,12 @@ const containerWithRestrictedContent = {
   content: 'paragraph+',
   parseDOM: [
     {
-      tag: 'div[data-node-type="containerWithRestrictedContent"]'
-    }
+      tag: 'div[data-node-type="containerWithRestrictedContent"]',
+    },
   ],
-  toDOM() {
+  toDOM(): DOMOutputSpec {
     return ['div', { 'data-node-type': 'containerWithRestrictedContent' }];
-  }
+  },
 };
 
 export default new Schema({
@@ -107,7 +114,7 @@ export default new Schema({
     containerWithRestrictedContent,
     blockquote,
     rule,
-    code_block
+    code_block,
   },
-  marks
+  marks,
 });

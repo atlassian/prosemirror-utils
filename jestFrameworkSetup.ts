@@ -4,15 +4,15 @@ expect.extend({
   toEqualDocument(actual, expected) {
     const pass = this.equals(actual.toJSON(), expected.toJSON());
     const message = pass
-      ? () =>
+      ? (): string =>
           `${this.utils.matcherHint('.not.toEqualDocument')}\n\n` +
           `Expected JSON value of document to not equal:\n  ${this.utils.printExpected(
             expected
           )}\n` +
           `Actual JSON:\n  ${this.utils.printReceived(actual)}`
-      : () => {
+      : (): string => {
           const diffString = diff(expected, actual, {
-            expand: this.expand
+            expand: this.expand,
           });
           return (
             `${this.utils.matcherHint('.toEqualDocument')}\n\n` +
@@ -29,7 +29,7 @@ expect.extend({
       actual,
       expected,
       message,
-      name: 'toEqualDocument'
+      name: 'toEqualDocument',
     };
-  }
+  },
 });

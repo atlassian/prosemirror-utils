@@ -1,14 +1,23 @@
-// :: (node: ProseMirrorNode, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
+import { type Node as PMNode, MarkType, NodeType } from 'prosemirror-model';
+import type { Attrs } from './types';
+
+type FindChildrenAttrsPredicate = (attrs: Attrs) => boolean;
+type FindNodesResult = Array<{ node: PMNode; pos: number }>;
+type FindChildrenPredicate = (node: PMNode) => boolean;
+
 // Flattens descendants of a given `node`. It doesn't descend into a node when descend argument is `false` (defaults to `true`).
 //
 // ```javascript
 // const children = flatten(node);
 // ```
-export const flatten = (node, descend = true) => {
+export const flatten = (
+  node: PMNode,
+  descend: boolean = true
+): FindNodesResult => {
   if (!node) {
     throw new Error('Invalid "node" parameter');
   }
-  const result = [];
+  const result: FindNodesResult = [];
   node.descendants((child, pos) => {
     result.push({ node: child, pos });
     if (!descend) {
@@ -18,82 +27,103 @@ export const flatten = (node, descend = true) => {
   return result;
 };
 
-// :: (node: ProseMirrorNode, predicate: (node: ProseMirrorNode) → boolean, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Iterates over descendants of a given `node`, returning child nodes predicate returns truthy for. It doesn't descend into a node when descend argument is `false` (defaults to `true`).
 //
 // ```javascript
 // const textNodes = findChildren(node, child => child.isText, false);
 // ```
-export const findChildren = (node, predicate, descend) => {
+export const findChildren = (
+  node: PMNode,
+  predicate: FindChildrenPredicate,
+  descend: boolean = true
+): FindNodesResult => {
   if (!node) {
     throw new Error('Invalid "node" parameter');
   } else if (!predicate) {
     throw new Error('Invalid "predicate" parameter');
   }
-  return flatten(node, descend).filter(child => predicate(child.node));
+  return flatten(node, descend).filter((child) => predicate(child.node));
 };
 
-// :: (node: ProseMirrorNode, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Returns text nodes of a given `node`. It doesn't descend into a node when descend argument is `false` (defaults to `true`).
 //
 // ```javascript
 // const textNodes = findTextNodes(node);
 // ```
-export const findTextNodes = (node, descend) => {
-  return findChildren(node, child => child.isText, descend);
+export const findTextNodes = (
+  node: PMNode,
+  descend: boolean = true
+): FindNodesResult => {
+  return findChildren(node, (child) => child.isText, descend);
 };
 
-// :: (node: ProseMirrorNode, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Returns inline nodes of a given `node`. It doesn't descend into a node when descend argument is `false` (defaults to `true`).
 //
 // ```javascript
 // const inlineNodes = findInlineNodes(node);
 // ```
-export const findInlineNodes = (node, descend) => {
-  return findChildren(node, child => child.isInline, descend);
+export const findInlineNodes = (
+  node: PMNode,
+  descend: boolean = true
+): FindNodesResult => {
+  return findChildren(node, (child) => child.isInline, descend);
 };
 
-// :: (node: ProseMirrorNode, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Returns block descendants of a given `node`. It doesn't descend into a node when descend argument is `false` (defaults to `true`).
 //
 // ```javascript
 // const blockNodes = findBlockNodes(node);
 // ```
-export const findBlockNodes = (node, descend) => {
-  return findChildren(node, child => child.isBlock, descend);
+export const findBlockNodes = (
+  node: PMNode,
+  descend: boolean = true
+): FindNodesResult => {
+  return findChildren(node, (child) => child.isBlock, descend);
 };
 
-// :: (node: ProseMirrorNode, predicate: (attrs: ?Object) → boolean, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Iterates over descendants of a given `node`, returning child nodes predicate returns truthy for. It doesn't descend into a node when descend argument is `false` (defaults to `true`).
 //
 // ```javascript
 // const mergedCells = findChildrenByAttr(table, attrs => attrs.colspan === 2);
 // ```
-export const findChildrenByAttr = (node, predicate, descend) => {
-  return findChildren(node, child => !!predicate(child.attrs), descend);
+export const findChildrenByAttr = (
+  node: PMNode,
+  predicate: FindChildrenAttrsPredicate,
+  descend: boolean = true
+): FindNodesResult => {
+  return findChildren(node, (child) => !!predicate(child.attrs), descend);
 };
 
-// :: (node: ProseMirrorNode, nodeType: NodeType, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Iterates over descendants of a given `node`, returning child nodes of a given nodeType. It doesn't descend into a node when descend argument is `false` (defaults to `true`).
 //
 // ```javascript
 // const cells = findChildrenByType(table, schema.nodes.tableCell);
 // ```
-export const findChildrenByType = (node, nodeType, descend) => {
-  return findChildren(node, child => child.type === nodeType, descend);
+export const findChildrenByType = (
+  node: PMNode,
+  nodeType: NodeType,
+  descend: boolean = true
+): FindNodesResult => {
+  return findChildren(node, (child) => child.type === nodeType, descend);
 };
 
-// :: (node: ProseMirrorNode, markType: markType, descend: ?boolean) → [{ node: ProseMirrorNode, pos: number }]
 // Iterates over descendants of a given `node`, returning child nodes that have a mark of a given markType. It doesn't descend into a `node` when descend argument is `false` (defaults to `true`).
 //
 // ```javascript
 // const nodes = findChildrenByMark(state.doc, schema.marks.strong);
 // ```
-export const findChildrenByMark = (node, markType, descend) => {
-  return findChildren(node, child => markType.isInSet(child.marks), descend);
+export const findChildrenByMark = (
+  node: PMNode,
+  markType: MarkType,
+  descend: boolean = true
+): FindNodesResult => {
+  return findChildren(
+    node,
+    (child) => Boolean(markType.isInSet(child.marks)),
+    descend
+  );
 };
 
-// :: (node: ProseMirrorNode, nodeType: NodeType) → boolean
 // Returns `true` if a given node contains nodes of a given `nodeType`
 //
 // ```javascript
@@ -101,6 +131,6 @@ export const findChildrenByMark = (node, markType, descend) => {
 //   // ...
 // }
 // ```
-export const contains = (node, nodeType) => {
+export const contains = (node: PMNode, nodeType: NodeType): boolean => {
   return !!findChildrenByType(node, nodeType).length;
 };
