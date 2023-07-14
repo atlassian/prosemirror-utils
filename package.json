@@ -42,6 +42,7 @@
   "scripts": {
     "lint": "eslint ./src/ --ext .ts --fix",
     "build": "./build.js",
+    "build_all": "npm run build",
     "test": "jest ./__tests__/*.ts",
     "test-ci": "NODE_ENV=testing jest --coverage && codecov",
     "prepare": "npm run build_all",
