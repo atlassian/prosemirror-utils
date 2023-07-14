@@ -34,3 +34,10 @@ export {
   removeNodeBefore,
 } from './transforms';
 export { isNodeSelection, canInsert } from './helpers';
+export type {
+  DomAtPos,
+  NodeTypeParam,
+  Predicate,
+  NodeWithPos,
+  ContentNodeWithPos,
+} from './types';
