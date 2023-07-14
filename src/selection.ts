@@ -16,9 +16,12 @@ import { equalNodeType, isNodeSelection } from './helpers';
 // ```
 export const findParentNode =
   (predicate: FindPredicate) =>
-  ({ $from, $to }: Selection): FindResult => {
+  (
+    { $from, $to }: Selection,
+    validateSameParent: boolean = false
+  ): FindResult => {
     // Check if parent are different
-    if (!$from.sameParent($to)) {
+    if (validateSameParent && !$from.sameParent($to)) {
       // If they are, I need to find a common parent
       let depth = Math.min($from.depth, $to.depth);
       while (depth >= 0) {

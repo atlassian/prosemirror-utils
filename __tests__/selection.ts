@@ -376,7 +376,8 @@ describe('selection', () => {
       )
     );
     const result = findParentNode((node) => node.type.name === 'article')(
-      selection
+      selection,
+      true
     );
     expect(result).toBeUndefined();
   });
