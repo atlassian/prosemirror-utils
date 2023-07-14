@@ -7,6 +7,8 @@ import schema from './schema';
 type Tag = {
   cursor?: number;
   node?: number;
+  start?: number;
+  end?: number;
 };
 type Ref = {
   tag: Tag;
@@ -15,13 +17,16 @@ type DocumentTest = PMNode & Ref;
 const initSelection = (
   doc: DocumentTest
 ): TextSelection | NodeSelection | undefined => {
-  const { cursor, node } = doc.tag;
+  const { cursor, node, start, end } = doc.tag;
 
-  if (node) {
+  if (typeof node === 'number') {
     return new NodeSelection(doc.resolve(node));
   }
   if (typeof cursor === 'number') {
     return new TextSelection(doc.resolve(cursor));
+  }
+  if (typeof start === 'number' && typeof end === 'number') {
+    return new TextSelection(doc.resolve(start), doc.resolve(end));
   }
 };
 

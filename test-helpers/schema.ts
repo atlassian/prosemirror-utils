@@ -102,6 +102,34 @@ const containerWithRestrictedContent = {
   },
 };
 
+const article = {
+  inline: false,
+  group: 'block',
+  content: 'section*',
+  parseDOM: [
+    {
+      tag: 'article',
+    },
+  ],
+  toDOM(): DOMOutputSpec {
+    return ['article', 0];
+  },
+};
+
+const section = {
+  inline: false,
+  group: 'block',
+  content: 'paragraph*',
+  parseDOM: [
+    {
+      tag: 'section',
+    },
+  ],
+  toDOM(): DOMOutputSpec {
+    return ['section'];
+  },
+};
+
 export default new Schema({
   nodes: {
     doc,
@@ -115,6 +143,8 @@ export default new Schema({
     blockquote,
     rule,
     code_block,
+    article,
+    section,
   },
   marks,
 });

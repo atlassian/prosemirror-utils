@@ -14,8 +14,16 @@ import {
   findParentNodeOfTypeClosestToPos,
 } from '../src';
 
-const { doc, p, blockquote, atomContainer, atomInline, atomBlock } =
-  testHelpers;
+const {
+  doc,
+  p,
+  blockquote,
+  atomContainer,
+  atomInline,
+  atomBlock,
+  article,
+  section,
+} = testHelpers;
 
 describe('selection', () => {
   describe('findParentNode', () => {
@@ -356,5 +364,32 @@ describe('selection', () => {
       const ref = findDomRefAtPos(3, view.domAtPos.bind(view));
       expect(ref instanceof HTMLParagraphElement).toBe(true);
     });
+  });
+
+  it('should return `undefined` if the whole selection doesnt share the same parent', () => {
+    const {
+      state: { selection },
+    } = createEditor(
+      doc(
+        article(section(p('hello <start>')), section(p(' world'))),
+        p(' !!!!<end>')
+      )
+    );
+    const result = findParentNode((node) => node.type.name === 'article')(
+      selection
+    );
+    expect(result).toBeUndefined();
+  });
+
+  it('should return `section` if the whole selection is inside the section', () => {
+    const {
+      state: { selection },
+    } = createEditor(
+      doc(article(section(p('<start>hello'), p(' world<end>'))), p(' !!!!'))
+    );
+    const { node } = findParentNode((node) => node.type.name === 'section')(
+      selection
+    )!;
+    expect(node.type.name).toEqual('section');
   });
 });

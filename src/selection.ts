@@ -14,10 +14,41 @@ import { equalNodeType, isNodeSelection } from './helpers';
 // const predicate = node => node.type === schema.nodes.blockquote;
 // const parent = findParentNode(predicate)(selection);
 // ```
-export const findParentNode =
+export const findParentNode2 =
   (predicate: FindPredicate) =>
   ({ $from }: Selection): FindResult =>
     findParentNodeClosestToPos($from, predicate);
+
+export const findParentNode =
+  (predicate: FindPredicate) =>
+  ({ $from, $to }: Selection): FindResult => {
+    // Check if parent are different
+    if (!$from.sameParent($to)) {
+      // If they are, I need to find a common parent
+      let depth = Math.min($from.depth, $to.depth);
+      while (depth >= 0) {
+        const fromNode = $from.node(depth);
+        const toNode = $to.node(depth);
+        if (toNode === fromNode) {
+          // The have the same parent
+          if (predicate(fromNode)) {
+            // Check the predicate
+            return {
+              // Return the resolved pos
+              pos: depth > 0 ? $from.before(depth) : 0,
+              start: $from.start(depth),
+              depth: depth,
+              node: fromNode,
+            };
+          }
+        }
+        depth = depth - 1; // Keep looking
+      }
+      return;
+    }
+
+    return findParentNodeClosestToPos($from, predicate);
+  };
 
 // Iterates over parent nodes starting from the given `$pos`, returning the closest node and its start position `predicate` returns truthy for. `start` points to the start position of the node, `pos` points directly before the node.
 //
