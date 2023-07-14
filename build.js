@@ -5,7 +5,9 @@ import esbuild from 'esbuild';
 
 esbuild.buildSync({
   sourcemap: true,
+  platform: 'neutral',
   bundle: true,
+
   entryPoints: ['./src/index.ts'],
   outfile: './dist/index.js',
   external: [
@@ -16,7 +18,9 @@ esbuild.buildSync({
 
 esbuild.buildSync({
   format: 'cjs',
+  platform: 'neutral',
   bundle: true,
+  sourcemap: true,
   entryPoints: ['./src/index.ts'],
   outfile: './dist/index.cjs.js',
   external: [
@@ -27,7 +31,9 @@ esbuild.buildSync({
 
 esbuild.buildSync({
   format: 'esm',
+  platform: 'neutral',
   bundle: true,
+  sourcemap: true,
   entryPoints: ['./src/index.ts'],
   outfile: './dist/index.esm.js',
   external: [
