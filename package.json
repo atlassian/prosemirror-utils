@@ -2,10 +2,10 @@
   "name": "prosemirror-utils",
   "version": "1.1.5",
   "description": "Utils library for ProseMirror",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
   "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
   },
@@ -16,6 +16,7 @@
   },
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     }
@@ -52,8 +53,7 @@
   ],
   "scripts": {
     "lint": "eslint ./src/ --ext .ts --fix",
-    "build": "./build.js",
-    "build_all": "npm run build",
+    "build": "./build.js && tsc --project tsconfig.dist.json",
     "test": "jest",
     "test-ci": "NODE_ENV=testing jest --coverage && codecov",
     "prepare": "npm run build_all"

@@ -9,13 +9,11 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "emitDeclarationOnly": true,
+    "noFallthroughCasesInSwitch": true,
     "declaration": true,
-    "outDir": "./dist",
-    "noFallthroughCasesInSwitch": true
+    "emitDeclarationOnly": true,
+    "declarationDir": "./dist"
   },
   "include": ["src", "__tests__", "test-helpers"],
-  "files": [
-    "./typing.d.ts"
-  ]
+  "files": ["./typing.d.ts"]
 }

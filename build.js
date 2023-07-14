@@ -22,7 +22,8 @@ esbuild.buildSync({
   bundle: true,
   sourcemap: true,
   entryPoints: ['./src/index.ts'],
-  outfile: './dist/index.cjs.js',
+  // If use `type: module` in package.json, the extension of the output file should be `.cjs`
+  outfile: './dist/index.cjs',
   external: [
     ...Object.keys(pkg.dependencies || {}),
     ...Object.keys(pkg.peerDependencies || {}),
