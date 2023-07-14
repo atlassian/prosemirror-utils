@@ -1,6 +1,6 @@
 {
   "name": "prosemirror-utils",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Utils library for ProseMirror",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -35,13 +35,21 @@
     "type": "git",
     "url": "git://github.com/atlassian/prosemirror-utils.git"
   },
-  "keywords": ["ProseMirror", "utils", "helpers"],
+  "keywords": [
+    "ProseMirror",
+    "utils",
+    "helpers"
+  ],
   "jest": {
     "preset": "ts-jest",
-    "setupFilesAfterEnv": ["./jestFrameworkSetup.ts"],
+    "setupFilesAfterEnv": [
+      "./jestFrameworkSetup.ts"
+    ],
     "testEnvironment": "jsdom"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "lint": "eslint ./src/ --ext .ts --fix",
     "build": "./build.js",
@@ -78,7 +86,10 @@
     "typescript": "^5.1.6"
   },
   "lint-staged": {
-    "*.{js, md}": ["prettier --write", "git add"]
+    "*.{js, md}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "prettier": {
     "singleQuote": true,
