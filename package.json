@@ -56,7 +56,7 @@
     "build": "./build.js && tsc --project tsconfig.dist.json",
     "test": "jest",
     "test-ci": "NODE_ENV=testing jest --coverage && codecov",
-    "prepare": "npm run build_all"
+    "prepare": "npm run build"
   },
   "peerDependencies": {
     "prosemirror-model": "^1.19.2",
