@@ -14,11 +14,6 @@ import { equalNodeType, isNodeSelection } from './helpers';
 // const predicate = node => node.type === schema.nodes.blockquote;
 // const parent = findParentNode(predicate)(selection);
 // ```
-export const findParentNode2 =
-  (predicate: FindPredicate) =>
-  ({ $from }: Selection): FindResult =>
-    findParentNodeClosestToPos($from, predicate);
-
 export const findParentNode =
   (predicate: FindPredicate) =>
   ({ $from, $to }: Selection): FindResult => {
