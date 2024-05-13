@@ -1,3 +1,7 @@
+## 1.2.2 (2024-05-13)
+
+Fixing package version numbers.
+
 ## 1.2.1-0 (2023-07-14)
 
 findParentNode will not try to validate the parents by default
