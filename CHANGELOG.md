@@ -1,3 +1,7 @@
+## 1.2.1-0 (2023-07-14)
+
+findParentNode will not try to validate the parents by default
+
 ## 1.1.4 (2023-07-14)
 
 Fix build files
